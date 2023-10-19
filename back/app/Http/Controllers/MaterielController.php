@@ -78,34 +78,55 @@ class MaterielController extends Controller
      * Show the form for editing the specified resource.
      */
    
-    public function update(MaterielStoreRequest $request, string $id)
-    {
-        try{
-            //rechercher le matériel
-            $Materiel = Materiel::find($id);
-            if(!$Materiel){
+     public function update(MaterielStoreRequest $request, string $id)
+     {
+         try {
+             // Rechercher le matériel
+             $materiel = Materiel::find($id);
+     
+             if (!$materiel) {
+                 return response()->json([
+                     'message' => "Le matériel n'existe pas",
+                 ], 404);
+             }
+             else{
+                 // Valider les données du formulaire
+             $validator = Validator::make($request->all(), [
+                'type_materiel' => 'required|string',
+                'etat_materiel' => 'required|string',
+            ]);
+    
+            if ($validator->fails()) {
                 return response()->json([
-                    'message' => "le materiel n'existe pas"
-                ],404);
-
+                    'status' => 400,
+                    'error_list' => $validator->messages(),
+                ], 400);
             }
-        $Materiel->type_materiel = $request->type_materiel;
-        $Materiel->etat_materiel = $request->etat_materiel;
-        $Materiel->save();
-        return response()->json([
-            'message' => "Le matériel a été modifié avec succès",
-            'status' => 200,
-        ],200);
+            else{
+                
+                // Mettre à jour les informations du matériel
+                $materiel->type_materiel = $request->type_materiel;
+                $materiel->etat_materiel = $request->etat_materiel;
+                $materiel->save();
         
-
-        }catch(\Exception $e){
-            //message d'erreur
-            return response()->json([
-                'message' => "Le matériel a été modifié avec succès"
-            ],200); 
-            
+                return response()->json([
+                    'message' => "Le matériel a été modifié avec succès",
+                    'status' => 200,
+                ], 200);
+            }
         }
+        
+    } catch (\Exception $e) {
+        // Message d'erreur en cas d'exception
+        return response()->json([
+            'message' => "Une erreur est survenue lors de la modification du matériel",
+            'status' => 500,
+        ], 500);
     }
+            
+     }
+     
+     
 
     /**
      * Remove the specified resource from storage.

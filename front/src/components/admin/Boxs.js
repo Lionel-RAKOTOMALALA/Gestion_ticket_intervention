@@ -29,7 +29,7 @@ const Box = () => {
     </div>
     <div className='col-md-6 mb-4'>
          {/* <!-- Approach --> */}
-        <div className="card shadow ">
+        <div className="card shadow mb-5">
             <div className="card-header py-3">
                 <h6 className="m-0 font-weight-bold text-primary">Development Approach</h6>
             </div>
@@ -41,7 +41,7 @@ const Box = () => {
                     Bootstrap framework, especially the utility classNamees.</p>
             </div>
         </div>
-        <div className="card shadow">
+        <div className="card shadow ">
             <div className="card-header py-3">
                 <h6 className="m-0 font-weight-bold text-primary">Development Approach</h6>
             </div>
