@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { useLocation, Link  } from 'react-router-dom';
+import { NavLink,useLocation } from 'react-router-dom';
 
 function Sidebar() {
-    const location = useLocation();
     const [style, setStyle] = useState("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion");
 
     const changeStyle = () => {
@@ -12,11 +11,12 @@ function Sidebar() {
             setStyle("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion");
         }
     };
+    const location = useLocation();
 
     return (
         <ul className={style} id="accordionSidebar">
             {/* <!-- Sidebar - Brand --> */}
-            <Link className="sidebar-brand d-flex align-items-center justify-content-center" to={location.pathname}>
+            <NavLink className="sidebar-brand d-flex align-items-center justify-content-center" to={location.pathname}>
                 <div className="sidebar-brand-icon rotate-n-15">
                     <i className="fas fa-laugh-wink"></i>
                 </div>
@@ -24,23 +24,23 @@ function Sidebar() {
                 <div className="text-center d-none d-md-inline">
                     <button className="rounded-circle border-0" id="sidebarToggle" onClick={changeStyle}></button>
                 </div>
-            </Link>
+            </NavLink>
 
             {/* <!-- Divider --> */}
             <hr className="sidebar-divider my-0" />
 
             {/* <!-- Nav Item - Dashboard */}
             <li className="nav-item active">
-                <Link className="nav-link" to="/admin/dashboard">
+                <NavLink className="nav-link" to="/admin">
                     <i className="fas fa-fw fa-tachometer-alt"></i>
                     <span>Tableau de bord</span>
-                </Link>
+                </NavLink>
             </li>
             <li className="nav-item active">
-                <Link className="nav-link" to="/admin/profile">
+                <NavLink className="nav-link" to="/admin/profile">
                     <i className="fas fa-fw fa-user-alt"></i>
                     <span>Profile</span>
-                </Link>
+                </NavLink>
             </li>
 
             {/* <!-- Divider --> */}
@@ -65,15 +65,15 @@ function Sidebar() {
                 <div id="collapseTwo" className="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div className="bg-white py-2 collapse-inner rounded">
                         <h6 className="collapse-header">Listes des Matériels</h6>
-                        <Link className="collapse-item" href="buttons.html">
-                            En cours de reparation
-                        </Link>
-                        <Link className="collapse-item" href="cards.html">
+                        <NavLink className="collapse-item" to="/admin/materiels/en-cours">
+                            En cours de réparation
+                        </NavLink>
+                        <NavLink className="collapse-item" to="/admin/materiels/repare">
                             Réparé
-                        </Link>
-                        <Link className="collapse-item" to="/admin/materiels">
+                        </NavLink>
+                        <NavLink className="collapse-item" to="/admin/materiels">
                             Tous
-                        </Link>
+                        </NavLink>
                     </div>
                 </div>
             </li>

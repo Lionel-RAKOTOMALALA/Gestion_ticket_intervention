@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import swal from 'sweetalert';
 import Navbar from '../auth/Layouts/Navbar'
-import {useHistory } from 'react-router-dom';
 
 function Register() {
 
-const Navigate = useHistory();
+
 const [registerInput, setRegister] = useState({
 name: '',
 email: '',
@@ -35,7 +34,6 @@ if(res.data.status === 200)
 localStorage.setItem('auth_token', res.data.token);
 localStorage.setItem('auth_name', res.data.username);
 swal("Success",res.data.message,"success");
-Navigate('/dashboard');
 }
 else
 {
