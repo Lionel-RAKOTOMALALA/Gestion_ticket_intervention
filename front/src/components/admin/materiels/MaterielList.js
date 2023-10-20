@@ -9,8 +9,8 @@ const MaterielList = () => {
   const [isLoading, setIsLoading] = useState(true); // État pour gérer le chargement
   const tableRef = useRef(null);
 
-  useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/materiels")
+  const refreshData = () => {
+  axios.get("http://127.0.0.1:8000/api/materiels")
       .then((response) => {
         setMateriels(response.data.materiels);
         setIsLoading(false); // Une fois les données chargées, mettez isLoading à false
@@ -32,6 +32,9 @@ const MaterielList = () => {
           });
         }
       });
+    }
+  useEffect(() => {
+    refreshData;
   }, []);
 
   return (

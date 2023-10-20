@@ -137,7 +137,8 @@ class MaterielController extends Controller
         $Materiel = Materiel::find($id);
         if(!$Materiel){
             return response()->json([
-                'message'=>'Le materiel n\'existe pas'
+                'message'=>'Le materiel n\'existe pas',
+                "status" =>404
             ],404);
         }
         //suppression du materiel 
@@ -146,7 +147,8 @@ class MaterielController extends Controller
         //message de suppression reussit
 
         return response()->json([
-            'message' =>"Materiel supprimé avec succès"
+            'message' =>"Materiel supprimé avec succès",
+            "status" =>200
         ],200);
     }
 }
