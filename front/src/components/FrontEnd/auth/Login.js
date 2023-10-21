@@ -1,7 +1,51 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from './Layouts/Navbar';
-
+import axios from 'axios';
+import swal from 'sweetalert';
+import { useNavigate } from 'react-router';
 const Login = () => {
+  
+  const navigate = useNavigate();
+  const [loginInput, setLogin] = useState({
+    username: '',
+    password: '',
+    error_list: [],
+
+  });
+
+  const handleInput = (e)=>{
+    e.persist();
+    setLogin({...loginInput, [e.target.name]: e.target.value});
+
+  }
+
+  const loginSubmit = (e)=>{
+    e.preventDefault();
+    
+    const data ={
+      username: loginInput.username,
+      password: loginInput.password,
+    }
+    axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie').then(response => {
+    axios.post(`http://127.0.0.1:8000/api/login`,data).then(res =>{
+      if(res.data.status === 200){
+        localStorage.setItem('auth_token', res.data.token);
+        localStorage.setItem('auth_name',res.data.username);
+        swal('Success',res.data.message,"success");
+        navigate('/admin')
+      }else if(res.data.status === 401)
+      {
+        swal('Avertissement',res.data.message,"warning");
+
+      }else{
+        setLogin({...loginInput, error_list : res.data.validation_errors});
+
+      }
+    })
+  })
+}
+  
+
   return (
     <div>
       <Navbar/>
@@ -13,14 +57,16 @@ const Login = () => {
                 <h4>Authentification</h4>
               </div>
               <div className='card-body'>
-                <form>
+                <form onSubmit={loginSubmit}>
                   <div className='form-group mb-3'>
                     <label>Nom d'utilisateur</label>
-                    <input type='text' name='username' className='form-control' value=''/>
+                    <input type='text' name='username' onChange={handleInput} value={loginInput.username} className='form-control'/>
+                    <span className='text-danger'>{loginInput.error_list.username}</span>
                   </div>
                   <div className='form-group mb-3'>
                     <label>Mot de passe</label>
-                    <input type='text' name='password' className='form-control' value=''/>
+                    <input type='password' name='password' onChange={handleInput} value={loginInput.password} className='form-control' />
+                    <span className='text-danger'>{loginInput.error_list.password}</span>
                   </div>
                   
                   <div className='form-group mb-3'>

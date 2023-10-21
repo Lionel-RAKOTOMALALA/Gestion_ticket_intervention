@@ -28,7 +28,6 @@ const Materiel = ({ materiel, refreshData }) => {
                 if (res.data.status === 200) {
                   swal('Success', res.data.message, 'success');
                   // Après la suppression réussie, actualisez les données
-                  console.log("Refreshing data...");
                   refreshData();
                 } else if (res.data.status === 404) {
                   swal("Erreur", res.data.message, "error");
@@ -42,7 +41,6 @@ const Materiel = ({ materiel, refreshData }) => {
         });
       }
       
-
     return (
         <tr>
             <td>{materiel.num_serie}</td>

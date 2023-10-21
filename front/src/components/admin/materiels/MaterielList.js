@@ -9,11 +9,18 @@ const MaterielList = () => {
   const [isLoading, setIsLoading] = useState(true); // État pour gérer le chargement
   const tableRef = useRef(null);
 
+  const destroyDataTable = () => {
+    if ($.fn.DataTable.isDataTable(tableRef.current)) {
+      $(tableRef.current).DataTable().destroy(); // Détruire la DataTable existante
+    }
+  };
+
   const refreshData = () => {
-  axios.get("http://127.0.0.1:8000/api/materiels")
+    destroyDataTable(); // Détruire DataTable avant de charger de nouvelles données
+    axios.get("http://127.0.0.1:8000/api/materiels")
       .then((response) => {
         setMateriels(response.data.materiels);
-        setIsLoading(false); // Une fois les données chargées, mettez isLoading à false
+        setIsLoading(false);
         if (tableRef.current) {
           $(tableRef.current).DataTable({
             language: {
@@ -32,9 +39,10 @@ const MaterielList = () => {
           });
         }
       });
-    }
+  };
+
   useEffect(() => {
-    refreshData;
+    refreshData(); // Appeler la fonction ici pour charger les données lors du montage du composant
   }, []);
 
   return (
@@ -64,7 +72,7 @@ const MaterielList = () => {
                 </thead>
                 <tbody>
                   {materiels.map((materiel) => (
-                    <Materiel key={materiel.num_serie} materiel={materiel} />
+                    <Materiel key={materiel.num_serie} materiel={materiel} refreshData={refreshData} />
                   ))}
                 </tbody>
               </table>

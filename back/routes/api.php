@@ -8,12 +8,13 @@ use App\Http\Controllers\MaterielController;
 use App\Http\Controllers\DemandeurController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\AuthController;
+use Illuminate\Http\Request;
 
-
-Route::prefix('register')->group(function(){
-    Route::post('/', [AuthController::class, 'register']);
-
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
 });
+Route::post('register', [AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
 
 Route::prefix('tickets')->group(function () {
     Route::get('{id}', [TicketController::class, 'show']);

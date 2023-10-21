@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Http\Requests\UserStoreRequest;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -25,6 +26,7 @@ class UserController extends Controller
     public function store(UserStoreRequest $request)
     {
         try {
+        
             // Créez un nouvel utilisateur
             User::create([
                 'username' => $request->username, // Utilisation de 'username' au lieu de 'name'

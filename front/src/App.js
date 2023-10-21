@@ -11,7 +11,11 @@ import Content_profil from './components/admin/Content_profil';
 import EditMateriel from './components/admin/materiels/EditMateriel';
 import Materiel from './components/admin/materiels/Materiel';
 import MaterielApp from './components/admin/materiels/MaterielApp';
+import axios from 'axios';
 
+axios.defaults.headers.post['Content-Type'] = 'application/json';
+axios.defaults.headers.post['Accept'] = 'application/json';
+axios.defaults.withCredentials = true;
 function App() {
   return (
     <Router>
