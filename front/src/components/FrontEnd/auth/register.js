@@ -3,6 +3,7 @@ import axios from 'axios';
 import swal from 'sweetalert';
 import Navbar from '../auth/Layouts/Navbar';
 import { useNavigate } from 'react-router';
+import TopBar from '../../admin/TopBar';
 
 function Register() {
     const navigate = useNavigate();
@@ -49,7 +50,7 @@ function Register() {
 
   return (
     <div>
-      <Navbar />
+      <TopBar />
       <div className="container py-5">
         <div className="row justify-content-center">
           <div className="col-md-6">

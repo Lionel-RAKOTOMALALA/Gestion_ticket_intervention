@@ -1,10 +1,11 @@
 import React from 'react';
 import Navbar from '../FrontEnd/auth/Layouts/Navbar';
+import TopBar from '../admin/TopBar';
 
 const Home = () => {
   return (
     <div>
-      <Navbar/>
+      <TopBar/>
       <h1>Home page</h1>
     </div>
   )
