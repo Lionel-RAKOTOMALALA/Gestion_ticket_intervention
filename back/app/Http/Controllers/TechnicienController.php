@@ -109,7 +109,7 @@ class TechnicienController extends Controller
                  // Valider les données du formulaire
                  $validator = Validator::make($request->all(), [
                      'competence' => 'required|string',
-                     'id_user' => 'required|string',
+                     'id_user' => 'required',
                  ]);
      
                  if ($validator->fails()) {

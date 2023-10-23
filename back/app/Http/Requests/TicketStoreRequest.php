@@ -1,6 +1,5 @@
-<?php
 
-namespace App\Http\Requests;
+<?php
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,6 +24,8 @@ class TicketStoreRequest extends FormRequest
             'nom_utilisateur' => 'required|string|max:255',
             'intervention_faite' => 'nullable|string',
             'suite_a_donnee' => 'nullable|string',
+            'num_serie' => 'required|exists:materiels,num_serie',
+            'id_technicien' => 'required|exists:techniciens,id_technicien',
         ];
     }
 }

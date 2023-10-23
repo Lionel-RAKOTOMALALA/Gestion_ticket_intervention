@@ -25,7 +25,6 @@ class newReq extends FormRequest
             'intervention_faite' => 'nullable|string',
             'suite_a_donnee' => 'nullable|string',
             'num_serie' => 'required|exists:materiels,num_serie',
-            'id_demandeur' => 'required|exists:demandeurs,id_demandeur',
             'id_technicien' => 'required|exists:techniciens,id_technicien',
         ];
     }

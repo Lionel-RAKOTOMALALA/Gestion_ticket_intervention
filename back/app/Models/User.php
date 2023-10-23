@@ -3,42 +3,30 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authentificatable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Technicien;
-use App\Models\Demandeur;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authentificatable
+class User extends Model
 {
     use HasApiTokens, HasFactory, Notifiable;
+
+
+    protected $table = 'users'; // Nom de la table
+
+    protected $primaryKey = 'id'; // Clé primaire
 
     protected $fillable = [
         'username',
         'email',
+        'logo',
         'email_verified_at',
         'password',
         'role_user',
-        'logo',
-        'nom_entreprise' 
-    ];
-
-    protected $hidden = [
-        'password',
+        'nom_entreprise',
         'remember_token',
+        // Ajoutez d'autres colonnes si nécessaire
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-
-    public function techniciens()
-    {
-        return $this->hasMany(Technicien::class, 'id_user');
-    }
-
-    public function demandeurs()
-    {
-        return $this->hasMany(Demandeur::class, 'id_user');
-    }
+    // Vous pouvez également définir des relations ici si vous en avez
 }

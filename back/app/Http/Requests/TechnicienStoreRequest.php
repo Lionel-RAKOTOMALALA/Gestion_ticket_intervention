@@ -22,9 +22,9 @@ class TechnicienStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'competence' => 'required|string',
-            'id_user' => 'required|exists:users,id',
-            // 'nom_utilisateur' => 'required|exists:users,name',
+            // 'competence' => 'required|string',
+            // 'id_user' => 'required|exists:users,id',
+            // // 'nom_utilisateur' => 'required|exists:users,name',
         ];
     }
 

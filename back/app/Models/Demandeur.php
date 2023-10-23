@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Demandeur extends Model
 {
@@ -16,13 +17,6 @@ class Demandeur extends Model
         // Ajoutez d'autres colonnes si nécessaire
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'id_user');
-    }
-    public function ticketsReparation()
-{
-    return $this->hasMany(TicketReparation::class, 'id_demandeur');
-}
+
 
 }

@@ -64,9 +64,11 @@ const MaterielList = () => {
               >
                 <thead>
                   <tr>
-                    <th>Numero de serie</th>
+                    <th>Nom du demandeur</th>
+                    <th>Numero de serie du matériel</th>
                     <th>Type du matériel</th>
                     <th>Etat du matériel</th>
+                    <th>Apercu du matériel</th>
                     <th>Action</th>
                   </tr>
                 </thead>

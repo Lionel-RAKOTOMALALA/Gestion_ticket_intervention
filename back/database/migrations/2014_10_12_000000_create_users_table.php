@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('nom_entreprise')->nullable();
             $table->rememberToken();
             $table->timestamps();
+
+            
         });
     }
 

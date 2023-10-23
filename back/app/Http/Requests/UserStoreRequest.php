@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -27,6 +28,7 @@ class UserStoreRequest extends FormRequest
                 'email' => 'required|string|email|unique:users',
                 'password' => 'required|string|min:8',
                 'role_user' => 'required|string',
+                'id_entreprise' => 'required|integer',
                 'logo' => 'nullable|string', // Ajout de la validation pour le logo
             ];
         } elseif ($this->isMethod('put')) {
@@ -35,7 +37,7 @@ class UserStoreRequest extends FormRequest
                 'email' => 'required|string|email',
                 'password' => 'required|string|min:8',
                 'role_user' => 'required|string',
-                'nom_entreprise' => 'required|string',
+                'id_entreprise' => 'required|integer',
                 'logo' => 'nullable|string', // Ajout de la validation pour le logo
             ];
         }
@@ -57,6 +59,7 @@ class UserStoreRequest extends FormRequest
                 'password.required' => 'Veuillez entrer un mot de passe',
                 'password.min' => 'Le mot de passe doit contenir au moins 8 caractères',
                 'role_user.required' => 'Veuillez entrer le rôle de l\'utilisateur',
+                'id_entreprise.required' => 'Veuillez sélectionner une entreprise',
                 'logo.string' => 'Le logo doit être une chaîne de caractères',
             ];
         } elseif ($this->isMethod('put')) {
@@ -67,6 +70,7 @@ class UserStoreRequest extends FormRequest
                 'password.required' => 'Veuillez entrer un mot de passe',
                 'password.min' => 'Le mot de passe doit contenir au moins 8 caractères',
                 'role_user.required' => 'Veuillez entrer le rôle de l\'utilisateur',
+                'id_entreprise.required' => 'Veuillez sélectionner une entreprise',
                 'logo.string' => 'Le logo doit être une chaîne de caractères',
             ];
         }

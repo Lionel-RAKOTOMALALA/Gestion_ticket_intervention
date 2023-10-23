@@ -95,6 +95,7 @@ const EditTechnicien = () => {
     const data = {
       competence: technicienInput.competence,
       id_user: technicienInput.id_user,
+      
     };
     axios.put(`http://127.0.0.1:8000/api/techniciens/${id}`, data)
       .then((res) => {

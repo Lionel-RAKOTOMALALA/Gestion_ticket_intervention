@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_user'); // Clé étrangère vers la table 'users'
             // Ajoutez d'autres colonnes si nécessaire
 
-            $table->foreign('id_user')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade'); // Définition de la clé étrangère
+            $table->foreign('id_user')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade'); // Clé étrangère vers users
 
             $table->timestamps(); // Ajoute automatiquement les colonnes created_at et updated_at
         });
@@ -25,8 +25,8 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
+    public function down()
     {
-        //
+        Schema::dropIfExists('demandeurs');
     }
 };

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTicketReparationTable extends Migration
+return new class extends Migration
 {
     public function up()
     {
@@ -26,7 +26,6 @@ class CreateTicketReparationTable extends Migration
     
             // Clés étrangères correctement spécifiées
             $table->foreign('num_serie')->references('num_serie')->on('materiels')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('id_demandeur')->references('id_demandeur')->on('demandeurs')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('id_technicien')->references('id_technicien')->on('techniciens')->onDelete('cascade')->onUpdate('cascade');
         });
     }
@@ -36,4 +35,4 @@ class CreateTicketReparationTable extends Migration
     {
         Schema::dropIfExists('ticketReparation');
     }
-}
+};

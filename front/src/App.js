@@ -20,6 +20,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.defaults.headers.post['Accept'] = 'application/json';
 axios.defaults.withCredentials = true;
 function App() {
+  // localStorage.clear();
   return (
     <Router>
       <Routes>

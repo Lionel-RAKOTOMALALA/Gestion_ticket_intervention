@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Http\Requests\UserStoreRequest;
+use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -17,7 +17,7 @@ class UserController extends Controller
 
         return response()->json([
             'users' => $users,
-            'status'=>200
+            'status' => 200
         ], 200);
     }
 
@@ -26,24 +26,37 @@ class UserController extends Controller
      */
     public function store(UserStoreRequest $request)
     {
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string',
+            'role_user' => 'string',
+            // Ajoutez d'autres règles de validation si nécessaire
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 400,
+                'error_list' => $validator->messages(),
+            ]);
+        }
+
         try {
-        
-            // Créez un nouvel utilisateur
             User::create([
-                'username' => $request->username, // Utilisation de 'username' au lieu de 'name'
+                'username' => $request->username,
                 'email' => $request->email,
                 'password' => bcrypt($request->password),
                 'role_user' => $request->role_user,
-                'logo' => $request->logo,
-                'nom_entreprise' => $request->nom_entreprise, 
+                // Ajoutez d'autres champs si nécessaire
             ]);
+
             return response()->json([
-                'message' => "L'utilisateur a été créé avec succès"
+                'message' => "L'utilisateur a été créé avec succès",
+                'status' => 200
             ], 200);
         } catch (\Exception $e) {
-            // Retourne une erreur en JSON en cas d'erreur d'insertion
             return response()->json([
-                'message' => "Il y a une erreur dans l'insertion : " . $e->getMessage()
+                'message' => "Il y a une erreur dans l'insertion",
             ], 500);
         }
     }
@@ -53,49 +66,64 @@ class UserController extends Controller
      */
     public function show(int $id)
     {
-        // Détails de l'utilisateur
         $user = User::find($id);
+
         if (!$user) {
             return response()->json([
-                'message' => 'Cet utilisateur n\'a pas été trouvé'
-            ], 404);
+                'message' => 'Cet utilisateur n\'a pas été trouvé',
+                'status' => 404,
+            ]);
         }
-        // Retourne la réponse en JSON
+
         return response()->json([
-            'user' => $user
-        ], 200);
+            'user' => $user,
+            'status' => 200,
+        ]);
     }
 
-    /**
-     * Met à jour les informations d'un utilisateur.
-     */
     public function update(UserStoreRequest $request, int $id)
     {
         try {
-            // Recherche de l'utilisateur
             $user = User::find($id);
+
             if (!$user) {
                 return response()->json([
-                    'message' => "L'utilisateur n'existe pas"
-                ], 404);
+                    'message' => "L'utilisateur n'existe pas",
+                    'status' => 404,
+                ]);
+            } else {
+                $validator = Validator::make($request->all(), [
+                    'username' => 'required|string',
+                    'email' => 'required|email|unique:users,email,' . $user->id,
+                    'password' => 'string',
+                    'role_user' => 'string',
+                    // Ajoutez d'autres règles de validation si nécessaire
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status' => 400,
+                        'error_list' => $validator->messages(),
+                    ], 400);
+                } else {
+                    $user->username = $request->username;
+                    $user->email = $request->email;
+                    if ($request->password) {
+                        $user->password = bcrypt($request->password);
+                    }
+                    $user->role_user = $request->role_user;
+                    $user->save();
+
+                    return response()->json([
+                        'message' => "Les informations de l'utilisateur ont été mises à jour avec succès",
+                        'status' => 200,
+                    ], 200);
+                }
             }
-
-            // Mise à jour des informations de l'utilisateur
-            $user->username = $request->username; // Utilisation de 'username' au lieu de 'name'
-            $user->email = $request->email;
-            $user->password = bcrypt($request->password);
-            $user->role_user = $request->role_user;
-            $user->logo = $request->logo;
-            $user->nom_entreprise = $request->nom_entreprise; // Ajout du champ 'logo'
-            $user->save();
-
-            return response()->json([
-                'message' => "Les informations de l'utilisateur ont été mises à jour avec succès"
-            ], 200);
         } catch (\Exception $e) {
-            // Message d'erreur en cas de problème
             return response()->json([
-                'message' => "Une erreur s'est produite lors de la mise à jour de l'utilisateur : " . $e->getMessage()
+                'message' => "Une erreur est survenue lors de la modification de l'utilisateur",
+                'status' => 500,
             ], 500);
         }
     }
@@ -105,20 +133,20 @@ class UserController extends Controller
      */
     public function destroy(int $id)
     {
-        // Détails de l'utilisateur
         $user = User::find($id);
+
         if (!$user) {
             return response()->json([
-                'message' => 'Cet utilisateur n\'existe pas'
-            ], 404);
+                'message' => 'Cet utilisateur n\'a pas été trouvé',
+                'status' => 404,
+            ]);
         }
 
-        // Suppression de l'utilisateur
         $user->delete();
 
-        // Message de suppression réussie
         return response()->json([
-            'message' => "Utilisateur supprimé avec succès"
+            'message' => "Utilisateur supprimé avec succès",
+            'status' => 200,
         ], 200);
     }
 }
