@@ -21,7 +21,10 @@ const TopBar = () => {
           localStorage.removeItem('auth_name');
           swal('Success', res.data.message, 'success');
           // alert(localStorage.removeItem('auth_token'))
-          navigate('/');
+          navigate('/login');
+          alert( localStorage.getItem('auth_token'));
+          //  window.location.reload();
+          
         } else {
           // Gérer d'autres cas si nécessaire
         }
@@ -130,6 +133,7 @@ const TopBar = () => {
         </li>
         <li className="nav-item">
           <NavLink className="nav-link text-secondary" to="/login" tabIndex="-1" aria-disabled="true">
+            
             Se connecter
           </NavLink>
         </li>

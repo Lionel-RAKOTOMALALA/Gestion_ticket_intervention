@@ -36,12 +36,7 @@ function Sidebar() {
                     <span>Tableau de bord</span>
                 </NavLink>
             </li>
-            <li className="nav-item active">
-                <NavLink className="nav-link" to="/admin/profile">
-                    <i className="fas fa-fw fa-user-alt"></i>
-                    <span>Profile</span>
-                </NavLink>
-            </li>
+            
 
             {/* <!-- Divider --> */}
             <hr className="sidebar-divider" />
@@ -86,6 +81,12 @@ function Sidebar() {
 
             {/* <!-- Divider */}
             <hr className="sidebar-divider d-none d-md-block" />
+            <li className="nav-item text-white">
+                <NavLink className="nav-link" to="techniciens">
+                    <i className="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Technicien</span>
+                </NavLink>
+            </li>
         </ul>
     );
 }

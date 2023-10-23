@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TechnicienStoreRequest;
 use App\Models\Technicien;
 use App\Models\User;
-
+use Illuminate\Support\Facades\Validator;
 
 class TechnicienController extends Controller
 {
@@ -21,7 +21,8 @@ class TechnicienController extends Controller
             ->get();
 
         return response()->json([
-            'techniciens' => $techniciens
+            'techniciens' => $techniciens,
+            'status' => 200
         ], 200);
     }
 
@@ -29,81 +30,113 @@ class TechnicienController extends Controller
      * Crée un nouveau technicien.
      */
     public function store(TechnicienStoreRequest $request)
-    {
-        try {
-            // Créez un nouveau technicien en utilisant le modèle Eloquent
-            
-            Technicien::create([
-                'competence' => $request->competence,
-                'id_user' => $request->id_user
-            ]);
+{
+    $validator = Validator::make($request->all(), [
+        'competence' => 'required|string',
+        'id_user' => 'required|integer',
+    ]);
 
-            return response()->json([
-                'message' => "Le technicien a été créé avec succès"
-            ], 200);
-        } catch (\Exception $e) {
-            // Retourne une erreur en JSON en cas d'erreur d'insertion
-            return response()->json([
-                'message' => "Il y a une erreur dans l'insertion"
-            ], 500);
-        }
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => 400,
+            'error_list' => $validator->messages(),
+        ]);
     }
+
+    try {
+        // Créez un nouveau technicien en utilisant le modèle Eloquent
+        Technicien::create([
+            'competence' => $request->competence,
+            'id_user' => $request->id_user
+        ]);
+
+        return response()->json([
+            'message' => "Le technicien a été créé avec succès",
+            'status' => 200
+        ], 200);
+    } catch (\Exception $e) {
+        // Retourne une erreur en JSON en cas d'erreur d'insertion
+        return response()->json([
+            'message' => "Il y a une erreur dans l'insertion"
+        ], 500);
+    }
+}
 
     /**
      * Affiche les détails d'un technicien spécifique.
      */
-    public function show($id)
-    {
-        // Convertir l'argument en type int
-        $id = (int)$id;
-    
-        // Détails du technicien avec les informations de l'utilisateur associé
-        $techniciens = Technicien::join('users', 'techniciens.id_user', '=', 'users.id')
-        ->select('techniciens.id_technicien', 'techniciens.competence', 'users.name as nom_utilisateur')            
-        ->where('techniciens.id_technicien', $id)
-            ->first();
-    
-        if (!$techniciens) {
-            return response()->json([
-                'message' => 'Ce technicien n\'a pas été trouvé'
-            ], 404);
-        }
-    
-        // Retourne la réponse en JSON
+    public function show(int $id)
+{
+    // Recherche du technicien
+    $technicien = Technicien::join('users', 'techniciens.id_user', '=', 'users.id')
+    ->where('techniciens.id_technicien', $id)
+    ->select('techniciens.id_user as id', 'users.username as username', 'techniciens.competence as competence')
+    ->first();
+
+
+
+    if (!$technicien) {
         return response()->json([
-            'technicien' => $techniciens
-        ], 200);
+            'message' => 'Ce technicien n\'a pas été trouvé',
+            'status' => 404,
+        ]);
     }
+
+    // Retourne la réponse en JSON
+    return response()->json([
+        'technicien' => $technicien,
+        'status' => 200,
+    ]);
+}
+
     
 
     /**
      * Met à jour les informations d'un technicien.
      */
-    public function update(TechnicienStoreRequest $request, int $id)
-    {
-        try {
-            // Mise à jour des informations du technicien en utilisant le modèle Eloquent
-            $technicien = Technicien::find($id);
-            if (!$technicien) {
-                return response()->json([
-                    'message' => 'Ce technicien n\'a pas été trouvé'
-                ], 404);
-            }
 
-            $technicien->competence = $request->competence;
-            $technicien->id_user = $request->id_user;
-            $technicien->save();
-
-            return response()->json([
-                'message' => "Les informations du technicien ont été mises à jour avec succès"
-            ], 200);
-        } catch (\Exception $e) {
-            // Message d'erreur en cas de problème
-            return response()->json([
-                'message' => "Une erreur s'est produite lors de la mise à jour du technicien"
-            ], 500);
-        }
-    }
+     public function update(TechnicienStoreRequest $request, int $id)
+     {
+         try {
+             // Rechercher le technicien
+             $technicien = Technicien::find($id);
+     
+             if (!$technicien) {
+                 return response()->json([
+                     'message' => "Le technicien n'existe pas",
+                 ], 404);
+             } else {
+                 // Valider les données du formulaire
+                 $validator = Validator::make($request->all(), [
+                     'competence' => 'required|string',
+                     'id_user' => 'required|string',
+                 ]);
+     
+                 if ($validator->fails()) {
+                     return response()->json([
+                         'status' => 400,
+                         'error_list' => $validator->messages(),
+                     ], 400);
+                 } else {
+                     // Mettre à jour les informations du technicien
+                     $technicien->competence = $request->competence;
+                     $technicien->id_user = $request->id_user;
+                     $technicien->save();
+     
+                     return response()->json([
+                         'message' => "Les informations du technicien ont été mises à jour avec succès",
+                         'status' => 200,
+                     ], 200);
+                 }
+             }
+         } catch (\Exception $e) {
+             // Message d'erreur en cas d'exception
+             return response()->json([
+                 'message' => "Une erreur est survenue lors de la modification du technicien",
+                 'status' => 500,
+             ], 500);
+         }
+     }
 
     /**
      * Supprime un technicien.
@@ -122,7 +155,8 @@ class TechnicienController extends Controller
 
         // Message de suppression réussie
         return response()->json([
-            'message' => "Technicien supprimé avec succès"
+            'message' => "Technicien supprimé avec succès",
+            'status' => 200
         ], 200);
     }
 }

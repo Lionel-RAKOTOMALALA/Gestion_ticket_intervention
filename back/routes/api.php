@@ -12,6 +12,9 @@ use Illuminate\Http\Request;
 
 Route::middleware('auth:sanctum')->group( function () {
     Route::post('logout', [AuthController::class, 'logout']);
+    Route::get('/checkingAuthenticated', function(){
+        return response()->json(['message'=>'Bienvenue','status'=>200],200);
+    });
 });
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

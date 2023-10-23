@@ -4,6 +4,8 @@
   import { useNavigate } from 'react-router-dom';
   import TopBar from '../../admin/TopBar';
   const Login = () => {
+
+    localStorage.getItem('auth_token')
     
     const navigate = useNavigate();
     const [loginInput, setLogin] = useState({
@@ -34,6 +36,8 @@
           localStorage.setItem('auth_name',res.data.username);
           swal('Success',res.data.message,"success");
           navigate('/admin')
+          //  window.location.reload();
+          alert(localStorage.getItem('auth_token'))
         }else if(res.data.status === 401)
         {
           swal('Avertissement',res.data.message,"warning");
