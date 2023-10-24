@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\TicketReparation;
 use Illuminate\Support\Facades\Validator;
 
-class TicketReparationController extends Controller
+class TicketController extends Controller
 {
     public function index()
     {

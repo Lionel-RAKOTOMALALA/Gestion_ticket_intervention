@@ -5,7 +5,7 @@ import Home from './components/FrontEnd/Home';
 import Login from './components/FrontEnd/auth/Login';
 import Register from './components/FrontEnd/auth/register';
 import MaterielForm from './components/admin/materiels/MaterielForm';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Content_dashboard from './components/admin/Content_dashboards';
 import Content_profil from './components/admin/Content_profil';
 import EditMateriel from './components/admin/materiels/EditMateriel';
@@ -16,6 +16,8 @@ import Technicien from './components/admin/Technicien/Technicien';
 import TechnicienForm from './components/admin/Technicien/TechnicienForm'
 import TechnicienApp from './components/admin/Technicien/TechnicienApp';
 import EditTechnicien from './components/admin/Technicien/EditTechnicien';
+import TicketApp from './components/admin/TicketReparation/TicketApp';
+import TicketReparationForm from './components/admin/TicketReparation/TicketForm';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.defaults.headers.post['Accept'] = 'application/json';
 axios.defaults.withCredentials = true;
@@ -24,9 +26,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={localStorage.getItem('auth_token')?<Navigate to='/admin'/> : <Home />} />
+        <Route path="/register" element={localStorage.getItem('auth_token')?<Navigate to='/admin'/> : <Register />} />
+        <Route path="/login" element={localStorage.getItem('auth_token')?<Navigate to='/admin'/> : <Login />} />
+        <Route path="/admin" element={localStorage.getItem('auth_token')? <Navigate to='/admin'/> : <Navigate to='/login'/>}/>
+        {/* <Route path="/login" element={!localStorage.getItem('auth_token')? <Navigate to='/login'/> : <Navigate to='/admin'/>}/> */}
         <Route path="/admin" element={<Dashboard />}>
           <Route index element={<Content_dashboard />} /> {/* Utilisez l'index pour /admin/dashboard */}
           <Route path="profile" element={<Content_profil />} />
@@ -42,6 +46,8 @@ function App() {
           <Route path='techniciens' element={<TechnicienApp/>}/>
           <Route path='/admin/technicien/ajout' element={<TechnicienForm/>}/>
           <Route path='/admin/techniciens/:id' element={<EditTechnicien/>}/>
+          <Route path='/admin/tickets' element={<TicketApp/>}/>
+          <Route path='/admin/ticket/ajout' element={<TicketReparationForm/>}/>
         </Route>
       </Routes>
     </Router>

@@ -15,7 +15,7 @@ function Dashboard() {
                     <div id="content-wrapper" className="d-flex flex-column">
                         <div id="content">
                             <TopBar />
-                            <Outlet /> {/* Utilisez Outlet pour afficher le contenu de l'itinéraire actuel et de ses sous-itinéraires */}
+                            <Outlet /> 
                         </div>
                         <Footer />
                     </div>
