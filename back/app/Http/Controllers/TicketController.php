@@ -45,7 +45,7 @@ class TicketController extends Controller
         }
 
         $ticket = TicketReparation::create($request->all());
-        return response()->json(['ticket' => $ticket, 'status' => 200], 200);
+        return response()->json(['ticket' => $ticket,'message'=>'Le ticket a été enregistré avec succès', 'status' => 200], 200);
     }
 
     public function show($id)

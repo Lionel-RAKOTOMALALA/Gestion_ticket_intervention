@@ -18,7 +18,6 @@ return new class extends Migration
             $table->timestamp('date_resolution');
             $table->decimal('cout_reparation', 10, 2)->nullable();
             $table->unsignedBigInteger('num_serie');
-            $table->unsignedBigInteger('id_demandeur');
             $table->unsignedBigInteger('id_technicien');
             $table->text('intervention_faite')->nullable();
             $table->text('suite_a_donnee')->nullable();

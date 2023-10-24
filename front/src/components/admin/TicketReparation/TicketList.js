@@ -71,12 +71,8 @@ const TicketReparationList = () => {
                     <th>Priorité</th>
                     <th>Description du Problème</th>
                     <th>Statut Actuel</th>
-                    <th>Date de Résolution</th>
-                    <th>Coût de Réparation</th>
-                    <th>Numéro de Série</th>
-                    <th>ID Technicien</th>
-                    <th>Intervention Faite</th>
-                    <th>Suite à Donnée</th>
+                    <th>Type de Matériel</th>
+                    <th>Nom du Technicien</th>
                     <th>Action</th>
                   </tr>
                 </thead>

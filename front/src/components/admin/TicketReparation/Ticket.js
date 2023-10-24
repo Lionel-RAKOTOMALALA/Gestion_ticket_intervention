@@ -1,5 +1,5 @@
 import React from "react";
-import { UilEditAlt, UilTrashAlt } from "@iconscout/react-unicons";
+import { UilEditAlt, UilTrashAlt, UilEye,UilCheckCircle  } from "@iconscout/react-unicons";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -46,26 +46,35 @@ const TicketReparation = ({ ticket, refreshData }) => {
       <td>{ticket.priorite}</td>
       <td>{ticket.description_probleme}</td>
       <td>{ticket.statut_actuel}</td>
-      <td>{ticket.date_resolution}</td>
-      <td>{ticket.cout_reparation}</td>
-      <td>{ticket.num_serie}</td>
-      <td>{ticket.nom_technicien}</td> {/* Assurez-vous que la clé est correcte pour le nom du technicien */}
-      <td>{ticket.intervention_faite}</td>
-      <td>{ticket.suite_a_donnee}</td>
+      <td>{ticket.type_materiel}</td>
+      <td>{ticket.nom_technicien}</td>
       <td>
-        <div style={{ marginRight: '1.2rem', display: 'inline-block' }}>
-          <NavLink to={`/admin/tickets/${ticket.id_ticket}`}>
-            <button className="btn btn-primary btn-sm mr-2">
-              <UilEditAlt /> Modifier
-            </button>
-          </NavLink>
-        </div>
-        <div style={{ display: 'inline-block' }}>
-          <button onClick={(e) => deleteTicket(e, ticket.id_ticket)} className="btn btn-danger btn-sm">
-            <UilTrashAlt /> Supprimer
-          </button>
-        </div>
-      </td>
+  <div style={{ marginRight: '1.2rem', display: 'inline-block' }}>
+    <NavLink to={`/admin/tickets/${ticket.id_ticket}`}>
+      <button className="btn btn-primary btn-sm equal-width-button">
+        <UilEditAlt /> Modifier
+      </button>
+    </NavLink>
+  </div>
+  <div style={{ marginRight: '1.2rem', display: 'inline-block' }}>
+    <button onClick={(e) => deleteTicket(e, ticket.id_ticket)} className="btn btn-danger btn-sm equal-width-button">
+      <UilTrashAlt /> Supprimer
+    </button>
+  </div>
+  <div style={{ marginRight: '1.2rem', display: 'inline-block' }}>
+    <NavLink to={`/admin/tickets/${ticket.id_ticket}`}>
+      <button className="btn btn-primary btn-sm equal-width-button">
+        <UilEye /> View
+      </button>
+    </NavLink>
+  </div>
+  <div style={{ display: 'inline-block' }}>
+    <button className="btn btn-success btn-sm equal-width-button">
+      <UilCheckCircle /> Valider
+    </button>
+  </div>
+</td>
+
     </tr>
   );
 };

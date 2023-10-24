@@ -18,7 +18,8 @@ class MaterielController extends Controller
     ->get();
 
         return response()->json([
-            'materiels' => $materiels
+            'materiels' => $materiels, 
+            'status' => 200
         ], 200);
     }
 
