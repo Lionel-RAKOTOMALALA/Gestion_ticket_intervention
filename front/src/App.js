@@ -18,6 +18,21 @@ import TechnicienApp from './components/admin/Technicien/TechnicienApp';
 import EditTechnicien from './components/admin/Technicien/EditTechnicien';
 import TicketApp from './components/admin/TicketReparation/TicketApp';
 import TicketReparationForm from './components/admin/TicketReparation/TicketForm';
+import EditTicket from './components/admin/TicketReparation/EditTicket';
+import UserApp from './components/admin/User/UserApp';
+import UserForm from './components/admin/User/UserForm'
+import EditUser from './components/admin/User/EditUser';
+import PosteApp from './components/admin/Poste/PosteApp';
+// import Poste from './components/admin/Poste/Poste';
+import PosteForm from './components/admin/Poste/PosteForm';
+import EditPoste from './components/admin/Poste/EditPoste';
+import DemandeurApp from './components/admin/Demandeur/DemandeurApp';
+import DemandeurForm from './components/admin/Demandeur/DemandeurForm';
+import EditDemandeur from './components/admin/Demandeur/EditDemandeur';
+import DemandeMaterielApp from './components/admin/DemandeMateriel/DemandeMaterielApp';
+import DemandeMaterielForm from './components/admin/DemandeMateriel/DemandeMaterielForm';
+import EditDemandeMateriel from './components/admin/DemandeMateriel/EditDemandeMateriel';
+
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.defaults.headers.post['Accept'] = 'application/json';
 axios.defaults.withCredentials = true;
@@ -48,6 +63,19 @@ function App() {
           <Route path='/admin/techniciens/:id' element={<EditTechnicien/>}/>
           <Route path='/admin/tickets' element={<TicketApp/>}/>
           <Route path='/admin/ticket/ajout' element={<TicketReparationForm/>}/>
+          <Route path='/admin/ticket/edit/:id' element={<EditTicket/>}/>
+          <Route path='/admin/users' element={<UserApp/>}/>
+          <Route path='/admin/users/ajout' element={<UserForm/>}/>
+          <Route path='/admin/users/edit/:id' element={<EditUser/>}/>
+          <Route path='/admin/postes' element={<PosteApp/>}/>
+          <Route path='/admin/poste/ajout' element={<PosteForm/>}/>
+          <Route path='/admin/poste/edit/:id' element={<EditPoste/>}/>
+          <Route path='/admin/demandeurs' element={<DemandeurApp/>}/>
+          <Route path='/admin/demandeur/ajout' element={<DemandeurForm/>}/>
+          <Route path='/admin/demandeur/edit/:id' element={<EditDemandeur/>}/>
+          <Route path='/admin/demande_materiels' element={<DemandeMaterielApp/>}/>
+          <Route path='/admin/demande/ajout' element={<DemandeMaterielForm/>}/>
+          <Route path='/admin/demande/edit/:id' element={<EditDemandeMateriel/>}/>
         </Route>
       </Routes>
     </Router>

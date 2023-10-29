@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import TicketReparation from "./Ticket"; // Assurez-vous d'importer le composant approprié pour les tickets d'intervention
+import Poste from "./Poste";
 import $ from "jquery";
 import Swal from "sweetalert2";
 import Loader from "../materiels/loader";
 
-const TicketReparationList = () => {
-  const [tickets, setTickets] = useState([]);
+const PosteList = () => {
+  const [postes, setPostes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const tableRef = useRef(null);
 
@@ -18,9 +18,9 @@ const TicketReparationList = () => {
 
   const refreshData = () => {
     destroyDataTable();
-    axios.get("http://127.0.0.1:8000/api/tickets") // Assurez-vous d'utiliser l'URL correcte
+    axios.get("http://127.0.0.1:8000/api/postes")
       .then((response) => {
-        setTickets(response.data.tickets); // Assurez-vous que la réponse contient les données des tickets d'intervention
+        setPostes(response.data.postes);
         setIsLoading(false);
         if (tableRef.current) {
           $(tableRef.current).DataTable({
@@ -50,7 +50,7 @@ const TicketReparationList = () => {
     <div>
       <div className="card shadow mb-4">
         <div className="card-header py-3">
-          <h6 className="m-0 font-weight-bold text-primary">Liste des tickets d'intervention</h6>
+          <h6 className="m-0 font-weight-bold text-primary">Liste des postes d'employés</h6>
         </div>
         <div className="card-body">
           {isLoading ? (
@@ -65,20 +65,14 @@ const TicketReparationList = () => {
               >
                 <thead>
                   <tr>
-                    <th>ID Ticket</th>
-                    <th>Date de Création</th>
-                    <th>Urgence</th>
-                    <th>Priorité</th>
-                    <th>Statut Actuel</th>
-                    <th>Type de Matériel</th>
-                    <th>Image du matériel</th>
-                    <th>Nom du Technicien</th>
+                    <th>ID Poste</th>
+                    <th>Nom du Poste</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {tickets.map((ticket) => (
-                    <TicketReparation key={ticket.id_ticket} ticket={ticket} refreshData={refreshData} />
+                  {postes.map((poste) => (
+                    <Poste key={poste.id_poste} poste={poste} refreshData={refreshData} />
                   ))}
                 </tbody>
               </table>
@@ -90,4 +84,4 @@ const TicketReparationList = () => {
   );
 };
 
-export default TicketReparationList;
+export default PosteList;

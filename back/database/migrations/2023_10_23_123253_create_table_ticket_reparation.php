@@ -13,18 +13,18 @@ return new class extends Migration
             $table->timestamp('date_creation')->useCurrent();
             $table->string('urgence');
             $table->string('priorite');
-            $table->text('description_probleme');
             $table->string('statut_actuel');
             $table->timestamp('date_resolution');
-            $table->decimal('cout_reparation', 10, 2)->nullable();
-            $table->unsignedBigInteger('num_serie');
-            $table->unsignedBigInteger('id_technicien');
+            $table->unsignedBigInteger('id_demande');
+            $table->unsignedBigInteger('id_technicien');;
+            $table->unsignedBigInteger('id_piece')->nullable();
             $table->text('intervention_faite')->nullable();
             $table->text('suite_a_donnee')->nullable();
             $table->timestamps(); // Ajoute les colonnes created_at et updated_at
     
             // Clés étrangères correctement spécifiées
-            $table->foreign('num_serie')->references('num_serie')->on('materiels')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('id_demande')->references('id_demande')->on('demande_materiel')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('id_piece')->references('id_piece')->on('piece_rechanges')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('id_technicien')->references('id_technicien')->on('techniciens')->onDelete('cascade')->onUpdate('cascade');
         });
     }

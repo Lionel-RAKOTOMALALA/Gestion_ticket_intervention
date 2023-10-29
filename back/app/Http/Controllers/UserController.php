@@ -31,6 +31,10 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string',
             'role_user' => 'string',
+            'logo' => 'nullable|string', // Nouveau champ logo
+            'sexe' => 'nullable|string', // Nouveau champ sexe
+            'photo_profil_user' => 'nullable|string', // Nouveau champ photo_profil_user
+            'nom_entreprise' => 'nullable|string', // Nouveau champ nom_entreprise
             // Ajoutez d'autres règles de validation si nécessaire
         ]);
 
@@ -47,6 +51,10 @@ class UserController extends Controller
                 'email' => $request->email,
                 'password' => bcrypt($request->password),
                 'role_user' => $request->role_user,
+                'logo' => $request->logo, // Nouveau champ logo
+                'sexe' => $request->sexe, // Nouveau champ sexe
+                'photo_profil_user' => $request->photo_profil_user, // Nouveau champ photo_profil_user
+                'nom_entreprise' => $request->nom_entreprise, // Nouveau champ nom_entreprise
                 // Ajoutez d'autres champs si nécessaire
             ]);
 
@@ -93,11 +101,15 @@ class UserController extends Controller
                 ]);
             } else {
                 $validator = Validator::make($request->all(), [
-                    'username' => 'required|string',
-                    'email' => 'required|email|unique:users,email,' . $user->id,
-                    'password' => 'string',
-                    'role_user' => 'string',
-                    // Ajoutez d'autres règles de validation si nécessaire
+                //     'username' => 'required|string',
+                //     'email' => 'required|email|unique:users,email',
+                //     'password' => 'string',
+                //     'role_user' => 'string',
+                //     'logo' => 'nullable|string', // Nouveau champ logo
+                //     'sexe' => 'nullable|string', // Nouveau champ sexe
+                //     'photo_profil_user' => 'nullable|string', // Nouveau champ photo_profil_user
+                //     'nom_entreprise' => 'nullable|string', // Nouveau champ nom_entreprise
+                //     // Ajoutez d'autres règles de validation si nécessaire
                 ]);
 
                 if ($validator->fails()) {
@@ -112,6 +124,10 @@ class UserController extends Controller
                         $user->password = bcrypt($request->password);
                     }
                     $user->role_user = $request->role_user;
+                    $user->logo = $request->logo; // Nouveau champ logo
+                    $user->sexe = $request->sexe; // Nouveau champ sexe
+                    $user->photo_profil_user = $request->photo_profil_user; // Nouveau champ photo_profil_user
+                    $user->nom_entreprise = $request->nom_entreprise; // Nouveau champ nom_entreprise
                     $user->save();
 
                     return response()->json([

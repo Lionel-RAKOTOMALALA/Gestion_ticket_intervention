@@ -14,14 +14,8 @@ return new class extends Migration
         Schema::create('materiels', function (Blueprint $table) {
             $table->increments('num_serie'); // Clé primaire auto-incrémentée
             $table->string('type_materiel');
-            $table->string('etat_materiel');
-            $table->text('description_probleme');
+            $table->string('description_materiel');
             $table->string('image_materiel_url')->nullable();
-            $table->unsignedBigInteger('id_demandeur')->nullable(); // Clé étrangère vers la table 'demandeurs', autorisant la valeur nulle
-
-            // Ajoutez d'autres colonnes si nécessaire
-
-            $table->foreign('id_demandeur')->references('id_demandeur')->on('demandeurs')->onDelete('set null')->onUpdate('cascade'); // Clé étrangère vers demandeurs
 
             $table->timestamps();    
         });

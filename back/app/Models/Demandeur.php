@@ -14,9 +14,8 @@ class Demandeur extends Model
 
     protected $fillable = [
         'id_user',
-        // Ajoutez d'autres colonnes si nécessaire
+        'id_poste', 
     ];
 
-
-
+   
 }

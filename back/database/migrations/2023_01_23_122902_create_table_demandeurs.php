@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('demandeurs', function (Blueprint $table) {
             $table->increments('id_demandeur'); // Clé primaire auto-incrémentée
             $table->unsignedBigInteger('id_user'); // Clé étrangère vers la table 'users'
-            // Ajoutez d'autres colonnes si nécessaire
-
+            $table->unsignedBigInteger('id_poste');
+            $table->foreign('id_poste')->references('id_poste')->on('postes')->onDelete('cascade')->onUpdate('cascade'); ;
             $table->foreign('id_user')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade'); // Clé étrangère vers users
 
             $table->timestamps(); // Ajoute automatiquement les colonnes created_at et updated_at

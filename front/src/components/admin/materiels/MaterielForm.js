@@ -7,11 +7,9 @@ import { NavLink } from 'react-router-dom';
 class MaterielForm extends Component {
     state = {
         materielInput: {
-            type_materiel: "",
-            etat_materiel: "",
-            id_demandeur: "",  // Nouveau champ : ID du demandeur
-            description_probleme: "",  // Nouveau champ : Description du problème
-            image_materiel_url: "",  // Nouveau champ : URL de l'image du matériel
+            type_materiel: "", 
+            description_materiel: "",  
+            image_materiel_url: "", 
             error_list: {},
         },
         formError: "",
@@ -32,9 +30,7 @@ class MaterielForm extends Component {
         this.setState({
             materielInput: {
                 type_materiel: "",
-                etat_materiel: "",
-                id_demandeur: "",
-                description_probleme: "",
+                description_materiel: "",
                 image_materiel_url: "",
                 error_list: {},
             },
@@ -59,11 +55,8 @@ class MaterielForm extends Component {
         if (this.state.materielInput.type_materiel === "") {
             errors.type_materiel = "Type de matériel est requis";
         }
-        if (this.state.materielInput.etat_materiel === "") {
-            errors.etat_materiel = "État du matériel est requis";
-        }
-        if (this.state.materielInput.id_demandeur === "") {  // Validation pour le nouvel champ ID du demandeur
-            errors.id_demandeur = "Demandeur est requis";
+        if (this.state.materielInput.description_materiel === "") {
+            errors.description_materiel = "Description du matériel est requis";
         }
         // Vous pouvez ajouter d'autres validations pour les nouveaux champs ici
 
@@ -84,10 +77,8 @@ class MaterielForm extends Component {
         } else {
             const data = {
                 type_materiel: this.state.materielInput.type_materiel,
-                etat_materiel: this.state.materielInput.etat_materiel,
-                id_demandeur: this.state.materielInput.id_demandeur,  // Nouveau champ
-                description_probleme: this.state.materielInput.description_probleme,  // Nouveau champ
-                image_materiel_url: this.state.materielInput.image_materiel_url,  // Nouveau champ
+                description_materiel: this.state.materielInput.description_materiel,  
+                image_materiel_url: this.state.materielInput.image_materiel_url,  
                 // Vous pouvez ajouter d'autres champs ici
             };
 
@@ -144,48 +135,19 @@ class MaterielForm extends Component {
                                                     </div>
                                                 )}
                                             </div>
+                                           
                                             <div className="form-group mb-3">
-                                                <label htmlFor="etat_materiel">État du matériel</label>
+                                                <label htmlFor="description_materiel">Description du problème</label>
                                                 <input
                                                     type="text"
-                                                    name="etat_materiel"
-                                                    className={`form-control ${this.state.materielInput.error_list.etat_materiel ? 'is-invalid' : ''}`}
+                                                    name="description_materiel"
+                                                    className={`form-control ${this.state.materielInput.error_list.description_materiel ? 'is-invalid' : ''}`}
                                                     onChange={this.handleInput}
-                                                    value={this.state.materielInput.etat_materiel}
+                                                    value={this.state.materielInput.description_materiel}
                                                 />
-                                                {this.state.materielInput.error_list.etat_materiel && (
+                                                {this.state.materielInput.error_list.description_materiel && (
                                                     <div className="text-danger">
-                                                        {this.state.materielInput.error_list.etat_materiel}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="form-group mb-3">
-                                                <label htmlFor="id_demandeur">ID du demandeur</label>
-                                                <input
-                                                    type="text"
-                                                    name="id_demandeur"
-                                                    className={`form-control ${this.state.materielInput.error_list.id_demandeur ? 'is-invalid' : ''}`}
-                                                    onChange={this.handleInput}
-                                                    value={this.state.materielInput.id_demandeur}
-                                                />
-                                                {this.state.materielInput.error_list.id_demandeur && (
-                                                    <div className="text-danger">
-                                                        {this.state.materielInput.error_list.id_demandeur}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="form-group mb-3">
-                                                <label htmlFor="description_probleme">Description du problème</label>
-                                                <input
-                                                    type="text"
-                                                    name="description_probleme"
-                                                    className={`form-control ${this.state.materielInput.error_list.description_probleme ? 'is-invalid' : ''}`}
-                                                    onChange={this.handleInput}
-                                                    value={this.state.materielInput.description_probleme}
-                                                />
-                                                {this.state.materielInput.error_list.description_probleme && (
-                                                    <div className="text-danger">
-                                                        {this.state.materielInput.error_list.description_probleme}
+                                                        {this.state.materielInput.error_list.description_materiel}
                                                     </div>
                                                 )}
                                             </div>

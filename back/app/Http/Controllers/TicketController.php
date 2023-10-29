@@ -10,10 +10,11 @@ class TicketController extends Controller
 {
     public function index()
     {
-        $tickets = TicketReparation::join('materiels', 'ticketReparation.num_serie', '=', 'materiels.num_serie')
+        $tickets = TicketReparation::join('demande_materiel', 'ticketReparation.id_demande', '=', 'demande_materiel.id_demande')
+            ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
             ->join('techniciens', 'ticketReparation.id_technicien', '=', 'techniciens.id_technicien')
             ->join('users as technicien_user', 'techniciens.id_user', '=', 'technicien_user.id')
-            ->select('ticketReparation.*', 'materiels.type_materiel', 'technicien_user.username as nom_technicien')
+            ->select('ticketReparation.*', 'materiels.type_materiel','materiels.image_materiel_url', 'technicien_user.username as nom_technicien')
             ->get();
 
         return response()->json([
@@ -27,14 +28,13 @@ class TicketController extends Controller
         $validator = Validator::make($request->all(), [
             'urgence' => 'required|string|max:255',
             'priorite' => 'required|string|max:255',
-            'description_probleme' => 'nullable|string',
             'statut_actuel' => 'nullable|string',
             'date_resolution' => 'nullable|date',
-            'cout_reparation' => 'required|numeric',
             'intervention_faite' => 'nullable|string',
             'suite_a_donnee' => 'nullable|string',
             'num_serie' => 'required|exists:materiels,num_serie',
             'id_technicien' => 'required|exists:techniciens,id_technicien',
+            'id_demande' => 'required|exists:demande_materiel,id_demande', // Modification pour la validation de l'id_demande
         ]);
 
         if ($validator->fails()) {
@@ -45,12 +45,13 @@ class TicketController extends Controller
         }
 
         $ticket = TicketReparation::create($request->all());
-        return response()->json(['ticket' => $ticket,'message'=>'Le ticket a été enregistré avec succès', 'status' => 200], 200);
+        return response()->json(['ticket' => $ticket, 'message' => 'Le ticket a été enregistré avec succès', 'status' => 200], 200);
     }
 
     public function show($id)
     {
-        $ticket = TicketReparation::join('materiels', 'ticketReparation.num_serie', '=', 'materiels.num_serie')
+        $ticket = TicketReparation::join('demande_materiel', 'ticketReparation.id_demande', '=', 'demande_materiel.id_demande')
+            ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
             ->join('techniciens', 'ticketReparation.id_technicien', '=', 'techniciens.id_technicien')
             ->join('users as technicien_user', 'techniciens.id_user', '=', 'technicien_user.id')
             ->where('ticketReparation.id_ticket', $id)
@@ -75,14 +76,13 @@ class TicketController extends Controller
         $validator = Validator::make($request->all(), [
             'urgence' => 'required|string|max:255',
             'priorite' => 'required|string|max:255',
-            'description_probleme' => 'nullable|string',
             'statut_actuel' => 'nullable|string',
             'date_resolution' => 'nullable|date',
-            'cout_reparation' => 'required|numeric',
             'intervention_faite' => 'nullable|string',
             'suite_a_donnee' => 'nullable|string',
             'num_serie' => 'required|exists:materiels,num_serie',
             'id_technicien' => 'required|exists:techniciens,id_technicien',
+            'id_demande' => 'required|exists:demande_materiel,id_demande', // Modification pour la validation de l'id_demande
         ]);
 
         if ($validator->fails()) {
@@ -101,7 +101,7 @@ class TicketController extends Controller
         }
 
         $ticket->update($request->all());
-        return response()->json(['ticket' => $ticket, 'status' => 200], 200);
+        return response()->json(['ticket' => $ticket, 'status' => 200, 'message' => 'Modification du ticket réussie'], 200);
     }
 
     public function destroy($id)

@@ -28,17 +28,12 @@ const TicketReparationForm = () => {
   }, []);
 
   const [ticketInput, setTicketInput] = useState({
-    date_creation: "",
     urgence: "",
     priorite: "",
-    description_probleme: "",
     statut_actuel: "",
     date_resolution: "",
-    cout_reparation: "",
     num_serie: "",
     id_technicien: "",
-    intervention_faite: "",
-    suite_a_donnee: "",
     error_list: {},
   });
 
@@ -55,17 +50,12 @@ const TicketReparationForm = () => {
 
   const resetForm = () => {
     setTicketInput({
-      date_creation: "",
       urgence: "",
       priorite: "",
-      description_probleme: "",
       statut_actuel: "",
       date_resolution: "",
-      cout_reparation: "",
       num_serie: "",
-      id_technicien: "",
-      intervention_faite: "",
-      suite_a_donnee: "",
+      id: "",
       error_list: {},
     });
     setFormError("");
@@ -83,9 +73,6 @@ const TicketReparationForm = () => {
 
     // Validation côté client
     const errors = {};
-    if (ticketInput.date_creation === "") {
-      errors.date_creation = "La date de création est requise";
-    }
     if (ticketInput.urgence === "") {
       errors.urgence = "L'urgence est requise";
     }
@@ -125,9 +112,8 @@ const TicketReparationForm = () => {
         urgence: ticketInput.urgence,
         priorite: ticketInput.priorite,
         description_probleme: ticketInput.description_probleme,
-        statut_actuel: ticketInput.statut_actuel,
-        date_resolution: ticketInput.date_resolution,
-        cout_reparation: ticketInput.cout_reparation,
+        statut_actuel: "Nouveau",
+        date_resolution: "11-02-06",
         num_serie: ticketInput.num_serie,
         id_technicien: ticketInput.id_technicien,
       };
@@ -173,25 +159,9 @@ const TicketReparationForm = () => {
                         {formError}
                       </div>
                     )}
-                    <div className="form-group mb-3">
-                      <label htmlFor="date_creation">Date de création</label>
-                      <input
-                        type="date"
-                        name="date_creation"
-                        className={`form-control ${
-                          ticketInput.error_list.date_creation
-                            ? "is-invalid"
-                            : ""
-                        }`}
-                        onChange={handleInput}
-                        value={ticketInput.date_creation}
-                      />
-                      {ticketInput.error_list.date_creation && (
-                        <div className="text-danger">
-                          {ticketInput.error_list.date_creation}
-                        </div>
-                      )}
-                    </div>
+                    
+                      
+                    
                     <div className="form-group mb-3">
                       <label htmlFor="urgence">Urgence</label>
                       <select
@@ -230,84 +200,7 @@ const TicketReparationForm = () => {
                         </div>
                       )}
                     </div>
-                    <div className="form-group mb-3">
-                      <label htmlFor="description_probleme">Description du problème</label>
-                      <textarea
-                        name="description_probleme"
-                        className={`form-control ${
-                          ticketInput.error_list.description_probleme
-                            ? "is-invalid"
-                            : ""
-                        }`}
-                        onChange={handleInput}
-                        value={ticketInput.description_probleme}
-                      />
-                      {ticketInput.error_list.description_probleme && (
-                        <div className="text-danger">
-                          {ticketInput.error_list.description_probleme}
-                        </div>
-                      )}
-                    </div>
-                    <div className="form-group mb-3">
-                      <label htmlFor="statut_actuel">Statut actuel</label>
-                      <select
-                        name="statut_actuel"
-                        onChange={handleInput}
-                        value={ticketInput.statut_actuel}
-                        className={`form-control ${
-                          ticketInput.error_list.statut_actuel ? "is-invalid" : ""
-                        }`}
-                      >
-                        <option value="">Sélectionner le statut actuel</option>
-                        <option value="En attente">En attente</option>
-                        <option value="En cours de traitement">En cours de traitement</option>
-                        <option value="En attente de pièces">En attente de pièces</option>
-                        <option value="Terminé">Terminé</option>
-                        <option value="Annulé">Annulé</option>
-                      </select>
-                      {ticketInput.error_list.statut_actuel && (
-                        <div className="text-danger">{ticketInput.error_list.statut_actuel}</div>
-                      )}
-                    </div>
 
-                    <div className="form-group mb-3">
-                      <label htmlFor="date_resolution">Date de résolution</label>
-                      <input
-                        type="date"
-                        name="date_resolution"
-                        className={`form-control ${
-                          ticketInput.error_list.date_resolution
-                            ? "is-invalid"
-                            : ""
-                        }`}
-                        onChange={handleInput}
-                        value={ticketInput.date_resolution}
-                      />
-                      {ticketInput.error_list.date_resolution && (
-                        <div className="text-danger">
-                          {ticketInput.error_list.date_resolution}
-                        </div>
-                      )}
-                    </div>
-                    <div className="form-group mb-3">
-                      <label htmlFor="cout_reparation">Coût de réparation</label>
-                      <input
-                        type="text"
-                        name="cout_reparation"
-                        className={`form-control ${
-                          ticketInput.error_list.cout_reparation
-                            ? "is-invalid"
-                            : ""
-                        }`}
-                        onChange={handleInput}
-                        value={ticketInput.cout_reparation}
-                      />
-                      {ticketInput.error_list.cout_reparation && (
-                        <div className="text-danger">
-                          {ticketInput.error_list.cout_reparation}
-                        </div>
-                      )}
-                    </div>
                     <div className="form-group mb-3">
                       <label htmlFor="num_serie">Matériel à réparer</label>
                       <select

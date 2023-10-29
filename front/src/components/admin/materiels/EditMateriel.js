@@ -12,14 +12,9 @@ const EditMateriel = () => {
     const [formError, setFormError] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [materielInput, setMaterielInput] = useState({
-        num_serie: '',
-        type_materiel: '',
-        etat_materiel: '',
-        description_probleme: '',
-        image_materiel_url: '',
-        id_demandeur: '',
-        nom_entreprise: '',
-        nom_demandeur: '',
+        type_materiel: "",
+        description_materiel: "",
+        image_materiel_url: "",
         error_list: {},
     });
     
@@ -28,17 +23,11 @@ const EditMateriel = () => {
             .then((res) => {
                 if (res.data.status === 200) {
                     setMaterielInput({
-                        num_serie: res.data.materiel.num_serie,
                         type_materiel: res.data.materiel.type_materiel,
-                        etat_materiel: res.data.materiel.etat_materiel,
-                        description_probleme: res.data.materiel.description_probleme,
+                        description_materiel: res.data.materiel.description_materiel,
                         image_materiel_url: res.data.materiel.image_materiel_url,
-                        id_demandeur: res.data.materiel.id_demandeur,
-                        nom_entreprise: res.data.materiel.nom_entreprise,
-                        nom_demandeur: res.data.materiel.nom_demandeur,
                         error_list: {},
-                      });
-                      
+                    });
                     setIsLoading(false);
                 } else if (res.data.status === 404) {
                     setIsLoading(false);
@@ -67,11 +56,9 @@ const EditMateriel = () => {
         // Validation côté client
         const errors = {};
         if (materielInput.type_materiel.trim() === "") {
-            errors.type_materiel = "Type de matériel est requis";
+            errors.type_materiel = "Le type de matériel est requis";
         }
-        if (materielInput.etat_materiel.trim() === "") {
-            errors.etat_materiel = "État du matériel est requis";
-        }
+        // Vous pouvez ajouter d'autres validations pour les nouveaux champs ici
 
         if (Object.keys(errors).length > 0) {
             // Il y a des erreurs, affichez-les dans le formulaire
@@ -85,18 +72,16 @@ const EditMateriel = () => {
             // Pas d'erreurs, procéder à la requête Axios
             const data = {
                 type_materiel: materielInput.type_materiel,
-                etat_materiel: materielInput.etat_materiel,
-                description_probleme: materielInput.description_probleme,
+                description_materiel: materielInput.description_materiel,
                 image_materiel_url: materielInput.image_materiel_url,
-                id_demandeur: materielInput.id_demandeur,
             };
             axios.put(`http://127.0.0.1:8000/api/materiels/${id}`, data)
                 .then((res) => {
                     if (res.data.status === 200) {
-                        swal('Success', res.data.message, 'success');
+                        swal('Succès', res.data.message, 'success');
                         navigate('/admin/materiels');
                     } else if (res.data.status === 400) {
-                        setMaterielInput({ ...materielInput, error_list: res.data.errors });
+                        setMaterielInput({ ...materielInput, error_list: res.data.error_list });
                     } else if (res.data.status === 404) {
                         swal("Erreur", res.data.message, "error");
                         navigate('/admin/materiels');
@@ -148,36 +133,21 @@ const EditMateriel = () => {
                                                 )}
                                             </div>
                                             <div className="form-group mb-3">
-                                                <label htmlFor="etat_materiel">État du matériel</label>
-                                                <input
-                                                    type="text"
-                                                    name="etat_materiel"
-                                                    className={`form-control ${displayFieldError('etat_materiel')}`}
-                                                    onChange={handleInput}
-                                                    value={materielInput.etat_materiel}
-                                                />
-                                                {materielInput.error_list.etat_materiel && (
-                                                    <div className="text-danger">
-                                                        {materielInput.error_list.etat_materiel}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="form-group mb-3">
-                                                <label htmlFor="description_probleme">Description du Problème</label>
+                                                <label htmlFor="description_materiel">Description du matériel</label>
                                                 <textarea
-                                                    name="description_probleme"
-                                                    className={`form-control ${displayFieldError('description_probleme')}`}
+                                                    name="description_materiel"
+                                                    className={`form-control ${displayFieldError('description_materiel')}`}
                                                     onChange={handleInput}
-                                                    value={materielInput.description_probleme}
+                                                    value={materielInput.description_materiel}
                                                 />
-                                                {materielInput.error_list.description_probleme && (
+                                                {materielInput.error_list.description_materiel && (
                                                     <div className="text-danger">
-                                                        {materielInput.error_list.description_probleme}
+                                                        {materielInput.error_list.description_materiel}
                                                     </div>
                                                 )}
                                             </div>
                                             <div className="form-group mb-3">
-                                                <label htmlFor="image_materiel_url">URL de l'Image du Matériel</label>
+                                                <label htmlFor="image_materiel_url">URL de l'image du matériel</label>
                                                 <input
                                                     type="text"
                                                     name="image_materiel_url"
@@ -188,21 +158,6 @@ const EditMateriel = () => {
                                                 {materielInput.error_list.image_materiel_url && (
                                                     <div className="text-danger">
                                                         {materielInput.error_list.image_materiel_url}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="form-group mb-3">
-                                                <label htmlFor="id_demandeur">ID du Demandeur</label>
-                                                <input
-                                                    type="text"
-                                                    name="id_demandeur"
-                                                    className={`form-control ${displayFieldError('id_demandeur')}`}
-                                                    onChange={handleInput}
-                                                    value={materielInput.id_demandeur}
-                                                />
-                                                {materielInput.error_list.id_demandeur && (
-                                                    <div className="text-danger">
-                                                        {materielInput.error_list.id_demandeur}
                                                     </div>
                                                 )}
                                             </div>

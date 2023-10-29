@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace App\Http\Requests;
 
@@ -24,21 +24,9 @@ class DemandeurStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'id_user' => 'required|exists:users,id',
-            // 'urgence' => 'required|string|max:255',
-            // 'priorite' => 'required|string|max:255',
-            // 'description_probleme' => 'nullable|string',
-            // 'statut_actuel' => 'nullable|string',
-            // 'date_resolution' => 'nullable|date',
-            // 'cout_reparation' => 'required|numeric',
-            // 'nom_entreprise' => 'required|string|max:255',
-            // 'type_materiel' => 'required|string|max:255',
-            // 'nom_utilisateur' => 'required|string|max:255',
-            // 'intervention_faite' => 'nullable|string',
-            // 'suite_a_donnee' => 'nullable|string',
-            // 'num_serie' => 'required|exists:materiels,num_serie',
-            // 'id_demandeur' => 'required|exists:demandeurs,id_demandeur',
-            // 'id_technicien' => 'required|exists:techniciens,id_technicien',
+            'id_user' => 'required|exists:users,id',
+            'id_poste' => 'required|exists:postes,id_poste',
+            // Ajoutez d'autres règles de validation si nécessaire
         ];
     }
 
@@ -52,11 +40,9 @@ class DemandeurStoreRequest extends FormRequest
         return [
             'id_user.required' => 'Veuillez sélectionner un utilisateur.',
             'id_user.exists' => "L'utilisateur sélectionné n'existe pas.",
+            'id_poste.required' => 'Veuillez sélectionner un poste.',
+            'id_poste.exists' => 'Le poste sélectionné n\'existe pas.',
             // Ajoutez d'autres messages d'erreur au besoin
-
-
-
-           
         ];
     }
 }

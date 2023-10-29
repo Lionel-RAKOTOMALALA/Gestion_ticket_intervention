@@ -23,10 +23,8 @@ class MaterielStoreRequest extends FormRequest
 {
     return [
         'type_materiel' => 'required|string',
-        'etat_materiel' => 'required|string',
-        'description_probleme' => 'nullable|string', // Validation pour la description du problème (peut être nulle)
+        'description_materiel' => 'nullable|string', // Validation pour la description du problème (peut être nulle)
         'image_materiel_url' => 'nullable|string',       // Validation pour l'URL de l'image (peut être nulle)
-        'id_demandeur' => 'nullable|exists:demandeurs,id_demandeur' // Validation pour la clé étrangère (peut être nulle)
     ];
 }
 
@@ -34,10 +32,8 @@ public function messages(): array
 {
     return [
         'type_materiel.required' => 'Veuillez entrer le type de votre matériel',
-        'etat_materiel.required' => 'Veuillez entrer l\'état de votre matériel',
-        'description_probleme.string' => 'La description du problème doit être une chaîne de caractères',
+        'description_materiel.string' => 'La description du problème doit être une chaîne de caractères',
         'image_materiel_url.url' => 'L\'URL de l\'image n\'est pas valide',
-        'id_demandeur.exists' => 'Le demandeur spécifié n\'existe pas',
     ];
 }
 }

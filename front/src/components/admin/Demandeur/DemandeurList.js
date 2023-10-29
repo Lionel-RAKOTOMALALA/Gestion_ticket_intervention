@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import TicketReparation from "./Ticket"; // Assurez-vous d'importer le composant approprié pour les tickets d'intervention
+import Demandeur from "./Demandeur"; // Assurez-vous que Demandeur est correctement importé
 import $ from "jquery";
 import Swal from "sweetalert2";
 import Loader from "../materiels/loader";
 
-const TicketReparationList = () => {
-  const [tickets, setTickets] = useState([]);
+const DemandeurList = () => {
+  const [demandeurs, setDemandeurs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const tableRef = useRef(null);
 
@@ -18,9 +18,9 @@ const TicketReparationList = () => {
 
   const refreshData = () => {
     destroyDataTable();
-    axios.get("http://127.0.0.1:8000/api/tickets") // Assurez-vous d'utiliser l'URL correcte
+    axios.get("http://127.0.0.1:8000/api/demandeurs") // Mettez à jour l'URL de l'API pour les demandeurs
       .then((response) => {
-        setTickets(response.data.tickets); // Assurez-vous que la réponse contient les données des tickets d'intervention
+        setDemandeurs(response.data.demandeurs); // Assurez-vous que la réponse contient les demandeurs
         setIsLoading(false);
         if (tableRef.current) {
           $(tableRef.current).DataTable({
@@ -50,7 +50,7 @@ const TicketReparationList = () => {
     <div>
       <div className="card shadow mb-4">
         <div className="card-header py-3">
-          <h6 className="m-0 font-weight-bold text-primary">Liste des tickets d'intervention</h6>
+          <h6 className="m-0 font-weight-bold text-primary">Liste des demandeurs</h6>
         </div>
         <div className="card-body">
           {isLoading ? (
@@ -65,20 +65,15 @@ const TicketReparationList = () => {
               >
                 <thead>
                   <tr>
-                    <th>ID Ticket</th>
-                    <th>Date de Création</th>
-                    <th>Urgence</th>
-                    <th>Priorité</th>
-                    <th>Statut Actuel</th>
-                    <th>Type de Matériel</th>
-                    <th>Image du matériel</th>
-                    <th>Nom du Technicien</th>
+                    <th>ID Demandeur</th>
+                    <th>Nom de l'utilisateur</th>
+                    <th>Poste occupé</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {tickets.map((ticket) => (
-                    <TicketReparation key={ticket.id_ticket} ticket={ticket} refreshData={refreshData} />
+                  {demandeurs.map((demandeur) => (
+                    <Demandeur key={demandeur.id_demandeur} demandeur={demandeur} refreshData={refreshData} />
                   ))}
                 </tbody>
               </table>
@@ -90,4 +85,4 @@ const TicketReparationList = () => {
   );
 };
 
-export default TicketReparationList;
+export default DemandeurList;

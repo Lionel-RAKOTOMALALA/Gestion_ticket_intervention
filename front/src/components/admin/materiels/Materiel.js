@@ -43,10 +43,8 @@ const Materiel = ({ materiel, refreshData }) => {
       
     return (
         <tr>
-            <td>{materiel.type_materiel}</td>
             <td>{materiel.num_serie}</td>
-            <td>{materiel.etat_materiel}</td>
-            <td>{materiel.nom_demandeur}</td>
+            <td>{materiel.type_materiel}</td>
             <td>{materiel.image_materiel_url}</td>
             <td>
                 <div style={{ marginRight: '1.2rem', display: 'inline-block' }}>

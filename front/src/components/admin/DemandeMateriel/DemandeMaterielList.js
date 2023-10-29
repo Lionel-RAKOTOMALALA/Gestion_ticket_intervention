@@ -1,26 +1,26 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import TicketReparation from "./Ticket"; // Assurez-vous d'importer le composant approprié pour les tickets d'intervention
+import DemandeMateriel from "./DemandeMateriel";
+import Loader from "../materiels/loader"; // Importez le composant Loader
 import $ from "jquery";
-import Swal from "sweetalert2";
-import Loader from "../materiels/loader";
 
-const TicketReparationList = () => {
-  const [tickets, setTickets] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+const DemandeMaterielList = () => {
+  const [demandeMateriels, setDemandeMateriels] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // État pour gérer le chargement
   const tableRef = useRef(null);
 
   const destroyDataTable = () => {
     if ($.fn.DataTable.isDataTable(tableRef.current)) {
-      $(tableRef.current).DataTable().destroy();
+      $(tableRef.current).DataTable().destroy(); // Détruire la DataTable existante
     }
   };
 
   const refreshData = () => {
-    destroyDataTable();
-    axios.get("http://127.0.0.1:8000/api/tickets") // Assurez-vous d'utiliser l'URL correcte
+    destroyDataTable(); // Détruire DataTable avant de charger de nouvelles données
+    axios.get("http://127.0.0.1:8000/api/demande_materiel/")
       .then((response) => {
-        setTickets(response.data.tickets); // Assurez-vous que la réponse contient les données des tickets d'intervention
+        setDemandeMateriels(response.data.demandes);
+        // console.log(demandeMateriels);
         setIsLoading(false);
         if (tableRef.current) {
           $(tableRef.current).DataTable({
@@ -43,17 +43,17 @@ const TicketReparationList = () => {
   };
 
   useEffect(() => {
-    refreshData();
+    refreshData(); // Appeler la fonction ici pour charger les données lors du montage du composant
   }, []);
 
   return (
     <div>
       <div className="card shadow mb-4">
         <div className="card-header py-3">
-          <h6 className="m-0 font-weight-bold text-primary">Liste des tickets d'intervention</h6>
+          <h6 className="m-0 font-weight-bold text-primary">Liste des demandes de réparation de matériel</h6>
         </div>
         <div className="card-body">
-          {isLoading ? (
+          {isLoading ? ( // Condition d'affichage du loader
             <Loader />
           ) : (
             <div className="table-responsive">
@@ -65,20 +65,18 @@ const TicketReparationList = () => {
               >
                 <thead>
                   <tr>
-                    <th>ID Ticket</th>
-                    <th>Date de Création</th>
-                    <th>Urgence</th>
-                    <th>Priorité</th>
-                    <th>Statut Actuel</th>
-                    <th>Type de Matériel</th>
-                    <th>Image du matériel</th>
-                    <th>Nom du Technicien</th>
+                    <th>Numéro de la demande</th>
+                    <th>État du matériel</th>
+                    <th>Description du problème</th>
+                    <th>Numéro de série du matériel</th>
+                    <th>Nom du demandeur</th>
+                    <th>Status du demande</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {tickets.map((ticket) => (
-                    <TicketReparation key={ticket.id_ticket} ticket={ticket} refreshData={refreshData} />
+                  {demandeMateriels.map((demandeMateriel) => (
+                    <DemandeMateriel key={demandeMateriel.id_demande} demandeMateriel={demandeMateriel} refreshData={refreshData} />
                   ))}
                 </tbody>
               </table>
@@ -90,4 +88,4 @@ const TicketReparationList = () => {
   );
 };
 
-export default TicketReparationList;
+export default DemandeMaterielList;

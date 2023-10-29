@@ -44,13 +44,13 @@ const TicketReparation = ({ ticket, refreshData }) => {
       <td>{ticket.date_creation}</td>
       <td>{ticket.urgence}</td>
       <td>{ticket.priorite}</td>
-      <td>{ticket.description_probleme}</td>
       <td>{ticket.statut_actuel}</td>
       <td>{ticket.type_materiel}</td>
+      <td>{ticket.image_materiel_url}</td>
       <td>{ticket.nom_technicien}</td>
       <td>
   <div style={{ marginRight: '1.2rem', display: 'inline-block' }}>
-    <NavLink to={`/admin/tickets/${ticket.id_ticket}`}>
+    <NavLink to={`/admin/ticket/edit/${ticket.id_ticket}`}>
       <button className="btn btn-primary btn-sm equal-width-button">
         <UilEditAlt /> Modifier
       </button>

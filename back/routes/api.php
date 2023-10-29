@@ -9,6 +9,9 @@ use App\Http\Controllers\DemandeurController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\DemandeMaterielController;
+
+
 
 Route::middleware('auth:sanctum')->group( function () {
     Route::post('logout', [AuthController::class, 'logout']);
@@ -29,13 +32,26 @@ Route::prefix('tickets')->group(function () {
     Route::put('{id}', [TicketController::class, 'update']);
     Route::delete('{id}', [TicketController::class, 'destroy']);
 });
-
+Route::prefix('demande_materiel')->group(function () {
+    Route::get('/', [DemandeMaterielController::class, 'index']);
+    Route::get('/{id}', [DemandeMaterielController::class, 'show']);
+    Route::post('/', [DemandeMaterielController::class, 'store']);
+    Route::put('/{id}', [DemandeMaterielController::class, 'update']);
+    Route::delete('/{id}', [DemandeMaterielController::class, 'destroy']);
+});
 Route::prefix('demandeurs')->group(function () {
     Route::get('/', [DemandeurController::class, 'index']);
     Route::get('{id}', [DemandeurController::class, 'show']);
     Route::post('/', [DemandeurController::class, 'store']);
     Route::put('{id}', [DemandeurController::class, 'update']);
     Route::delete('{id}', [DemandeurController::class, 'destroy']);
+});
+Route::prefix('postes')->group(function () {
+    Route::get('/', [PosteController::class, 'index']);
+    Route::get('{id}', [PosteController::class, 'show']);
+    Route::post('/', [PosteController::class, 'store']);
+    Route::put('{id}', [PosteController::class, 'update']);
+    Route::delete('{id}', [PosteController::class, 'destroy']);
 });
 
 Route::prefix('techniciens')->group(function () {

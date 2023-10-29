@@ -12,16 +12,15 @@ class TicketReparation extends Model
     protected $table = 'ticketReparation'; // Nom de la table
 
     protected $fillable = [
-        'id_ticket', // Clé primaire, excluant "puck"
+        'id_ticket',
         'date_creation',
         'urgence',
         'priorite',
-        'description_probleme',
         'statut_actuel',
         'date_resolution',
-        'cout_reparation',
-        'num_serie', // Nom de la clé étrangère correspondant à 'id_materiel'
-        'id_technicien',
+        'id_demande', // Nom de la clé étrangère correspondant à 'id_demande'
+        'id_technicien', // Nom de la clé étrangère correspondant à 'id_technicien'
+        'id_piece', // Nom de la clé étrangère correspondant à 'id_piece'
         'intervention_faite', // Nouvelle colonne
         'suite_a_donnee', // Nouvelle colonne
     ];

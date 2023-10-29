@@ -4,7 +4,7 @@ import { UilPlus } from '@iconscout/react-unicons';
 import { NavLink } from 'react-router-dom';
 import MaterielList from './MaterielList';
 
-const Materiel = () => {
+const MaterielApp = () => {
   return (
     <div className="container-fluid">
       <h1 className="h3 mb-2 text-gray-800">Materiels</h1>
@@ -25,4 +25,4 @@ const Materiel = () => {
   );
 };
 
-export default Materiel;
+export default MaterielApp;

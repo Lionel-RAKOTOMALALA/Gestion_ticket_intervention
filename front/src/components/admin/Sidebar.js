@@ -84,6 +84,30 @@ function Sidebar() {
                     <span>Technicien</span>
                 </NavLink>
             </li>
+            <li className="nav-item">
+                <NavLink className="nav-link" to="/admin/users">
+                    <UilUserCircle/>
+                    <span>Utilisateur</span>
+                </NavLink>
+            </li>
+            <li className="nav-item">
+                <NavLink className="nav-link" to="/admin/demande_materiels">
+                    <UilUserCircle/>
+                    <span>Demande de réparation</span>
+                </NavLink>
+            </li>
+            <li className="nav-item">
+                <NavLink className="nav-link" to="/admin/demandeurs">
+                    <UilUserCircle/>
+                    <span>Demandeur</span>
+                </NavLink>
+            </li>
+            <li className="nav-item">
+                <NavLink className="nav-link" to="/admin/postes">
+                    <UilUserCircle/>
+                    <span>Postes</span>
+                </NavLink>
+            </li>
 
             {/* Ticket d'intervention */}
             <li className="nav-item">
