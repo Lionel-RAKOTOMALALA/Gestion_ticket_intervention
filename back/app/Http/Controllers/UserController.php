@@ -33,7 +33,7 @@ class UserController extends Controller
             'role_user' => 'string',
             'logo' => 'nullable|string', // Nouveau champ logo
             'sexe' => 'nullable|string', // Nouveau champ sexe
-            'photo_profil_user' => 'nullable|string', // Nouveau champ photo_profil_user
+            'photo_profil_user' => 'required|image|mimes:jpeg,png,jpg|max:2048', // Nouveau champ photo_profil_user
             'nom_entreprise' => 'nullable|string', // Nouveau champ nom_entreprise
             // Ajoutez d'autres règles de validation si nécessaire
         ]);
@@ -46,19 +46,31 @@ class UserController extends Controller
         }
 
         try {
-            User::create([
-                'username' => $request->username,
-                'email' => $request->email,
-                'password' => bcrypt($request->password),
-                'role_user' => $request->role_user,
-                'logo' => $request->logo, // Nouveau champ logo
-                'sexe' => $request->sexe, // Nouveau champ sexe
-                'photo_profil_user' => $request->photo_profil_user, // Nouveau champ photo_profil_user
-                'nom_entreprise' => $request->nom_entreprise, // Nouveau champ nom_entreprise
-                // Ajoutez d'autres champs si nécessaire
-            ]);
+                $user = new User;
+
+                $user->username = $request->username;
+                $user->email = $request->email;
+                $user->password = bcrypt($request->password);
+                $user->role_user =  $request->role_user;
+                $user->logo = $request->logo;
+                $user->sexe = $request->sexe;
+
+                if($request->hasFile('photo_profil_user'))
+                {
+                    $file = $request->file('photo_profil_user');
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = time().'.'.$extension;
+                    $file->move('uploads/users', $filename);
+                    $user->photo_profil_user = 'uploads/users'.$filename;
+
+                }
+
+                $user->nom_entreprise = $request->nom_entreprise; 
+                $user->save();
+            
 
             return response()->json([
+                'user'=> $user,
                 'message' => "L'utilisateur a été créé avec succès",
                 'status' => 200
             ], 200);

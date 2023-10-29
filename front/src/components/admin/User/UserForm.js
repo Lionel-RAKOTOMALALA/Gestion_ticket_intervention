@@ -13,10 +13,10 @@ function Register() {
     logo: null, // Utilisez un input de type fichier pour télécharger la photo de profil
     nom_entreprise: '',
     sexe: '', // Nouveau champ "sexe"
-    photo_profil_user: '', // Nouveau champ "photo de profil"
     error_list: [],
   });
 
+ const [picture, setPicture] = useState([]);
   const handleInput = (e) => {
     e.persist();
     setRegister({ ...registerInput, [e.target.name]: e.target.value });
@@ -24,13 +24,14 @@ function Register() {
 
   const handleFileInput = (e) => {
     e.persist();
-    setRegister({ ...registerInput, [e.target.name]: e.target.files[0] });
+    setPicture({ photo_profil_user: e.target.files[0] });
   };
 
   const registerSubmit = (e) => {
     e.preventDefault();
 
     const formData = new FormData();
+    formData.append('photo_profil_user', picture.photo_profil_user);
     formData.append('username', registerInput.username);
     formData.append('email', registerInput.email);
     formData.append('password', registerInput.password);
@@ -38,7 +39,6 @@ function Register() {
     formData.append('logo', registerInput.logo);
     formData.append('nom_entreprise', registerInput.nom_entreprise);
     formData.append('sexe', registerInput.sexe);
-    formData.append('photo_profil_user', registerInput.photo_profil_user);
 
     axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie').then((response) => {
       axios.post('http://127.0.0.1:8000/api/register', formData).then((res) => {
@@ -46,7 +46,8 @@ function Register() {
           localStorage.setItem('auth_token', res.data.token);
           localStorage.setItem('auth_name', res.data.username);
           swal('Success', res.data.message, 'success');
-          navigate('/admin');
+          navigate('/admin/users');
+          console.log(res.data.user);
         } else {
           setRegister({ ...registerInput, error_list: res.data.validation_errors });
         }
@@ -54,6 +55,7 @@ function Register() {
     });
   };
 
+  
   return (
     <div>
       <div className="container py-5">
@@ -64,7 +66,7 @@ function Register() {
                 <h4>Register</h4>
               </div>
               <div className="card-body">
-                <form onSubmit={registerSubmit}>
+                <form onSubmit={registerSubmit} encType='multipart/form-data'>
                   <div className="form-group mb-3">
                     <label>Username</label>
                     <input type="text" name="username" onChange={handleInput} value={registerInput.username} className="form-control" />
