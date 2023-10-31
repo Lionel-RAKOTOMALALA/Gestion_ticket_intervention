@@ -13,14 +13,14 @@ const TicketReparationForm = () => {
 
   useEffect(() => {
     // Récupérer la liste des matériels depuis l'API
-    axios.get("http://127.0.0.1:8000/api/materiels").then((res) => {
+    axios.get("http://127.0.0.1:8000/api/materielInDemande").then((res) => {
       if (res.data.status === 200) {
         setMaterielsList(res.data.materiels);
       }
     });
 
     // Récupérer la liste des techniciens depuis l'API
-    axios.get("http://127.0.0.1:8000/api/users").then((res) => {
+    axios.get("http://127.0.0.1:8000/api/userInTechniciens").then((res) => {
       if (res.data.status === 200) {
         setTechniciensList(res.data.users);
       }

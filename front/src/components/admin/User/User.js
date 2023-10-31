@@ -25,7 +25,7 @@ const User = ({ user, refreshData }) => {
           .then((res) => {
             if (res.data.status === 200) {
               Swal.fire('Success', res.data.message, 'success');
-              refreshData(); 
+              refreshData();
             } else if (res.data.status === 404) {
               Swal.fire("Erreur", res.data.message, "error");
               navigate('/admin/users');
@@ -40,14 +40,26 @@ const User = ({ user, refreshData }) => {
 
   return (
     <tr>
-    <td>{user.id}</td>
-      <td>{user.photo_profil_user}</td>
+      <td>{user.id}</td>
+      <td className="text-center">
+        <div style={{ width: "25%", height: "20%", position: "relative" }}>
+          <img
+            src={"http://localhost:8000/uploads/users/" + user.photo_profil_user}
+            alt="User Photo"
+            className="rounded-circle mx-auto"
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
+          />
+        </div>
+      </td>
       <td>{user.username}</td>
       <td>{user.email}</td>
-      <td>{user.role_user}</td>
+      <td>{user.role}</td>
       <td>{user.sexe}</td>
-      <td>{user.nom_entreprise}</td> {/* Ajoutez le champ nom_entreprise ici */}
-      <td>
+      <td>{user.nom_entreprise}</td>
+      <td className="text-center">
         <div style={{ marginRight: '1.2rem', display: 'inline-block' }}>
           <NavLink to={`/admin/users/edit/${user.id}`}>
             <button className="btn btn-primary btn-sm mr-2">

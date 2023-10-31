@@ -12,16 +12,17 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\DemandeMaterielController;
 
 
-
-Route::middleware('auth:sanctum')->group( function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('/checkingAuthenticated', function(){
-        return response()->json(['message'=>'Bienvenue','status'=>200],200);
+        return response()->json([
+            'message' => 'Bienvenue',
+            'status' => 200
+        ], 200);
     });
-});
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+    });
+
+
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
@@ -84,3 +85,7 @@ Route::prefix('piece_rechanges')->group(function () {
     Route::put('{id}', [PieceRechangeController::class, 'update']);
     Route::delete('{id}', [PieceRechangeController::class, 'destroy']);
 });
+Route::get('materielInDemande', [MaterielController::class, 'MaterielInDemande']);
+Route::get('userInTechniciens', [UserController::class, 'userInTechniciens']);
+Route::get('newUserSpecialisation', [UserController::class, 'newUserSpecialisation']);
+Route::get('newUserSpecialisation/{id}', [UserController::class, 'showNewUserSpecialisation']);

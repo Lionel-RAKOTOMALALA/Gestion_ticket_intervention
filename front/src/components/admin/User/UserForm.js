@@ -9,39 +9,44 @@ function Register() {
     username: '',
     email: '',
     password: '',
-    role_user: 1, // Par défaut, "Admin" est sélectionné (1 pour Admin, 0 pour Utilisateur simple)
-    logo: null, // Utilisez un input de type fichier pour télécharger la photo de profil
+    role_user: 1,
+    logo: null,
     nom_entreprise: '',
-    sexe: '', // Nouveau champ "sexe"
+    sexe: '',
     error_list: [],
   });
 
- const [picture, setPicture] = useState([]);
+  const [picture, setPicture] = useState(null);
+
   const handleInput = (e) => {
     e.persist();
     setRegister({ ...registerInput, [e.target.name]: e.target.value });
   };
 
   const handleFileInput = (e) => {
-    e.persist();
-    setPicture({ photo_profil_user: e.target.files[0] });
+    setPicture(e.target.files[0]);
   };
 
   const registerSubmit = (e) => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append('photo_profil_user', picture.photo_profil_user);
+    formData.append('photo_profil_user', picture);
     formData.append('username', registerInput.username);
     formData.append('email', registerInput.email);
     formData.append('password', registerInput.password);
     formData.append('role_user', registerInput.role_user);
-    formData.append('logo', registerInput.logo);
+    formData.append('logo', registerInput.logo); // Assurez-vous que vous avez un champ 'logo' dans votre modèle User
     formData.append('nom_entreprise', registerInput.nom_entreprise);
     formData.append('sexe', registerInput.sexe);
 
     axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie').then((response) => {
-      axios.post('http://127.0.0.1:8000/api/register', formData).then((res) => {
+      axios.post('http://127.0.0.1:8000/api/register', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }).then((res) => {
+        
         if (res.data.status === 200) {
           localStorage.setItem('auth_token', res.data.token);
           localStorage.setItem('auth_name', res.data.username);
@@ -55,7 +60,6 @@ function Register() {
     });
   };
 
-  
   return (
     <div>
       <div className="container py-5">
@@ -66,7 +70,7 @@ function Register() {
                 <h4>Register</h4>
               </div>
               <div className="card-body">
-                <form onSubmit={registerSubmit} encType='multipart/form-data'>
+                <form onSubmit={registerSubmit} encType="multipart/form-data">
                   <div className="form-group mb-3">
                     <label>Username</label>
                     <input type="text" name="username" onChange={handleInput} value={registerInput.username} className="form-control" />
@@ -94,7 +98,7 @@ function Register() {
                         type="radio"
                         name="role_user"
                         value="1"
-                        checked={registerInput.role_user === "1"}
+                        checked={registerInput.role_user === 1}
                         onChange={handleInput}
                         className="form-check-input"
                       />
@@ -105,7 +109,7 @@ function Register() {
                         type="radio"
                         name="role_user"
                         value="0"
-                        checked={registerInput.role_user === "0"}
+                        checked={registerInput.role_user === 0}
                         onChange={handleInput}
                         className="form-check-input"
                       />

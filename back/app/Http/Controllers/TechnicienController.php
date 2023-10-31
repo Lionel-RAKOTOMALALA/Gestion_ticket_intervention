@@ -25,6 +25,7 @@ class TechnicienController extends Controller
             'status' => 200
         ], 200);
     }
+   
 
     /**
      * Crée un nouveau technicien.

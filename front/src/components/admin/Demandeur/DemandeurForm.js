@@ -10,7 +10,7 @@ const DemandeurForm = () => {
   const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://127.0.0.1:8000/api/users`).then((res) => {
+    axios.get(`http://127.0.0.1:8000/api/newUserSpecialisation`).then((res) => {
       if (res.data.status === 200) {
         setUserList(res.data.users);
       }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserStoreRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+
 
 class UserController extends Controller
 {
@@ -15,15 +17,85 @@ class UserController extends Controller
     {
         $users = User::all();
 
+        $formattedUsers = $users->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'role' => $user->role_user == 1 ? 'Admin' : 'Utilisateur simple',
+                'logo' => $user->logo,
+                'sexe' => $user->sexe,
+                'photo_profil_user' => $user->photo_profil_user,
+                'email_verified_at' => $user->email_verified_at,
+                'nom_entreprise' => $user->nom_entreprise,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+            ];
+        });
+
+        return response()->json([
+            'users' => $formattedUsers,
+            'status' => 200
+        ], 200);
+    }
+    public function newUserSpecialisation()
+    {
+        $users = DB::table('users')
+    ->leftJoin('techniciens', 'users.id', '=', 'techniciens.id_user')
+    ->leftJoin('demandeurs', 'users.id', '=', 'demandeurs.id_user')
+    ->whereNull('techniciens.id_user')
+    ->whereNull('demandeurs.id_user')
+    ->select('users.*')
+    ->get();
+
+    return response()->json([
+        'users' => $users,
+        'status' => 200
+    ], 200);
+    }
+    public function userInTechniciens()
+    {
+        $users = User::whereIn('id', function ($query) {
+            $query->select('id_user')
+                ->from('techniciens');
+        })->get();
+
         return response()->json([
             'users' => $users,
             'status' => 200
         ], 200);
+
+       
     }
+
 
     /**
      * Crée un nouvel utilisateur.
      */
+    public function showNewUserSpecialisation( $id)
+    {
+
+        $users = DB::table('users')
+            ->where('id', $id)
+            ->orWhere(function ($query) use ($id) {
+                $query->where('id', '!=', $id)
+                    ->whereNotIn('id', function ($subquery) {
+                        $subquery->select('id_user')->from('demandeurs');
+                    })
+                    ->whereNotIn('id', function ($subquery) {
+                        $subquery->select('id_user')->from('techniciens');
+                    });
+            })
+            ->get();
+        
+      
+        
+
+    return response()->json([
+        'users' => $users,
+        'status' => 200
+    ], 200);
+    }
     public function store(UserStoreRequest $request)
     {
         $validator = Validator::make($request->all(), [

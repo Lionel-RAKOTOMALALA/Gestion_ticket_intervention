@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Materiel;
 use App\Http\Requests\MaterielStoreRequest;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class MaterielController extends Controller
 {
@@ -16,6 +17,20 @@ class MaterielController extends Controller
             'materiels' => $materiels,
             'status' => 200
         ], 200);
+    }
+    public function MaterielInDemande()
+    {
+
+$materiels = DB::table('materiels')
+    ->whereIn('num_serie', function ($query) {
+        $query->select('num_serie')
+            ->from('demande_materiel');
+    })
+    ->get();
+    return response()->json([
+        'materiels' => $materiels,
+        'status' => 200
+    ], 200);
     }
 
     public function store(MaterielStoreRequest $request)

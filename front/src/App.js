@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
+import swal from 'sweetalert';
 import Dashboard from './components/admin/Dashboard';
 import Home from './components/FrontEnd/Home';
 import Login from './components/FrontEnd/auth/Login';
 import Register from './components/FrontEnd/auth/register';
 import MaterielForm from './components/admin/materiels/MaterielForm';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import Content_dashboard from './components/admin/Content_dashboards';
 import Content_profil from './components/admin/Content_profil';
 import EditMateriel from './components/admin/materiels/EditMateriel';
@@ -32,21 +33,27 @@ import EditDemandeur from './components/admin/Demandeur/EditDemandeur';
 import DemandeMaterielApp from './components/admin/DemandeMateriel/DemandeMaterielApp';
 import DemandeMaterielForm from './components/admin/DemandeMateriel/DemandeMaterielForm';
 import EditDemandeMateriel from './components/admin/DemandeMateriel/EditDemandeMateriel';
+import PrivateRoute from './PrivateRoute';
 
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.defaults.headers.post['Accept'] = 'application/json';
 axios.defaults.withCredentials = true;
 function App() {
   // localStorage.clear();
+ 
+// const navigate = useNavigate();
+
+  
+
   return (
     <Router>
       <Routes>
         <Route path="/" element={localStorage.getItem('auth_token')?<Navigate to='/admin'/> : <Home />} />
         <Route path="/register" element={localStorage.getItem('auth_token')?<Navigate to='/admin'/> : <Register />} />
-        <Route path="/login" element={localStorage.getItem('auth_token')?<Navigate to='/admin'/> : <Login />} />
-        <Route path="/admin" element={localStorage.getItem('auth_token')? <Navigate to='/admin'/> : <Navigate to='/login'/>}/>
-        {/* <Route path="/login" element={!localStorage.getItem('auth_token')? <Navigate to='/login'/> : <Navigate to='/admin'/>}/> */}
-        <Route path="/admin" element={<Dashboard />}>
+        <Route path="/admin" element={localStorage.getItem('auth_token')? <Navigate to='/admin'/> : <Navigate to='/login' />}/>
+        <Route path="/login" element={ localStorage.getItem('auth_token')? <Navigate to='/admin'/> : <Login />} />
+        {/* <Route path="/login" element={localStorage.getItem('auth_token')?  <Navigate to='/admin'/>: <Navigate to='/login'/>}/> */}
+        <Route path="/admin" element={<PrivateRoute />}>
           <Route index element={<Content_dashboard />} /> {/* Utilisez l'index pour /admin/dashboard */}
           <Route path="profile" element={<Content_profil />} />
           <Route

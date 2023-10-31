@@ -32,18 +32,18 @@ class TicketController extends Controller
             'date_resolution' => 'nullable|date',
             'intervention_faite' => 'nullable|string',
             'suite_a_donnee' => 'nullable|string',
-            'num_serie' => 'required|exists:materiels,num_serie',
             'id_technicien' => 'required|exists:techniciens,id_technicien',
-            'id_demande' => 'required|exists:demande_materiel,id_demande', // Modification pour la validation de l'id_demande
+            'id_demande' => 'required|exists:demande_materiel,id_demande',
+            'id_piece' => 'exists:piece_rechanges,id_piece', // Champ facultatif
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'status' => 400,
                 'error_list' => $validator->messages(),
             ]);
         }
-
+    
         $ticket = TicketReparation::create($request->all());
         return response()->json(['ticket' => $ticket, 'message' => 'Le ticket a été enregistré avec succès', 'status' => 200], 200);
     }
@@ -80,18 +80,18 @@ class TicketController extends Controller
             'date_resolution' => 'nullable|date',
             'intervention_faite' => 'nullable|string',
             'suite_a_donnee' => 'nullable|string',
-            'num_serie' => 'required|exists:materiels,num_serie',
             'id_technicien' => 'required|exists:techniciens,id_technicien',
-            'id_demande' => 'required|exists:demande_materiel,id_demande', // Modification pour la validation de l'id_demande
+            'id_demande' => 'required|exists:demande_materiel,id_demande',
+            'id_piece' => 'exists:piece_rechanges,id_piece', // Champ facultatif
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'status' => 400,
                 'error_list' => $validator->messages(),
             ]);
         }
-
+    
         $ticket = TicketReparation::find($id);
         if (!$ticket) {
             return response()->json([
@@ -99,7 +99,7 @@ class TicketController extends Controller
                 'status' => 404,
             ]);
         }
-
+    
         $ticket->update($request->all());
         return response()->json(['ticket' => $ticket, 'status' => 200, 'message' => 'Modification du ticket réussie'], 200);
     }
