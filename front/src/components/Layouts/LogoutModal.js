@@ -22,4 +22,4 @@ const LogoutModal = () => {
   )
 }
 
-export default LogoutModal
+export default LogoutModal                   

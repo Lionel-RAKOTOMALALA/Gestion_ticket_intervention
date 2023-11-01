@@ -15,7 +15,9 @@ function Dashboard() {
                     <div id="content-wrapper" className="d-flex flex-column">
                         <div id="content">
                             <TopBar />
-                            <Outlet /> 
+                            <Outlet>
+                                <Outlet/>
+                            </Outlet> 
                         </div>
                         <Footer />
                     </div>

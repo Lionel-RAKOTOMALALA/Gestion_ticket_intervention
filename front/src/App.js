@@ -48,71 +48,69 @@ function App() {
         <Route path="/register" element={localStorage.getItem('auth_token') ? <Navigate to="/admin" /> : <Register />} />
         <Route path="/login" element={localStorage.getItem('auth_token') ? <Navigate to="/admin" /> : <Login />} />
         <Route path="/admin" element={<PrivateRoute />}>
-          <Route index element={<Content_dashboard />} />
+        <Route index element={<Content_dashboard />} /> {/* Utilisez l'index pour /admin/dashboard */}
           <Route path="profile" element={<Content_profil />} />
-          <Route path="materiels" element={<MaterielApp />}>
-            <Route index element={<Materiel />} />
-            <Route path="en-cours" element={<Materiel />} />
-            <Route path="repare" element={<Materiel />} />
-            <Route path="tous" element={<Materiel />} />
-            <Route path="demande_reparation" element={<MaterielForm />} />
-            <Route path=":id" element={<EditMateriel />} />
-          </Route>
-          <Route path="techniciens" element={<TechnicienApp />}>
-            <Route index element={<Technicien />} />
-            <Route path="ajout" element={<TechnicienForm />} />
-            <Route path=":id" element={<EditTechnicien />} />
-          </Route>
-          <Route path="tickets" element={<TicketApp />} />
-          <Route path="ticket/ajout" element={<TicketReparationForm />} />
-          <Route path="ticket/edit/:id" element={<EditTicket />} />
-          <Route path="users" element={<UserApp />} />
-          <Route path="users/ajout" element={<UserForm />} />
-          <Route path="users/edit/:id" element={<EditUser />} />
-          <Route path="postes" element={<PosteApp />} />
-          <Route path="poste/ajout" element={<PosteForm />} />
-          <Route path="poste/edit/:id" element={<EditPoste />} />
-          <Route path="demandeurs" element={<DemandeurApp />} />
-          <Route path="demandeur/ajout" element={<DemandeurForm />} />
-          <Route path="demandeur/edit/:id" element={<EditDemandeur />} />
-          <Route path="demande_materiels" element={<DemandeMaterielApp />} />
-          <Route path="demande/ajout" element={<DemandeMaterielForm />} />
-          <Route path="demande/edit/:id" element={<EditDemandeMateriel />} />
+          <Route
+            path="materiels"
+            element={<MaterielApp />}
+          />
+          <Route path="materiels/en-cours" element={<Materiel />} />
+          <Route path="materiels/repare" element={<Materiel />} />
+          <Route path="materiels/tous" element={<Materiel />} />
+          <Route path="materiels/demande_reparation" element={<MaterielForm />} />
+          <Route path="materiels/:id" element={<EditMateriel />} />
+          <Route path='techniciens' element={<TechnicienApp/>}/>
+          <Route path='/admin/technicien/ajout' element={<TechnicienForm/>}/>
+          <Route path='/admin/techniciens/:id' element={<EditTechnicien/>}/>
+          <Route path='/admin/tickets' element={<TicketApp/>}/>
+          <Route path='/admin/ticket/ajout' element={<TicketReparationForm/>}/>
+          <Route path='/admin/ticket/edit/:id' element={<EditTicket/>}/>
+          <Route path='/admin/users' element={<UserApp/>}/>
+          <Route path='/admin/users/ajout' element={<UserForm/>}/>
+          <Route path='/admin/users/edit/:id' element={<EditUser/>}/>
+          <Route path='/admin/postes' element={<PosteApp/>}/>
+          <Route path='/admin/poste/ajout' element={<PosteForm/>}/>
+          <Route path='/admin/poste/edit/:id' element={<EditPoste/>}/>
+          <Route path='/admin/demandeurs' element={<DemandeurApp/>}/>
+          <Route path='/admin/demandeur/ajout' element={<DemandeurForm/>}/>
+          <Route path='/admin/demandeur/edit/:id' element={<EditDemandeur/>}/>
+          <Route path='/admin/demande_materiels' element={<DemandeMaterielApp/>}/>
+          <Route path='/admin/demande/ajout' element={<DemandeMaterielForm/>}/>
+          <Route path='/admin/demande/edit/:id' element={<EditDemandeMateriel/>}/>
         </Route>
           <Route path="403" element={<Page403 />} />
           <Route path="404" element={<Page404 />} />
           <Route path="*" element={<Page404 />} />
           <Route path="/Acceuil_client" element={<Dashboard/>}>
-          <Route index element={<Content_dashboard />} />
+          <Route index element={<Content_dashboard />} /> {/* Utilisez l'index pour /admin/dashboard */}
           <Route path="profile" element={<Content_profil />} />
-          <Route path="materiels" element={<MaterielApp />}>
-            <Route index element={<Materiel />} />
-            <Route path="en-cours" element={<Materiel />} />
-            <Route path="repare" element={<Materiel />} />
-            <Route path="tous" element={<Materiel />} />
-            <Route path="demande_reparation" element={<MaterielForm />} />
-            <Route path=":id" element={<EditMateriel />} />
-          </Route>
-          <Route path="techniciens" element={<TechnicienApp />}>
-            <Route index element={<Technicien />} />
-            <Route path="ajout" element={<TechnicienForm />} />
-            <Route path=":id" element={<EditTechnicien />} />
-          </Route>
-          <Route path="tickets" element={<TicketApp />} />
-          <Route path="ticket/ajout" element={<TicketReparationForm />} />
-          <Route path="ticket/edit/:id" element={<EditTicket />} />
-          <Route path="users" element={<UserApp />} />
-          <Route path="users/ajout" element={<UserForm />} />
-          <Route path="users/edit/:id" element={<EditUser />} />
-          <Route path="postes" element={<PosteApp />} />
-          <Route path="poste/ajout" element={<PosteForm />} />
-          <Route path="poste/edit/:id" element={<EditPoste />} />
-          <Route path="demandeurs" element={<DemandeurApp />} />
-          <Route path="demandeur/ajout" element={<DemandeurForm />} />
-          <Route path="demandeur/edit/:id" element={<EditDemandeur />} />
-          <Route path="demande_materiels" element={<DemandeMaterielApp />} />
-          <Route path="demande/ajout" element={<DemandeMaterielForm />} />
-          <Route path="demande/edit/:id" element={<EditDemandeMateriel />} />
+          <Route
+            path="materiels"
+            element={<MaterielApp />}
+          />
+          <Route path="materiels/en-cours" element={<Materiel />} />
+          <Route path="materiels/repare" element={<Materiel />} />
+          <Route path="materiels/tous" element={<Materiel />} />
+          <Route path="materiels/demande_reparation" element={<MaterielForm />} />
+          <Route path="materiels/:id" element={<EditMateriel />} />
+          <Route path='techniciens' element={<TechnicienApp/>}/>
+          <Route path='/Acceuil_client/technicien/ajout' element={<TechnicienForm/>}/>
+          <Route path='/Acceuil_client/techniciens/:id' element={<EditTechnicien/>}/>
+          <Route path='/Acceuil_client/tickets' element={<TicketApp/>}/>
+          <Route path='/Acceuil_client/ticket/ajout' element={<TicketReparationForm/>}/>
+          <Route path='/Acceuil_client/ticket/edit/:id' element={<EditTicket/>}/>
+          <Route path='/Acceuil_client/users' element={<UserApp/>}/>
+          <Route path='/Acceuil_client/users/ajout' element={<UserForm/>}/>
+          <Route path='/Acceuil_client/users/edit/:id' element={<EditUser/>}/>
+          <Route path='/Acceuil_client/postes' element={<PosteApp/>}/>
+          <Route path='/Acceuil_client/poste/ajout' element={<PosteForm/>}/>
+          <Route path='/Acceuil_client/poste/edit/:id' element={<EditPoste/>}/>
+          <Route path='/Acceuil_client/demandeurs' element={<DemandeurApp/>}/>
+          <Route path='/Acceuil_client/demandeur/ajout' element={<DemandeurForm/>}/>
+          <Route path='/Acceuil_client/demandeur/edit/:id' element={<EditDemandeur/>}/>
+          <Route path='/Acceuil_client/demande_materiels' element={<DemandeMaterielApp/>}/>
+          <Route path='/Acceuil_client/demande/ajout' element={<DemandeMaterielForm/>}/>
+          <Route path='/Acceuil_client/demande/edit/:id' element={<EditDemandeMateriel/>}/>
           </Route>
       </Routes>
     </Router>
