@@ -22,7 +22,7 @@ const TopBar = () => {
           swal('Success', res.data.message, 'success');
           // alert(localStorage.removeItem('auth_token'))
           navigate('/login');
-          alert( localStorage.getItem('auth_token'));
+          // alert( localStorage.getItem('auth_token'));
           //  window.location.reload();
           
         } else {

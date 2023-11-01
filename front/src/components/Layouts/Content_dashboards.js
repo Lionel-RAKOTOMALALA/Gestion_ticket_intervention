@@ -7,6 +7,9 @@ import PostHeader from './PostHeader';
 
 
 const Content_dashboard = () => {
+  // const user = JSON.parse(localStorage.getItem("user"));
+  // console.log(user.username); 
+  // console.log(user.photo_profil_user);
   return (
     <div className="container-fluid">
     {/*  <!-- Page Heading --> */}

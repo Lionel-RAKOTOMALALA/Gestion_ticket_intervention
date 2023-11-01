@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import swal from 'sweetalert';
 import { useNavigate } from 'react-router-dom';
-import TopBar from '../../admin/TopBar';
+import TopBar from '../../Layouts/TopBar';
 const Login = () => {
 
   localStorage.getItem('auth_token')
@@ -32,12 +32,18 @@ const Login = () => {
       axios.post(`http://127.0.0.1:8000/api/login`,data).then(res =>{
       if(res.data.status === 200){
         // alert(res.data.token);
+        // const user = JSON.stringify(res.data.user);
+        // localStorage.setItem("user",user);
+        // console.log(localStorage.getItem("user"));
         localStorage.setItem('auth_token', res.data.token);
-        localStorage.setItem('auth_name',res.data.username);
         swal('Success',res.data.message,"success");
-        navigate('/admin')
+        if(res.data.role === 'admin'){
+          navigate('/admin')
+        }else if(res.data.role === 'userSimple' ){
+          navigate('/Acceuil_client')
+        }
         //  window.location.reload();
-        alert(localStorage.getItem('auth_token'))
+        // alert(localStorage.getItem('auth_token'))
       }else if(res.data.status === 401)
       {
         swal('Avertissement',res.data.message,"warning");

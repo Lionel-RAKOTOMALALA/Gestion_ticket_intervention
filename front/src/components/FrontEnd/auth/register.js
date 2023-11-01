@@ -3,7 +3,7 @@ import axios from 'axios';
 import swal from 'sweetalert';
 import Navbar from '../auth/Layouts/Navbar';
 import { useNavigate } from 'react-router';
-import TopBar from '../../admin/TopBar';
+import TopBar from '../../Layouts/TopBar';
 
 function Register() {
     const navigate = useNavigate();

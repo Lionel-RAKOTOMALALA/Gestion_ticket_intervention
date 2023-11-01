@@ -1,10 +1,10 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import TopBar from '../admin/TopBar';
-import Sidebar from '../admin/Sidebar';
-import ScrollBtn from '../admin/ScrollBtn';
-import LogoutModal from '../admin/LogoutModal';
-import Footer from '../admin/Footer';
+import TopBar from '../Layouts/TopBar';
+import Sidebar from '../Layouts/Sidebar';
+import ScrollBtn from '../Layouts/ScrollBtn';
+import LogoutModal from '../Layouts/LogoutModal';
+import Footer from '../Layouts/Footer';
 
 function Dashboard() {
     return (

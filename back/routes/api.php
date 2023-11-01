@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\DemandeMaterielController;
 
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum', 'isAPIAdmin')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('/checkingAuthenticated', function(){
         return response()->json([
@@ -20,8 +20,11 @@ Route::middleware('auth:sanctum')->group(function () {
             'status' => 200
         ], 200);
     });
-    });
+});
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('logout', [AuthController::class, 'logout']);
+});
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);

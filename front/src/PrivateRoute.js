@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate } from 'react-router';
+import { Navigate,useNavigate } from 'react-router';
 import swal from 'sweetalert';
 import axios from 'axios';
-import Dashboard from './components/admin/Dashboard';
+import Dashboard from './components/Layouts/Dashboard';
+import Loader from '../src/components/admin/materiels/loader'
 
 const PrivateRoute = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
+  const navigate = useNavigate();
   useEffect(() => {
     axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie').then(() => {
       try {
@@ -46,18 +47,34 @@ const PrivateRoute = () => {
       }
     });
   }, []);
-  axios.interceptors.response.use(undefined, function axiosRetryInterceptor(err){
-    if(err.response.status === 401)
-    { 
+  axios.interceptors.response.use(undefined, function axiosRetryInterceptor(err) {
+    if (err.response.status === 401) {
       localStorage.clear();
-      window.location.href = "/login"
-      swal('Unauthorized', err.response.data.message,"warning");
-      
+      navigate("/login"); // Rediriger vers la page de connexion
+      return Promise.reject(err);
+    } else if (err.response.status === 403) {
+      navigate("/403"); // Rediriger vers la page d'erreur 403
+      return Promise.reject(err);
+    } else if (err.response.status === 404) {
+      navigate("/404"); // Rediriger vers la page d'erreur 403
+      return Promise.reject(err);
     }
     return Promise.reject(err);
-  })
+  });
+
+  // axios.interceptors.response.use(function (response){
+  //   return response;
+
+  // }, function (error){
+  //   if(error.response.status === 403)
+  //   {
+  //     swal("Forbedden","Url/page Not Found", "warning");
+  //     Navigate('/')
+  //   }
+  //   return Promise.reject(error);
+  // })
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div><Loader/></div>;
   }
 
   return isAuthenticated ? <Dashboard /> : <Navigate to="/login" />;

@@ -5,8 +5,8 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\Auth;
-class ApiAdminMiddleware
+
+class ApiNormalUserMiddleware
 {
     /**
      * Handle an incoming request.
@@ -16,7 +16,7 @@ class ApiAdminMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if(Auth::check()){
-            if(auth()->user()->tokenCan('server:admin')){
+            if(auth()->user()->tokenCan('server:userSimple')){
                 return $next($request);
             }else{
                 return response()->json([
@@ -32,5 +32,6 @@ class ApiAdminMiddleware
             ]);
         }
         
-    }
+   
+}
 }

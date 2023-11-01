@@ -1,6 +1,6 @@
 import React from 'react';
 import Navbar from '../FrontEnd/auth/Layouts/Navbar';
-import TopBar from '../admin/TopBar';
+import TopBar from '../Layouts/TopBar';
 
 const Home = () => {
   return (

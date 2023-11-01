@@ -66,31 +66,57 @@ class AuthController extends Controller
             'username' => 'required|max:191',
             'password' => 'required',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'validation_errors' => $validator->messages(),
             ]);
+        } else {
+            $user = User::where('username', $request->username)
+                        ->orWhere('email', $request->username)
+                        ->first();
+    
+            if (!$user) {
+                return response()->json([
+                    'status' => 401,
+                    'message' => "Nom d'utilisateur ou adresse e-mail incorrect",
+                ]);
+            } else if (!Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'status' => 401,
+                    'message' => "Mot de passe incorrect",
+                ]);
+            } else {
+                if ($user->role_user == 1) {
+                    $token = $user->createToken($user->email . '_AdminToken', ['server:admin'])->plainTextToken;
+                    $role = 'admin';
+                } else {
+                    $token = $user->createToken($user->email . '_Token', ['server:userSimple'])->plainTextToken;
+                    $role = 'userSimple';
+                }
+    
+                $userData = [
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'email' => $user->email,
+                    'role' => $role,
+                    'photo_profil_user' => $user->photo_profil_user,
+                    'nom_entreprise' => $user->nom_entreprise,
+                    // Ajoutez d'autres champs ici sauf le mot de passe
+                ];
+    
+                return response()->json([
+                    'status' => 200,
+                    'role' => $role,
+                    'token' => $token,
+                    'message' => "L'utilisateur a été authentifié avec succès",
+                    'user' => $userData,
+                ]);
+            }
         }
-
-        $user = User::where('username', $request->username)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'status' => 401,
-                'message' => "Authentification invalide",
-            ]);
-        }
-
-        $token = $user->createToken($user->email . '_Token')->plainTextToken;
-
-        return response()->json([
-            'status' => 200,
-            'username' => $user->username,
-            'token' => $token,
-            'message' => 'L\'utilisateur a été authentifié avec succès',
-        ]);
     }
+    
+
 
     public function user(Request $request)
     {
