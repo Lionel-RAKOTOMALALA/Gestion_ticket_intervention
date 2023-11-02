@@ -5,7 +5,9 @@ import swal from 'sweetalert';
 
 const TopBar = () => {
   const navigate = useNavigate();
-
+  const gradientBackground = {
+    background: 'linear-gradient(180deg, #0369a1, #0369a1)'
+  };
   const logoutSubmit = (e) => {
     e.preventDefault();
 
@@ -92,11 +94,11 @@ const TopBar = () => {
 
         <li className="nav-item dropdown no-arrow">
           <NavLink className="nav-link dropdown-toggle" to="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span className="mr-2 d-none d-lg-inline text-gray-600 small">Lionel Ar'k</span>
+            <span className="mr-2 d-none d-lg-inline text-white small">Lionel Ar'k</span>
             <img className="img-profile rounded-circle" src="../../img/undraw_profile.svg" />
           </NavLink>
           <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in bg-white" aria-labelledby="userDropdown">
-            <NavLink className="dropdown-item bg-white text-secondary" to="#">
+            <NavLink className="dropdown-item bg-white text-secondary" to="/admin/profile">
               <i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
               Profile
             </NavLink>
@@ -122,17 +124,17 @@ const TopBar = () => {
       // Afficher le menu non authentifié
       <ul className="navbar-nav">
         <li className="nav-item">
-          <NavLink className="nav-link text-secondary" to="/">
+          <NavLink className="nav-link text-white" to="/">
             Accueil
           </NavLink>
         </li>
         <li className="nav-item">
-          <NavLink className="nav-link text-secondary" to="/register">
+          <NavLink className="nav-link text-white" to="/register">
             S'inscrire
           </NavLink>
         </li>
         <li className="nav-item">
-          <NavLink className="nav-link text-secondary" to="/login" tabIndex="-1" aria-disabled="true">
+          <NavLink className="nav-link text-white" to="/login" tabIndex="-1" aria-disabled="true">
             
             Se connecter
           </NavLink>
@@ -152,7 +154,7 @@ const TopBar = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+    <nav className="navbar navbar-expand navbar-light text-white topbar mb-4 static-top shadow" style={gradientBackground}>
       <button id="sidebarToggleTop" className="btn btn-link d-md-none rounded-circle mr-3" onClick={changeStyle1}>
         <i className="fa fa-bars"></i>
       </button>

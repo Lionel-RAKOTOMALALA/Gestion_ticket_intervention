@@ -31,10 +31,11 @@ const Login = () => {
     axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie').then(response => {
       axios.post(`http://127.0.0.1:8000/api/login`,data).then(res =>{
       if(res.data.status === 200){
-        // alert(res.data.token);
-        // const user = JSON.stringify(res.data.user);
-        // localStorage.setItem("user",user);
-        // console.log(localStorage.getItem("user"));
+        alert(res.data.token);
+        const user = JSON.stringify(res.data.user);
+        localStorage.setItem("user",user);
+        console.log(localStorage.getItem("user"));
+        localStorage.setItem('role',res.data.role);
         localStorage.setItem('auth_token', res.data.token);
         swal('Success',res.data.message,"success");
         if(res.data.role === 'admin'){

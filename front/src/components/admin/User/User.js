@@ -48,8 +48,8 @@ const User = ({ user, refreshData }) => {
             alt="User Photo"
             className="rounded-circle mx-auto"
             style={{
-              width: "100%",
-              height: "100%",
+              width: "3rem",
+              height: "3rem",
             }}
           />
         </div>

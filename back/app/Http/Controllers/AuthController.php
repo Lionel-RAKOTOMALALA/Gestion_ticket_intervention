@@ -44,8 +44,8 @@ class AuthController extends Controller
             'email' => $request->input('email'),
             'password' => bcrypt($request->input('password')),
             'role_user' => $request->input('role_user'),
-            'logo' => $request->input('logo'), // Assurez-vous que vous avez un champ 'logo' dans votre modèle User
-            'sexe' => $request->input('sexe'), // Assurez-vous que vous avez un champ 'sexe' dans votre modèle User
+            'logo' => $request->input('logo'), 
+            'sexe' => $request->input('sexe'), 
             'photo_profil_user' => $filename,
             'nom_entreprise' => $request->input('nom_entreprise'),
         ]);
@@ -102,7 +102,7 @@ class AuthController extends Controller
                     'role' => $role,
                     'photo_profil_user' => $user->photo_profil_user,
                     'nom_entreprise' => $user->nom_entreprise,
-                    // Ajoutez d'autres champs ici sauf le mot de passe
+                    
                 ];
     
                 return response()->json([
