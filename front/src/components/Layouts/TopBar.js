@@ -1,13 +1,36 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import swal from 'sweetalert';
+import Skeleton from '@mui/material/Skeleton'; 
 
 const TopBar = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState({});
+  const [loading, setLoading] =useState(true);
   const gradientBackground = {
     background: 'linear-gradient(180deg, #0369a1, #0369a1)'
   };
+  useEffect(() => {
+    // Effectuez une requête pour récupérer les données de l'utilisateur
+    axios
+      .get('http://127.0.0.1:8000/api/user', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+        },
+      })
+      .then((res) => {
+        setUser(res.data.user);
+        setLoading(false)
+        console.log(user);
+      })
+      .catch((error) => {
+        setLoading(false);
+        // Gérer les erreurs de la requête de récupération des données de l'utilisateur
+      });
+  }, []);
+  
+      
   const logoutSubmit = (e) => {
     e.preventDefault();
 
@@ -93,9 +116,25 @@ const TopBar = () => {
         </li>
 
         <li className="nav-item dropdown no-arrow">
-          <NavLink className="nav-link dropdown-toggle" to="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span className="mr-2 d-none d-lg-inline text-white small">Lionel Ar'k</span>
-            <img className="img-profile rounded-circle" src="../../img/undraw_profile.svg" />
+        <NavLink className="nav-link dropdown-toggle" to="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    {loading ? (
+        <Skeleton variant="text" sx={{ fontSize: '1rem' }} width={100} /> // Ajoutez une charge de contenu textuel avec une largeur simulée
+    ) : (
+        <span className="mr-2 d-none d-lg-inline text-white small">{user.username}</span>
+    )}
+    {loading ? (
+        <Skeleton variant="circular" width={40} height={40} /> // Ajoutez une charge de contenu circulaire avec une largeur et une hauteur simulées
+    ) : (
+        <img
+            src={"http://localhost:8000/uploads/users/" + user.photo_profil_user}
+            alt="User Photo"
+            className="rounded-circle mx-auto"
+            style={{
+                width: "3rem",
+                height: "3rem",
+            }}
+        />
+    )}
           </NavLink>
           <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in bg-white" aria-labelledby="userDropdown">
             <NavLink className="dropdown-item bg-white text-secondary" to="/admin/profile">

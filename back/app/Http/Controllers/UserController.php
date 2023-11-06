@@ -6,6 +6,9 @@ use App\Http\Requests\UserStoreRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Models\DemandeMateriel;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 
 class UserController extends Controller
@@ -68,6 +71,48 @@ class UserController extends Controller
        
     }
 
+    public function getUserData()
+    {
+        $user = Auth::user();
+
+        if ($user) {
+            return response()->json([
+                'user' => $user,
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Aucun utilisateur connecté',
+            ], 401);
+        }
+    }
+    public function getDemandesUtilisateur(Request $request)
+    {
+        $user = $request->user();
+
+        $demandes = DemandeMateriel::select(
+            'demande_materiel.*',
+            'users.username as demandeur_username',
+            'materiels.type_materiel'
+        )
+        ->join('users', 'demande_materiel.id_demandeur', '=', 'users.id')
+        ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
+        ->where('demande_materiel.id_demandeur', $user->id) 
+        ->get();
+    
+        if ($demandes) {
+            return response()->json([
+                'demandes' => $demandes,
+                'status' => 200
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Aucune demande de matériel trouvée',
+                'status' => 404
+            ], 404);
+        }
+        
+    }
+       
 
     /**
      * Crée un nouvel utilisateur.
@@ -248,5 +293,42 @@ class UserController extends Controller
             'message' => "Utilisateur supprimé avec succès",
             'status' => 200,
         ], 200);
+    }
+
+    public function countDemandeurForAuthenticatedUser(Request $request)
+    {
+        // L'utilisateur authentifié est automatiquement disponible dans la requête
+        $user = $request->user();
+
+        // Vérifiez si l'utilisateur est authentifié
+        if ($user) {
+            // Comptez le nombre de lignes dans la table "demandeur" pour l'utilisateur authentifié
+            $demandeurCount = DB::table('demandeurs')
+            ->join('users', 'demandeurs.id_user', '=', 'users.id')
+            ->where('users.id', $user->id)
+            ->count();
+
+            return response()->json(['demandeur_count' => $demandeurCount]);
+        }
+
+        return response()->json(['message' => 'Utilisateur non authentifié'], 401);
+    }
+    public function countTechnicienForAuthenticatedUser(Request $request)
+    {
+        // L'utilisateur authentifié est automatiquement disponible dans la requête
+        $user = $request->user();
+
+        // Vérifiez si l'utilisateur est authentifié
+        if ($user) {
+            // Comptez le nombre de lignes dans la table "demandeur" pour l'utilisateur authentifié
+            $TechnicienCount = DB::table('techniciens')
+            ->join('users', 'techniciens.id_user', '=', 'users.id')
+            ->where('users.id', $user->id)
+            ->count();
+
+            return response()->json(['technicien_count' => $TechnicienCount]);
+        }
+
+        return response()->json(['message' => 'Utilisateur non authentifié'], 401);
     }
 }

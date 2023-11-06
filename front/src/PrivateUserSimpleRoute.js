@@ -5,14 +5,14 @@ import axios from 'axios';
 import Dashboard from './components/Layouts/Dashboard';
 import Loader from '../src/components/admin/materiels/loader'
 
-const PrivateRoute = () => {
+const PrivateRouteUserSimple = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   useEffect(() => {
     axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie').then(() => {
       try {
-            axios.get('http://127.0.0.1:8000/api/checkingAuthenticated', {
+            axios.get('http://127.0.0.1:8000/api/checkingAuthenticatedUserSimple', {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
             },
@@ -80,4 +80,4 @@ const PrivateRoute = () => {
   return isAuthenticated ? <Dashboard /> : <Navigate to="/login" />;
 };
 
-export default PrivateRoute;
+export default PrivateRouteUserSimple;

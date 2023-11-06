@@ -154,6 +154,62 @@ class DemandeMaterielController extends Controller
             ], 500);
         }
     }
+    public function validationDemande(Request $request, $id)
+{
+    try {
+        $demande = DemandeMateriel::find($id);
+
+        if (!$demande) {
+            return response()->json([
+                'message' => "La demande de matériel n'existe pas",
+                'status' => 404,
+            ]);
+        } else {
+            
+                $demande->status = 'Validé';
+                $demande->save();
+
+                return response()->json([
+                    'message' => "Les informations de la demande de matériel ont été mises à jour avec succès",
+                    'status' => 200,
+                ], 200);
+            
+        }
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => "Une erreur est survenue lors de la modification de la demande de matériel",
+            'status' => 500,
+        ], 500);
+    }
+}
+public function rejectDemande(Request $request, $id)
+{
+    try {
+        $demande = DemandeMateriel::find($id);
+
+        if (!$demande) {
+            return response()->json([
+                'message' => "La demande de matériel n'existe pas",
+                'status' => 404,
+            ]);
+        } else {
+            
+                $demande->status = 'rejeté';
+                $demande->save();
+
+                return response()->json([
+                    'message' => "Les informations de la demande de matériel ont été mises à jour avec succès",
+                    'status' => 200,
+                ], 200);
+            
+        }
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => "Une erreur est survenue lors de la modification de la demande de matériel",
+            'status' => 500,
+        ], 500);
+    }
+}
 
     /**
      * Supprime une demande de matériel.

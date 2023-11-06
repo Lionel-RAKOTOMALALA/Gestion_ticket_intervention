@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\DemandeMaterielController;
 
 
-Route::middleware('auth:sanctum', 'isAPIAdmin')->group(function () {
+Route::middleware('auth:sanctum','isAPIAdmin')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('/checkingAuthenticated', function(){
         return response()->json([
@@ -20,14 +20,31 @@ Route::middleware('auth:sanctum', 'isAPIAdmin')->group(function () {
             'status' => 200
         ], 200);
     });
+    
+Route::get('countDemandeurForAuthenticatedUser', [UserController::class, 'countDemandeurForAuthenticatedUser']);
+Route::get('countTechnicienForAuthenticatedUser', [UserController::class, 'countTechnicienForAuthenticatedUser']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
-});
+    Route::get('/checkingAuthenticatedUserSimple', function(){
+        return response()->json([
+            'message' => 'Bienvenue',
+            'status' => 200
+        ], 200);
+    });
+     
+    Route::get('/user', [UserController::class, 'getUserData']); 
+    
+    Route::get('countDemandeurForAuthenticatedUser', [UserController::class, 'countDemandeurForAuthenticatedUser']);
+    Route::get('countTechnicienForAuthenticatedUser', [UserController::class, 'countTechnicienForAuthenticatedUser']);
+    Route::get('/demandes-utilisateur', [UserController::class, 'getDemandesUtilisateur']);  
+}); 
+
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+
 
 Route::prefix('tickets')->group(function () {
     Route::get('{id}', [TicketController::class, 'show']);
@@ -41,6 +58,8 @@ Route::prefix('demande_materiel')->group(function () {
     Route::get('/{id}', [DemandeMaterielController::class, 'show']);
     Route::post('/', [DemandeMaterielController::class, 'store']);
     Route::put('/{id}', [DemandeMaterielController::class, 'update']);
+    Route::put('validate/{id}', [DemandeMaterielController::class, 'validationDemande']);
+    Route::put('reject/{id}', [DemandeMaterielController::class, 'rejectDemande']);
     Route::delete('/{id}', [DemandeMaterielController::class, 'destroy']);
 });
 Route::prefix('demandeurs')->group(function () {

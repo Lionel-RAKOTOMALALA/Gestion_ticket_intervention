@@ -5,6 +5,67 @@ import swal from "sweetalert";
 import { NavLink } from "react-router-dom";
 
 const DemandeMaterielForm = () => {
+
+
+
+
+  
+  const [demandeurVerifCount, setDemandeurVerifCount] = useState(null);
+  const [technicienVerifCount, setTechnicienVerifCount] = useState(null);
+
+  useEffect(() => {
+      // Récupérez le token d'authentification depuis le localStorage
+      const authToken = localStorage.getItem('auth_token');
+
+      // Assurez-vous que le token est disponible
+      if (authToken) {
+          // Utilisez Axios pour faire une requête à la route API
+          axios.get("http://127.0.0.1:8000/api/countDemandeurForAuthenticatedUser", {
+              headers: {
+                  'Authorization': `Bearer ${authToken}`, // Ajoutez le token Bearer
+              }
+          })
+          .then(response => {
+              setDemandeurVerifCount(response.data.demandeur_count);
+              // Affichez la valeur dans une alerte
+              // alert(`Nombre d'apparition dans demandeurs : ${response.data.demandeur_count}`);
+              console.log(`Nombre d'apparition dans demandeurs : ${response.data.demandeur_count}`);
+          })
+          .catch(error => {
+              console.error('Erreur lors de la récupération du nombre de demandeurs :', error);
+          });
+          axios.get("http://127.0.0.1:8000/api/countTechnicienForAuthenticatedUser", {
+              headers: {
+                  'Authorization': `Bearer ${authToken}`, // Ajoutez le token Bearer
+              }
+          })
+          .then(response => {
+              setTechnicienVerifCount(response.data.demandeur_count);
+              // Affichez la valeur dans une alerte
+              // alert(`Nombre d'apparition dans technicien : ${response.data.technicien_count}`);
+              console.log(`Nombre d'apparition dans technicien : ${response.data.technicien_count}`);
+          })
+          .catch(error => {
+              console.error('Erreur lors de la récupération du nombre de demandeurs :', error);
+          });
+          
+      }
+  }, []);
+  
+  const userRole = localStorage.getItem('role');
+
+  let linkBack = null;
+  if(userRole === 'admin'){
+      linkBack = '/admin/demande_materiels';
+  }else{
+    linkBack = '/Acceuil_client/demande_materiels';
+
+  }
+
+
+
+
+
     const [demandeurList, setDemandeurList] = useState([]);
   const [materielList, setMaterielList] = useState([]);
 
@@ -150,7 +211,7 @@ const DemandeMaterielForm = () => {
               <div className="card-header">
                 <h4>Demande de réparation</h4>
                 <NavLink
-                  to="/admin/demande_materiels"
+                  to={linkBack}
                   className="btn btn-primary btn-sm float-end"
                 >
                   <UilArrowCircleLeft /> Retour à l'affichage
@@ -248,7 +309,7 @@ const DemandeMaterielForm = () => {
                           <UilCheckCircle size="20" /> Confirmer
                         </button>
                       </div>
-                      <NavLink to="/admin/demande_materiels" className="col">
+                      <NavLink to={linkBack} className="col">
                         <button
                           type="button"
                           className="btn btn-secondary btn-block mb-2"
