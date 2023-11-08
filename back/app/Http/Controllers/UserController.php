@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\DemandeMateriel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Demandeur;
 
 
 class UserController extends Controller
@@ -70,7 +71,35 @@ class UserController extends Controller
 
        
     }
-
+    public function showIdDemandeur()
+    {
+        $user = Auth::user();
+    
+        if (!$user) {
+            return response()->json([
+                'message' => "Utilisateur non authentifié",
+                'status' => 401,
+            ]);
+        }
+    
+        $idUser = $user->id;
+        $demandeur = Demandeur::where('id_user', $idUser)->first();
+    
+        if ($demandeur) {
+            $idDemandeur = $demandeur->id_demandeur;
+    
+            return response()->json([
+                'id_demandeur' => $idDemandeur,
+                'status' => 200,
+            ]);
+        } else {
+            return response()->json([
+                'message' => "Demandeur non trouvé pour cet utilisateur",
+                'status' => 404,
+            ]);
+        }
+    }
+    
     public function getUserData()
     {
         $user = Auth::user();

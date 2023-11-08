@@ -22,7 +22,8 @@ Route::middleware('auth:sanctum','isAPIAdmin')->group(function () {
     });
     
 Route::get('countDemandeurForAuthenticatedUser', [UserController::class, 'countDemandeurForAuthenticatedUser']);
-Route::get('countTechnicienForAuthenticatedUser', [UserController::class, 'countTechnicienForAuthenticatedUser']);
+Route::get('countTechnicienForAuthenticatedUser', [UserController::class, 'countTechnicienForAuthenticatedUser']); 
+Route::get('/showIdDemandeur', [UserController::class, 'showIdDemandeur']);  
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -39,6 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('countDemandeurForAuthenticatedUser', [UserController::class, 'countDemandeurForAuthenticatedUser']);
     Route::get('countTechnicienForAuthenticatedUser', [UserController::class, 'countTechnicienForAuthenticatedUser']);
     Route::get('/demandes-utilisateur', [UserController::class, 'getDemandesUtilisateur']);  
+    Route::get('/showIdDemandeur', [UserController::class, 'showIdDemandeur']);  
+
 }); 
 
 

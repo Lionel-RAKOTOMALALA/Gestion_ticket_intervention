@@ -42,6 +42,7 @@ axios.defaults.headers.post['Accept'] = 'application/json';
 axios.defaults.withCredentials = true;
 
 function App() {
+  // localStorage.clear()
   return (
     <Router>
       <Routes>
@@ -115,6 +116,8 @@ function App() {
             <Route path='/Acceuil_client/demande_materiels/ajout' element={<DemandeMaterielForm/>}/>
             <Route path='/Acceuil_client/demande/edit/:id' element={<EditDemandeMateriel/>}/>
           </Route>
+          {/* <Route path='/users/ajout' element={<UserForm/>}/> */}
+
       </Routes>
     </Router>
   );

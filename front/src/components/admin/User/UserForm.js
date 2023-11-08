@@ -9,7 +9,7 @@ function Register() {
     username: '',
     email: '',
     password: '',
-    role_user: 1,
+    role_user: '',
     logo: null,
     nom_entreprise: '',
     sexe: '',
@@ -98,7 +98,7 @@ function Register() {
                         type="radio"
                         name="role_user"
                         value="1"
-                        checked={registerInput.role_user === 1}
+                        checked={registerInput.role_user === '1'}
                         onChange={handleInput}
                         className="form-check-input"
                       />
@@ -109,7 +109,7 @@ function Register() {
                         type="radio"
                         name="role_user"
                         value="0"
-                        checked={registerInput.role_user === 0}
+                        checked={registerInput.role_user === '0'}
                         onChange={handleInput}
                         className="form-check-input"
                       />

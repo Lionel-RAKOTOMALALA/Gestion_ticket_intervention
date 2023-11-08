@@ -32,7 +32,7 @@ const DemandeMaterielList = () => {
         const demandeurVerifCount = response.data.demandeur_count;
         setDemandeurVerifCount(response.data.demandeur_count);
         
-        if (demandeurVerifCount > 0) {
+        if (localStorage.getItem('role') === 'userSimple' && demandeurVerifCount > 0) {
           apiUrl = "http://127.0.0.1:8000/api/demandes-utilisateur";
         }
 
@@ -102,7 +102,9 @@ const DemandeMaterielList = () => {
                     <th>État du matériel</th>
                     <th>Description du problème</th>
                     <th>Type du matériel</th>
-                    <th>Nom du demandeur</th>
+                    {demandeurVerifCount !== 1 || localStorage.getItem('role') !== 'userSimple' ? (
+                      <td>Nom du demandeur</td>
+                    ) : null}
                     <th>Status du demande</th>
                     <th>Action</th>
                   </tr>

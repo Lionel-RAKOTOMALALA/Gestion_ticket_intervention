@@ -54,7 +54,7 @@ const DemandeMaterielApp = () => {
 
     let linkAdd = null;
     if(userRole === 'admin'){
-        linkAdd = '/admin/demande_materiels/ajout';
+        linkAdd = '/admin/demande/ajout';
     }else{
         linkAdd = '/Acceuil_client/demande_materiels/ajout';
 

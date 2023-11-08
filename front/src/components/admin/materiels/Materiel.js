@@ -45,7 +45,17 @@ const Materiel = ({ materiel, refreshData }) => {
         <tr>
             <td>{materiel.num_serie}</td>
             <td>{materiel.type_materiel}</td>
-            <td>{materiel.image_materiel_url}</td>
+            <td>
+            <img
+            src={"http://localhost:8000/uploads/materiels/" + materiel.image_materiel_url}
+            alt="materiel Photo"
+            className="rounded-circle mx-auto"
+            style={{
+              width: "3rem",
+              height: "3rem",
+            }}
+          />
+            </td>
             <td>
                 <div style={{ marginRight: '1.2rem', display: 'inline-block' }}>
                     <NavLink to={`/admin/materiels/${materiel.num_serie}`}>

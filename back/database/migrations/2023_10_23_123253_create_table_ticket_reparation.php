@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('urgence');
             $table->string('priorite');
             $table->string('statut_actuel');
-            $table->timestamp('date_resolution');
+            $table->timestamp('date_resolution')->nullable();
             $table->unsignedBigInteger('id_demande');
             $table->unsignedBigInteger('id_technicien');;
             $table->unsignedBigInteger('id_piece')->nullable();

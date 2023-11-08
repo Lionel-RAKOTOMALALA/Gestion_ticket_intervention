@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Materiel;
 use App\Http\Requests\MaterielStoreRequest;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class MaterielController extends Controller
@@ -33,39 +36,46 @@ $materiels = DB::table('materiels')
     ], 200);
     }
 
-    public function store(MaterielStoreRequest $request)
+    public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'type_materiel' => 'required|string',
             'description_materiel' => 'required|string',
-            'image_materiel_url' => 'string|nullable',
+            'image_materiel_url' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'id_demandeur'=> 'required|exists:demandeurs,id_demandeur',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'status' => 400,
-                'error_list' => $validator->messages(),
+                'validation_errors' => $validator->messages(),
             ]);
         }
 
-        try {
-            Materiel::create([
-                'type_materiel' => $request->type_materiel,
-                'description_materiel' => $request->description_materiel,
-                'image_materiel_url' => $request->image_materiel_url,
-            ]);
-
-            return response()->json([
-                'message' => "Le matériel a été ajouté avec succès",
-                'status' => 200,
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => "Il y a une erreur dans l'insertion",
-            ], 500);
+        if ($request->hasFile('image_materiel_url')) {
+            $file = $request->file('image_materiel_url');
+            $extension = $file->getClientOriginalExtension();
+            $filename = Str::random(32) . '.' . $extension;
+            $file->move('uploads/materiels', $filename);
+        } else {
+            $filename = null;
         }
+
+        $materiel = Materiel::create([
+            'type_materiel' => $request->input('type_materiel'),
+            'description_materiel' => $request->input('description_materiel'),
+            'image_materiel_url' => $filename,
+            'id_demandeur' => $request->input('id_demnadeur'),
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'filename' => $filename,
+            'message' => 'Le matériel a été ajouté avec succès',
+        ]);
     }
 
+
+    
     public function show(string $id)
     {
         $materiel = Materiel::find($id);
@@ -83,36 +93,38 @@ $materiels = DB::table('materiels')
         ]);
     }
 
-    public function update(MaterielStoreRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
         try {
-            $materiel = Materiel::find($id);
-
-            if (!$materiel) {
-                return response()->json([
-                    'message' => "Le matériel n'existe pas",
-                    'status' => 404,
-                ]);
-            }
-
             $validator = Validator::make($request->all(), [
                 'type_materiel' => 'required|string',
                 'description_materiel' => 'required|string',
                 'image_materiel_url' => 'string|nullable',
+                'id_demandeur' => 'required|exists:demandeurs,id_demandeur', 
             ]);
-
+    
             if ($validator->fails()) {
                 return response()->json([
                     'status' => 400,
                     'error_list' => $validator->messages(),
                 ], 400);
             }
-
+    
+            $materiel = Materiel::find($id);
+    
+            if (!$materiel) {
+                return response()->json([
+                    'message' => "Le matériel n'existe pas",
+                    'status' => 404,
+                ]);
+            }
+    
             $materiel->type_materiel = $request->type_materiel;
             $materiel->description_materiel = $request->description_materiel;
             $materiel->image_materiel_url = $request->image_materiel_url;
+            $materiel->id_demandeur = $request->id_demandeur; 
             $materiel->save();
-
+    
             return response()->json([
                 'message' => "Le matériel a été modifié avec succès",
                 'status' => 200,
@@ -124,6 +136,7 @@ $materiels = DB::table('materiels')
             ], 500);
         }
     }
+    
 
     public function destroy(string $id)
     {

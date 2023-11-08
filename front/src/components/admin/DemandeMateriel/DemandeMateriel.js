@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { UilEditAlt, UilTrash, UilCheckCircle, UilTimesCircle,UilEye } from "@iconscout/react-unicons";
+import { UilEditAlt, UilTrash, UilCheckCircle, UilTimesCircle, UilEye } from "@iconscout/react-unicons";
 import { Link, useNavigate } from "react-router-dom";
 
 const DemandeMateriel = ({ demandeMateriel, refreshData, demandeurCount }) => {
@@ -39,7 +39,6 @@ const DemandeMateriel = ({ demandeMateriel, refreshData, demandeurCount }) => {
     });
   };
 
-
   const handleValidate = (e, id) => {
     if (!isApproved) {
       Swal.fire({
@@ -67,6 +66,16 @@ const DemandeMateriel = ({ demandeMateriel, refreshData, demandeurCount }) => {
             .catch((error) => {
               console.error(error);
             });
+            // dataTicket = {
+            //   urgence : '',
+            //   priorite : '',
+            //   statut_actuel: 'En cours de reparation',
+            //   date_resolution : ''
+            // }
+            // axios.post('http://127.0.0.1:8000/api/tickets',dataTicket)
+            // .then((response) =>{
+
+            // })
         }
       });
     }
@@ -113,93 +122,89 @@ const DemandeMateriel = ({ demandeMateriel, refreshData, demandeurCount }) => {
 
   return (
     <tr>
-        <td>{demandeMateriel.id_demande}</td>
-        <td>{demandeMateriel.etat_materiel}</td>
-        <td>{demandeMateriel.description_probleme}</td>
-        <td>{demandeMateriel.type_materiel}</td>
+      <td>{demandeMateriel.id_demande}</td>
+      <td>{demandeMateriel.etat_materiel}</td>
+      <td>{demandeMateriel.description_probleme}</td>
+      <td>{demandeMateriel.type_materiel}</td>
+      {demandeurCount !== 1 || localStorage.getItem('role') !== 'userSimple' ? (
         <td>{demandeMateriel.demandeur_username}</td>
-        <td>
-  {demandeurCount < 0 ? (
-    <>
-      <Link to={`/admin/demande_materiels/edit/${demandeMateriel.id_demande}`} className="btn btn-sm btn-primary" disabled={isDeleting}>
-        <UilEditAlt size="20" />
-      </Link>
-      <button className="btn btn-sm btn-danger" onClick={(e) => handleDelete(e, demandeMateriel.id_demande)} disabled={isDeleting}>
-        {isDeleting ? "Suppression..." : <UilTrash size="20" />}
-      </button>
-    </>
-  ) : (
-    <>
-      {demandeMateriel.status === "Validé" ? (
-        <span>
-          <UilCheckCircle size="20" style={{ color: 'green' }} />
-          {demandeMateriel.status}
-        </span>
-      ) : demandeMateriel.status === "rejeté" ? (
-        <span>
-          <UilTimesCircle size="20" style={{ color: 'red' }} />
-          {demandeMateriel.status}
-        </span>
-      ) : (
-        // Autres icônes ou contenu ici si nécessaire
-        demandeMateriel.status
-      )}
-    </>
-  )}
-</td>
+      ) : null}
+      <td>
+        {demandeurCount < 0 ? (
+          <>
+            <Link to={`/admin/demande_materiels/edit/${demandeMateriel.id_demande}`} className="btn btn-sm btn-primary" disabled={isDeleting}>
+              <UilEditAlt size="20" />
+            </Link>
+            <button className="btn btn-sm btn-danger" onClick={(e) => handleDelete(e, demandeMateriel.id_demande)} disabled={isDeleting}>
+              {isDeleting ? "Suppression..." : <UilTrash size="20" />}
+            </button>
+          </>
+        ) : (
+          <>
+            {demandeMateriel.status === "Validé" ? (
+              <span>
+                <UilCheckCircle size="20" style={{ color: 'green' }} />
+                {demandeMateriel.status}
+              </span>
+            ) : demandeMateriel.status === "rejeté" ? (
+              <span>
+                <UilTimesCircle size="20" style={{ color: 'red' }} />
+                {demandeMateriel.status}
+              </span>
+            ) : (
+              // Autres icônes ou contenu ici si nécessaire
+              demandeMateriel.status
+            )}
+          </>
+        )}
+      </td>
 
-<td>
-  
-  {demandeurCount > 0 ? (
-    <>
-      <Link to={`/admin/demande_materiels/edit/${demandeMateriel.id_demande}`} className="btn btn-sm btn-primary" disabled={isDeleting}>
-        <UilEditAlt size="20" />
-      </Link>
-      <button className="btn btn-sm btn-danger" onClick={(e) => handleDelete(e, demandeMateriel.id_demande)} disabled={isDeleting}>
-        {isDeleting ? "Suppression..." : <UilTrash size="20" />}
-      </button>
-    </>
-  ) : (
-    <>
-      
-      {demandeMateriel.status === "Validé" || demandeMateriel.status === "rejeté" ? (
-        ""
-      ) : (
-        <>
-          {isApproved === false && isRejected === false && (
-            <>
-              <button
-                className="btn btn-sm btn-success"
-                onClick={(e) => handleValidate(e, demandeMateriel.id_demande)}
-                disabled={isApproved}
-              >
-                {isApproved ? (
-                  "Validation"
-                ) : "Validation..."}
-              </button>
-              <button
-                className="btn btn-sm btn-danger"
-                onClick={(e) => handleReject(e, demandeMateriel.id_demande)}
-                disabled={isRejected}
-              >
-                {isRejected ? (
-                  "Rejet"
-                ) : "Rejet..."}
-              </button>
-            </>
-          )}
-        </>
-      )}
-    </>
-  )}
-  <button className="btn btn-sm btn-success">
-        <UilEye size="20" /> View
-      </button>
-</td>
-
-
-
-
+      <td>
+        {demandeurCount > 0 ? (
+          <>
+            <Link to={`/admin/demande_materiels/edit/${demandeMateriel.id_demande}`} className="btn btn-sm btn-primary" disabled={isDeleting}>
+              <UilEditAlt size="20" />
+            </Link>
+            <button className="btn btn-sm btn-danger" onClick={(e) => handleDelete(e, demandeMateriel.id_demande)} disabled={isDeleting}>
+              {isDeleting ? "Suppression..." : <UilTrash size="20" />}
+            </button>
+          </>
+        ) : (
+          <>
+            {demandeMateriel.status === "Validé" || demandeMateriel.status === "rejeté" ? (
+              ""
+            ) : (
+              <>
+                {isApproved === false && isRejected === false && (
+                  <>
+                    <button
+                      className="btn btn-sm btn-success"
+                      onClick={(e) => handleValidate(e, demandeMateriel.id_demande)}
+                      disabled={isApproved}
+                    >
+                      {isApproved ? (
+                        "Valider"
+                      ) : <UilCheckCircle size="20" /> /* Ajout de l'icône */}
+                    </button>
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={(e) => handleReject(e, demandeMateriel.id_demande)}
+                      disabled={isRejected}
+                    >
+                      {isRejected ? (
+                        "Rejet"
+                      ) : <UilTimesCircle size="20" /> /* Ajout de l'icône */}
+                    </button>
+                  </>
+                )}
+              </>
+            )}
+          </>
+        )}
+        <button className="btn btn-sm btn-success">
+          <UilEye size="20" /> View
+        </button>
+      </td>
     </tr>
   );
 };

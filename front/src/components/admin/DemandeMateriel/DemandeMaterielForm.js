@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { UilCheckCircle, UilTimes, UilArrowCircleLeft } from "@iconscout/react-unicons";
 import axios from "axios";
@@ -5,68 +6,52 @@ import swal from "sweetalert";
 import { NavLink } from "react-router-dom";
 
 const DemandeMaterielForm = () => {
-
-
-
-
-  
   const [demandeurVerifCount, setDemandeurVerifCount] = useState(null);
   const [technicienVerifCount, setTechnicienVerifCount] = useState(null);
 
   useEffect(() => {
-      // Récupérez le token d'authentification depuis le localStorage
-      const authToken = localStorage.getItem('auth_token');
+    // Récupérez le token d'authentification depuis le localStorage
+    const authToken = localStorage.getItem('auth_token');
 
-      // Assurez-vous que le token est disponible
-      if (authToken) {
-          // Utilisez Axios pour faire une requête à la route API
-          axios.get("http://127.0.0.1:8000/api/countDemandeurForAuthenticatedUser", {
-              headers: {
-                  'Authorization': `Bearer ${authToken}`, // Ajoutez le token Bearer
-              }
-          })
-          .then(response => {
-              setDemandeurVerifCount(response.data.demandeur_count);
-              // Affichez la valeur dans une alerte
-              // alert(`Nombre d'apparition dans demandeurs : ${response.data.demandeur_count}`);
-              console.log(`Nombre d'apparition dans demandeurs : ${response.data.demandeur_count}`);
-          })
-          .catch(error => {
-              console.error('Erreur lors de la récupération du nombre de demandeurs :', error);
-          });
-          axios.get("http://127.0.0.1:8000/api/countTechnicienForAuthenticatedUser", {
-              headers: {
-                  'Authorization': `Bearer ${authToken}`, // Ajoutez le token Bearer
-              }
-          })
-          .then(response => {
-              setTechnicienVerifCount(response.data.demandeur_count);
-              // Affichez la valeur dans une alerte
-              // alert(`Nombre d'apparition dans technicien : ${response.data.technicien_count}`);
-              console.log(`Nombre d'apparition dans technicien : ${response.data.technicien_count}`);
-          })
-          .catch(error => {
-              console.error('Erreur lors de la récupération du nombre de demandeurs :', error);
-          });
-          
-      }
+    // Assurez-vous que le token est disponible
+    if (authToken) {
+      // Utilisez Axios pour faire une requête à la route API
+      axios.get("http://127.0.0.1:8000/api/countDemandeurForAuthenticatedUser", {
+        headers: {
+          'Authorization': `Bearer ${authToken}`, // Ajoutez le token Bearer
+        }
+      })
+        .then(response => {
+          setDemandeurVerifCount(response.data.demandeur_count);
+          console.log(`Nombre d'apparition dans demandeurs : ${response.data.demandeur_count}`);
+        })
+        .catch(error => {
+          console.error('Erreur lors de la récupération du nombre de demandeurs :', error);
+        });
+      axios.get("http://127.0.0.1:8000/api/countTechnicienForAuthenticatedUser", {
+        headers: {
+          'Authorization': `Bearer ${authToken}`, // Ajoutez le token Bearer
+        }
+      })
+        .then(response => {
+          setTechnicienVerifCount(response.data.demandeur_count);
+          console.log(`Nombre d'apparition dans technicien : ${response.data.technicien_count}`);
+        })
+        .catch(error => {
+          console.error('Erreur lors de la récupération du nombre de demandeurs :', error);
+        });
+    }
   }, []);
-  
+
   const userRole = localStorage.getItem('role');
-
   let linkBack = null;
-  if(userRole === 'admin'){
-      linkBack = '/admin/demande_materiels';
-  }else{
+  if(userRole === 'admin') {
+    linkBack = '/admin/demande_materiels';
+  } else {
     linkBack = '/Acceuil_client/demande_materiels';
-
   }
 
-
-
-
-
-    const [demandeurList, setDemandeurList] = useState([]);
+  const [demandeurList, setDemandeurList] = useState([]);
   const [materielList, setMaterielList] = useState([]);
 
   useEffect(() => {
@@ -87,8 +72,10 @@ const DemandeMaterielForm = () => {
     description_probleme: "",
     num_serie: "",
     id_demandeur: "",
+    description_etat_personnalise: "", // Correction du nom du champ
     error_list: {},
   });
+
   const [formError, setFormError] = useState("");
 
   const handleInput = (e) => {
@@ -106,6 +93,7 @@ const DemandeMaterielForm = () => {
       description_probleme: "",
       num_serie: "",
       id_demandeur: "",
+      description_etat_personnalise: "", // Correction du nom du champ
       error_list: {},
     });
     setFormError("");
@@ -176,8 +164,14 @@ const DemandeMaterielForm = () => {
 
       swal("Erreurs", errorString, "error");
     } else {
+      let etatMaterielValue = demandeMaterielInput.etat_materiel;
+
+      if (demandeMaterielInput.etat_materiel === "Autre") {
+        etatMaterielValue = demandeMaterielInput.description_etat_personnalise;
+      }
+
       const data = {
-        etat_materiel: demandeMaterielInput.etat_materiel,
+        etat_materiel: etatMaterielValue, // Utilisez la valeur correcte
         status: "En attente de validation",
         description_probleme: demandeMaterielInput.description_probleme,
         num_serie: demandeMaterielInput.num_serie,
@@ -226,24 +220,85 @@ const DemandeMaterielForm = () => {
                       </div>
                     )}
                     <div className="form-group mb-3">
-                      <label htmlFor="etat_materiel">État du matériel</label>
-                      <input
-                        type="text"
-                        name="etat_materiel"
-                        className={`form-control ${
-                          demandeMaterielInput.error_list.etat_materiel
-                            ? "is-invalid"
-                            : ""
-                        }`}
-                        onChange={handleInput}
-                        value={demandeMaterielInput.etat_materiel}
-                      />
-                      {demandeMaterielInput.error_list.etat_materiel && (
-                        <div className="text-danger">
-                          {demandeMaterielInput.error_list.etat_materiel}
-                        </div>
-                      )}
+                    <label htmlFor="etat_materiel">État du matériel</label>
+                      <div>
+                        <label>
+                          <input
+                            type="radio"
+                            name="etat_materiel"
+                            value="En panne"
+                            checked={demandeMaterielInput.etat_materiel === "En panne"}
+                            onChange={handleInput}
+                          /> En panne
+                        </label>
+                      </div>
+                      <div>
+                        <label>
+                          <input
+                            type="radio"
+                            name="etat_materiel"
+                            value="Endommagé"
+                            checked={demandeMaterielInput.etat_materiel === "Endommagé"}
+                            onChange={handleInput}
+                          /> Endommagé
+                        </label>
+                      </div>
+                      <div>
+                        <label>
+                          <input
+                            type="radio"
+                            name="etat_materiel"
+                            value="Dysfonctionnement"
+                            checked={demandeMaterielInput.etat_materiel === "Dysfonctionnement"}
+                            onChange={handleInput}
+                          /> Dysfonctionnement
+                        </label>
+                      </div>
+                      <div>
+                        <label>
+                          <input
+                            type="radio"
+                            name="etat_materiel"
+                            value="Obsolete"
+                            checked={demandeMaterielInput.etat_materiel === "Obsolete"}
+                            onChange={handleInput}
+                          /> Obsolete
+                        </label>
+                      </div>
+                      <div>
+                        <label>
+                          <input
+                            type="radio"
+                            name="etat_materiel"
+                            value="Maintenance nécessaire"
+                            checked={demandeMaterielInput.etat_materiel === "Maintenance nécessaire"}
+                            onChange={handleInput}
+                          /> Maintenance nécessaire
+                        </label>
+                      </div>
+                      <label>
+                        <input
+                          type="radio"
+                          name="etat_materiel"
+                          value="Autre"
+                          checked={demandeMaterielInput.etat_materiel === "Autre"}
+                          onChange={handleInput}
+                        /> Autre
+                      </label>
                     </div>
+                    {demandeMaterielInput.etat_materiel === "Autre" && (
+                      <div className="form-group mb-3">
+                        <label htmlFor="description_etat_personnalise">Description de l'état personnalisé</label>
+                        <input
+                          type="text"
+                          name="description_etat_personnalise" // Utilisez "description_etat_personnalise" comme nom
+                          className="form-control"
+                          onChange={handleInput}
+                          value={demandeMaterielInput.description_etat_personnalise} // Affichez la valeur
+                        />
+                      </div>
+                    )}
+
                     <div className="form-group mb-3">
                       <label htmlFor="description_probleme">Description du problème</label>
                       <input
@@ -299,7 +354,6 @@ const DemandeMaterielForm = () => {
                         </div>
                       )}
                     </div>
-
                     <div className="row">
                       <div className="col">
                         <button

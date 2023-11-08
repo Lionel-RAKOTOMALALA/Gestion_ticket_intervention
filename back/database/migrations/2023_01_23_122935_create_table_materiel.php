@@ -16,8 +16,12 @@ return new class extends Migration
             $table->string('type_materiel');
             $table->string('description_materiel');
             $table->string('image_materiel_url')->nullable();
+            $table->unsignedBigInteger('id_demandeur')->nullable(); // Ajout de la colonne pour la clé étrangère
 
-            $table->timestamps();    
+            $table->timestamps();
+
+            // Définition de la clé étrangère
+            $table->foreign('id_demandeur')->references('id_demandeur')->on('demandeurs')->onDelete('cascade')->onUpdate('cascade');;
         });
     }
 
