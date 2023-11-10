@@ -114,3 +114,4 @@ Route::get('materielInDemande', [MaterielController::class, 'MaterielInDemande']
 Route::get('userInTechniciens', [UserController::class, 'userInTechniciens']);
 Route::get('newUserSpecialisation', [UserController::class, 'newUserSpecialisation']);
 Route::get('newUserSpecialisation/{id}', [UserController::class, 'showNewUserSpecialisation']);
+Route::get('getTechnicienAdmin', [UserController::class, 'getTechnicienAdmin']);

@@ -103,7 +103,10 @@ const DemandeMaterielList = () => {
                     <th>Description du problème</th>
                     <th>Type du matériel</th>
                     {demandeurVerifCount !== 1 || localStorage.getItem('role') !== 'userSimple' ? (
-                      <td>Nom du demandeur</td>
+                      <>
+                        <td>Nom du demandeur</td>
+                        <td>Entreprise</td>
+                      </>
                     ) : null}
                     <th>Status du demande</th>
                     <th>Action</th>

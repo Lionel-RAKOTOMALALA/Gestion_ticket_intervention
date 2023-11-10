@@ -34,7 +34,6 @@ class TicketController extends Controller
             'suite_a_donnee' => 'nullable|string',
             'id_technicien' => 'required|exists:techniciens,id_technicien',
             'id_demande' => 'required|exists:demande_materiel,id_demande',
-            'id_piece' => 'exists:piece_rechanges,id_piece', // Champ facultatif
         ]);
     
         if ($validator->fails()) {

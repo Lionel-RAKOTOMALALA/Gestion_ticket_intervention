@@ -57,6 +57,23 @@ class UserController extends Controller
         'status' => 200
     ], 200);
     }
+
+    public function getTechnicienAdmin(){
+        $technicienId = DB::table('techniciens')
+    ->join('users', 'techniciens.id_user', '=', 'users.id')
+    ->where('users.role_user', 1)
+    ->whereIn('users.id', function ($query) {
+        $query->select('id_user')
+            ->from('techniciens');
+    })
+    ->value('techniciens.id_technicien as id');  
+        return response()->json([
+            'admin' => $technicienId,  
+            'status' => 200
+        ], 200);
+    }
+    
+    
     public function userInTechniciens()
     {
         $users = User::whereIn('id', function ($query) {

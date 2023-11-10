@@ -32,6 +32,7 @@ import EditDemandeur from './components/admin/Demandeur/EditDemandeur';
 import DemandeMaterielApp from './components/admin/DemandeMateriel/DemandeMaterielApp';
 import DemandeMaterielForm from './components/admin/DemandeMateriel/DemandeMaterielForm';
 import EditDemandeMateriel from './components/admin/DemandeMateriel/EditDemandeMateriel';
+import TicketListDemandeur from './components/admin/TicketReparation/TicketListDemandeur';
 import PrivateRoute from './PrivateRoute';
 import Page403 from './components/Layouts/403';
 import Page404 from './components/Layouts/404';
@@ -100,7 +101,7 @@ function App() {
             <Route path='techniciens' element={<TechnicienApp/>}/>
             <Route path='/Acceuil_client/technicien/ajout' element={<TechnicienForm/>}/>
             <Route path='/Acceuil_client/techniciens/:id' element={<EditTechnicien/>}/>
-            <Route path='/Acceuil_client/tickets' element={<TicketApp/>}/>
+            <Route path='/Acceuil_client/tickets' element={<TicketListDemandeur/>}/>
             <Route path='/Acceuil_client/ticket/ajout' element={<TicketReparationForm/>}/>
             <Route path='/Acceuil_client/ticket/edit/:id' element={<EditTicket/>}/>
             <Route path='/Acceuil_client/users' element={<UserApp/>}/>

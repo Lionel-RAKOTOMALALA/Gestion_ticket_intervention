@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import swal from 'sweetalert';
 import { UilEditAlt, UilTrash, UilCheckCircle, UilTimesCircle, UilEye } from "@iconscout/react-unicons";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -8,8 +9,60 @@ const DemandeMateriel = ({ demandeMateriel, refreshData, demandeurCount }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isApproved, setIsApproved] = useState(demandeMateriel.status === "Validé");
   const [isRejected, setIsRejected] = useState(false);
-
+  const [technicienAdmin, setTechnicienAdmin] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchTechnicienAdmin = async () => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/api/getTechnicienAdmin`);
+        setTechnicienAdmin(response.data.admin);
+
+        console.log(response.data.admin);
+        alert(response.data.admin)
+      } catch (error) {
+        console.error("Erreur lors de la récupération du technicien admin :", error);
+      }
+    };
+
+    fetchTechnicienAdmin();
+  }, []);
+  function getUrgencePriorite(etatMateriel, demandeur) {
+    let urgence, priorite;
+    switch(etatMateriel) {
+      case 'En panne':
+        urgence = 'Haute';
+        priorite = 'Haute';
+        break;
+      case 'Endommagé':
+        urgence = 'Moyenne';
+        priorite = 'Moyenne';
+        break;
+      case 'Dysfonctionnement':
+        urgence = 'Faible';
+        priorite = 'Faible';
+        break;
+      case 'Obsolète':
+        urgence = 'Faible';
+        priorite = 'Faible';
+        break;
+      case 'Maintenance nécessaire':
+        urgence = 'Moyenne';
+        priorite = 'Moyenne';
+        break;
+      case 'Autre':
+        urgence = 'Faible';
+        priorite = 'Faible';
+        break;
+      default:
+        urgence = 'Faible';
+        priorite = 'Faible';
+    }
+    if (demandeur === 'Copefrito' && urgence === 'Faible') {
+      priorite = 'Haute';
+    }
+    return { urgence, priorite };
+   }
 
   const handleDelete = (e, id) => {
     Swal.fire({
@@ -39,7 +92,7 @@ const DemandeMateriel = ({ demandeMateriel, refreshData, demandeurCount }) => {
     });
   };
 
-  const handleValidate = (e, id) => {
+  const handleValidate = async (e, id) => {
     if (!isApproved) {
       Swal.fire({
         title: "Confirmer la validation",
@@ -48,40 +101,50 @@ const DemandeMateriel = ({ demandeMateriel, refreshData, demandeurCount }) => {
         showCancelButton: true,
         confirmButtonText: "Oui",
         cancelButtonText: "Non",
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
-          axios
-            .put(`http://127.0.0.1:8000/api/demande_materiel/validate/${id}`)
-            .then((res) => {
-              if (res.data.status === 200) {
-                Swal.fire("Success", res.data.message, "success");
-                refreshData();
-                setIsApproved(true);
-                setIsRejected(false);
-              } else if (res.data.status === 404) {
-                Swal.fire("Erreur", res.data.message, "error");
-                navigate("/admin/demande_materiels");
-              }
-            })
-            .catch((error) => {
-              console.error(error);
-            });
-            // dataTicket = {
-            //   urgence : '',
-            //   priorite : '',
-            //   statut_actuel: 'En cours de reparation',
-            //   date_resolution : ''
-            // }
-            // axios.post('http://127.0.0.1:8000/api/tickets',dataTicket)
-            // .then((response) =>{
+          try {
+            const res1 = await axios.put(`http://127.0.0.1:8000/api/demande_materiel/validate/${id}`);
+            let res2;
 
-            // })
+            if (technicienAdmin) {
+              const { urgence, priorite } = getUrgencePriorite(demandeMateriel.etat_materiel, demandeMateriel.demandeur_entreprise);
+              const dataTicket = {
+                urgence: urgence,
+                priorite: priorite,
+                statut_actuel: 'En cours de reparation',
+                id_technicien: technicienAdmin,
+                id_demande: demandeMateriel.id_demande,
+              };
+              
+              console.log("Data Ticket:", dataTicket);
+              res2 = await axios.post('http://127.0.0.1:8000/api/tickets', dataTicket);
+            }
+
+            if (res1.data.status === 200) {
+              Swal.fire("Success", res1.data.message, "success");
+              refreshData();
+              setIsApproved(true);
+              setIsRejected(false);
+
+              if (res2 && res2.data.status === 200) {
+                Swal.fire("Success", res2.data.message, "success");
+              } else if (res2 && res2.data.status === 400) {
+                Swal.fire("Erreur", res2.data.message, "error");
+              }
+            } else if (res1.data.status === 404) {
+              Swal.fire("Erreur", res1.data.message, "error");
+              navigate("/admin/demande_materiels");
+            }
+          } catch (error) {
+            console.error(error);
+          }
         }
       });
     }
   };
 
-  const handleReject = (e, id) => {
+  const handleReject = async (e, id) => {
     if (!isRejected) {
       Swal.fire({
         title: "Confirmer le rejet",
@@ -90,24 +153,23 @@ const DemandeMateriel = ({ demandeMateriel, refreshData, demandeurCount }) => {
         showCancelButton: true,
         confirmButtonText: "Oui",
         cancelButtonText: "Non",
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
-          axios
-            .put(`http://127.0.0.1:8000/api/demande_materiel/reject/${id}`, { status: "rejeté" })
-            .then((res) => {
-              if (res.data.status === 200) {
-                Swal.fire("Success", res.data.message, "success");
-                refreshData();
-                setIsRejected(true);
-                setIsApproved(false);
-              } else if (res.data.status === 404) {
-                Swal.fire("Erreur", res.data.message, "error");
-                navigate("/admin/demande_materiels");
-              }
-            })
-            .catch((error) => {
-              console.error(error);
-            });
+          try {
+            const res = await axios.put(`http://127.0.0.1:8000/api/demande_materiel/reject/${id}`, { status: "rejeté" });
+
+            if (res.data.status === 200) {
+              Swal.fire("Success", res.data.message, "success");
+              refreshData();
+              setIsRejected(true);
+              setIsApproved(false);
+            } else if (res.data.status === 404) {
+              Swal.fire("Erreur", res.data.message, "error");
+              navigate("/admin/demande_materiels");
+            }
+          } catch (error) {
+            console.error(error);
+          }
         }
       });
     }
@@ -127,7 +189,10 @@ const DemandeMateriel = ({ demandeMateriel, refreshData, demandeurCount }) => {
       <td>{demandeMateriel.description_probleme}</td>
       <td>{demandeMateriel.type_materiel}</td>
       {demandeurCount !== 1 || localStorage.getItem('role') !== 'userSimple' ? (
-        <td>{demandeMateriel.demandeur_username}</td>
+        <>
+          <td>{demandeMateriel.demandeur_username}</td>
+          <td>{demandeMateriel.demandeur_entreprise}</td>
+        </>
       ) : null}
       <td>
         {demandeurCount < 0 ? (

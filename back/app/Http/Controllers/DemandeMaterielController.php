@@ -16,6 +16,7 @@ class DemandeMaterielController extends Controller
     $demandes = DemandeMateriel::select(
         'demande_materiel.*',
         'users.username as demandeur_username',
+        'users.nom_entreprise as demandeur_entreprise',
         'materiels.type_materiel'
     )
     ->join('users', 'demande_materiel.id_demandeur', '=', 'users.id')
