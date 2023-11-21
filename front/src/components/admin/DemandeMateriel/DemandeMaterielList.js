@@ -159,19 +159,29 @@ const DemandeMaterielList = () => {
                         id_demande: demande,
                     };
 
-                    const res = await axios.put(validateUrl, data);
+                    const authToken = localStorage.getItem('auth_token');
 
-                    if (res.data.status === 200) {
+                    try {
+                      const res = await axios.put(validateUrl, data, {
+                        headers: {
+                          'Authorization': `Bearer ${authToken}`
+                        }
+                      });
+
+                      if (res.data.status === 200) {
                         Swal.fire("Success", res.data.message, "success");
                         refreshData();
                         setIsApproved(true);
                         setIsRejected(false);
-
-                      
-                    } else if (res.data.status === 404) {
+                      } else if (res.data.status === 404) {
                         Swal.fire("Erreur", res.data.message, "error");
                         navigate("/admin/demande_materiels");
+                      }
+                    } catch (error) {
+                      console.error(error);
+                      // Gérer les erreurs
                     }
+
                 } catch (error) {
                     console.error("Error during validation:", error);
                 }

@@ -31,8 +31,6 @@ Route::prefix('demande_materiel')->group(function () {
     Route::get('/{id}', [DemandeMaterielController::class, 'show']);
     Route::post('/', [DemandeMaterielController::class, 'store']);
     Route::put('/{id}', [DemandeMaterielController::class, 'update']);
-    Route::put('validate/{id}', [DemandeMaterielController::class, 'validationDemande']);
-    Route::put('reject/{id}', [DemandeMaterielController::class, 'rejectDemande']);
     Route::delete('/{id}', [DemandeMaterielController::class, 'destroy']);
 });
 
