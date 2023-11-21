@@ -7,9 +7,7 @@ import Skeleton from '@mui/material/Skeleton';
 function Sidebar() {
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
-  const [style, setStyle] = useState(
-    "navbar-nav bg-gradient-primary sidebar sidebar-dark accordion"
-  );
+  const [style, setStyle] = useState("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion");
 
   const [demandeurVerifCount, setDemandeurVerifCount] = useState(null);
   const [technicienVerifCount, setTechnicienVerifCount] = useState(null);
@@ -102,7 +100,6 @@ function Sidebar() {
               <span>Utilisateur</span>
             </NavLink>
           </li>
-          
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/demande_materiels`}>
               <UilUserCircle />
@@ -112,8 +109,9 @@ function Sidebar() {
         </>
       );
     } else if(demandeurVerifCount === 1){
-      <>
-      <li className="nav-item">
+      menuItems = (
+        <>
+          <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/demande_materiels`}>
               <UilUserCircle />
               <span>Demande de réparation</span>
@@ -145,9 +143,9 @@ function Sidebar() {
               </div>
             </div>
           </li>
-      </>
-    
-    }else if (demandeurVerifCount === 0) {
+        </>
+      );
+    } else if (demandeurVerifCount === 0) {
       menuItems = (
         <>
           <li className="nav-item">
@@ -244,37 +242,57 @@ function Sidebar() {
 
   return (
     <ul className={style} id="accordionSidebar" style={gradientBackground}>
-            {/* Sidebar - Brand */}
-            <NavLink className="sidebar-brand d-flex align-items-center justify-content-center" to={location.pathname}>
-                <div className="sidebar-brand-icon rotate-n-15">
-                    <i className="fas fa-laugh-wink"></i>
-                </div>
-                <div className="sidebar-brand-text mx-3">{user.nom_entreprise}</div>
-                <div className="text-center d-none d-md-inline">
-                    <button className="rounded-circle border-0" id="sidebarToggle" onClick={changeStyle}></button>
-                </div>
-            </NavLink>
+      <NavLink className="sidebar-brand d-flex align-items-center justify-content-center" to={location.pathname}>
+        <div className="sidebar-brand-icon rotate-n-15">
+          <i className="fas fa-laugh-wink"></i>
+        </div>
+        <div className="sidebar-brand-text mx-3">{user.nom_entreprise}</div>
+        <div className="text-center d-none d-md-inline">
+          <button className="rounded-circle border-0" id="sidebarToggle" onClick={changeStyle}></button>
+        </div>
+      </NavLink>
 
-            {/* Divider */}
-            <hr className="sidebar-divider my-0" />
+      <hr className="sidebar-divider my-0" />
 
-            {/* Nav Item - Dashboard (toujours visible) */}
-            <li className="nav-item">
-                <NavLink className="nav-link text-white" to={linkRoot}>
-                    <i className="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Tableau de bord</span>
-                </NavLink>
-            </li>
+      <li className="nav-item">
+        {loading ? (
+          <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
+        ) : (
+          <NavLink className="nav-link text-white" to={linkRoot}>
+            <i className="fas fa-fw fa-tachometer-alt"></i>
+            <span>Tableau de bord</span>
+          </NavLink>
+        )}
+      </li>
 
-            {/* Divider */}
-            <hr className="sidebar-divider" />
+      <hr className="sidebar-divider" />
 
-            {/* Listes des données */}
-            <div className="sidebar-heading">Listes des données</div>
+      <div className="sidebar-heading">
+        {loading ? (
+          <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
+        ) : (
+          'Listes des données'
+        )}
+      </div>
+
       {loading ? (
         <>
-          <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
-          <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
+          {isAdmin && (
+            <>
+              <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
+              <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
+              <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
+              <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
+            </>
+          )}
+          {isUserSimple && (
+            <>
+              <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
+              <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
+              {/* Add more Skeletons if needed */}
+            </>
+          )}
+          {/* Add Skeletons for other roles if needed */}
         </>
       ) : (
         <>

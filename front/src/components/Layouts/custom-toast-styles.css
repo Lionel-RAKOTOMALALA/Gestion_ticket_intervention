@@ -1,0 +1,20 @@
+/* custom-toast-styles.css */
+
+/* Style de base pour le conteneur du toast */
+.Toastify__toast-container {
+    font-family: 'Arial', sans-serif;
+    font-size: 14px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Style de base pour le toast lui-même */
+  .Toastify__toast {
+    background: rgba(0, 0, 0, 0.8); /* Fond noir */
+    color: white; /* Texte blanc */
+  }
+  
+  /* Style pour le toast lorsqu'il est en survol */
+  .Toastify__toast:hover {
+    background: rgba(0, 0, 0, 0.9);
+  }
+  

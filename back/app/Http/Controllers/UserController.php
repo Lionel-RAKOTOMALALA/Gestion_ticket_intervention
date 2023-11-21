@@ -42,6 +42,33 @@ class UserController extends Controller
             'status' => 200
         ], 200);
     }
+    public function imageFetch($filename){
+        $path = storage_path('app/uploads/materiels/' . $filename);
+
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        $file = file_get_contents($path);
+
+        return response($file, 200)->header('Content-Type', 'image/jpg');
+    }
+    public function dashboard(){
+
+        $moisDemandes = DB::table('demande_materiel')
+    ->select(DB::raw('MONTHNAME(MIN(demande_materiel.created_at)) as mois'), DB::raw('COUNT(*) as nombre_demandes'))
+    ->groupBy(DB::raw('MONTH(demande_materiel.created_at)'))
+    ->orderBy(DB::raw('MONTH(demande_materiel.created_at)'))
+    ->get();
+
+    
+
+    return response()->json([
+        'data' => $moisDemandes,
+        'status' => 200
+    ], 200);
+
+    }
     public function newUserSpecialisation()
     {
         $users = DB::table('users')
@@ -138,6 +165,7 @@ class UserController extends Controller
         $demandes = DemandeMateriel::select(
             'demande_materiel.*',
             'users.username as demandeur_username',
+            'users.nom_entreprise as demandeur_entreprise',
             'materiels.type_materiel'
         )
         ->join('users', 'demande_materiel.id_demandeur', '=', 'users.id')

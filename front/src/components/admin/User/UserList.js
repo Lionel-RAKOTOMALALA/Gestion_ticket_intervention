@@ -65,9 +65,8 @@ const UserList = () => {
               >
                 <thead>
                   <tr>
-                    <th >ID Utilisateur</th>
-                    <th>Photo de profil</th>
-                    <th>Nom d'utilisateur</th>
+                    <th >Numero matricule</th>
+                    <th>Profil de l'utilisateur</th>
                     <th>Email</th>
                     <th>Role</th>
                     <th>sexe</th>

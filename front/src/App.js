@@ -37,32 +37,32 @@ import PrivateRoute from './PrivateRoute';
 import Page403 from './components/Layouts/403';
 import Page404 from './components/Layouts/404';
 import PrivateRouteUserSimple from './PrivateUserSimpleRoute';
+import Toast from './components/Layouts/toast';
 
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.defaults.headers.post['Accept'] = 'application/json';
 axios.defaults.withCredentials = true;
 
+
 function App() {
+  const userRole = localStorage.getItem('role');
+  const isAdmin = userRole === 'admin';
+  const isUserSimple = userRole === 'userSimple';
+
+  // Racine des liens en fonction du rôle
+  const linkRoot = isAdmin ? '/admin' : isUserSimple ? '/Acceuil_client' : '';
+  
   // localStorage.clear()
   return (
+    
     <Router>
       <Routes>
-        <Route path="/" element={localStorage.getItem('auth_token') ? <Navigate to="/admin" /> : <Home />} />
-        <Route path="/register" element={localStorage.getItem('auth_token') ? <Navigate to="/admin" /> : <Register />} />
-        <Route path="/login" element={localStorage.getItem('auth_token') ? <Navigate to="/admin" /> : <Login />} />
-        <Route path="/login" element={localStorage.getItem('auth_token') ? <Navigate to="/Acceuil_client" /> : <Login />} />
+        <Route path="/" element={!!localStorage.getItem('auth_token') ? <Navigate to={linkRoot} /> : <Home />} /> 
+        <Route path="/login" element={!!localStorage.getItem('auth_token') ? <Navigate to={linkRoot} /> : <Login/>} />
         <Route path="/admin" element={<PrivateRoute />}>
         <Route index element={<Content_dashboard />} /> {/* Utilisez l'index pour /admin/dashboard */}
           <Route path="profile" element={<Content_profil />} />
-          <Route
-            path="materiels"
-            element={<MaterielApp />}
-          />
-          <Route path="materiels/en-cours" element={<Materiel />} />
-          <Route path="materiels/repare" element={<Materiel />} />
-          <Route path="materiels/tous" element={<Materiel />} />
-          <Route path="materiels/demande_reparation" element={<MaterielForm />} />
-          <Route path="materiels/:id" element={<EditMateriel />} />
+          
           <Route path='techniciens' element={<TechnicienApp/>}/>
           <Route path='/admin/technicien/ajout' element={<TechnicienForm/>}/>
           <Route path='/admin/techniciens/:id' element={<EditTechnicien/>}/>
@@ -85,6 +85,7 @@ function App() {
           <Route path="403" element={<Page403 />} />
           <Route path="404" element={<Page404 />} />
           <Route path="*" element={<Page404 />} />
+          <Route path="toast" element={<Toast/>}/>
           
           <Route path="/Acceuil_client" element={<PrivateRouteUserSimple/>}>
             <Route index element={<Content_dashboard />} /> {/* Utilisez l'index pour /admin/dashboard */}
@@ -98,21 +99,9 @@ function App() {
             <Route path="materiels/tous" element={<Materiel />} />
             <Route path="materiels/demande_reparation" element={<MaterielForm />} />
             <Route path="materiels/:id" element={<EditMateriel />} />
-            <Route path='techniciens' element={<TechnicienApp/>}/>
-            <Route path='/Acceuil_client/technicien/ajout' element={<TechnicienForm/>}/>
-            <Route path='/Acceuil_client/techniciens/:id' element={<EditTechnicien/>}/>
-            <Route path='/Acceuil_client/tickets' element={<TicketListDemandeur/>}/>
+            <Route path='/Acceuil_client/tickets' element={<TicketApp/>}/>
             <Route path='/Acceuil_client/ticket/ajout' element={<TicketReparationForm/>}/>
             <Route path='/Acceuil_client/ticket/edit/:id' element={<EditTicket/>}/>
-            <Route path='/Acceuil_client/users' element={<UserApp/>}/>
-            <Route path='/Acceuil_client/users/ajout' element={<UserForm/>}/>
-            <Route path='/Acceuil_client/users/edit/:id' element={<EditUser/>}/>
-            <Route path='/Acceuil_client/postes' element={<PosteApp/>}/>
-            <Route path='/Acceuil_client/poste/ajout' element={<PosteForm/>}/>
-            <Route path='/Acceuil_client/poste/edit/:id' element={<EditPoste/>}/>
-            <Route path='/Acceuil_client/demandeurs' element={<DemandeurApp/>}/>
-            <Route path='/Acceuil_client/demandeur/ajout' element={<DemandeurForm/>}/>
-            <Route path='/Acceuil_client/demandeur/edit/:id' element={<EditDemandeur/>}/>
             <Route path='/Acceuil_client/demande_materiels' element={<DemandeMaterielApp/>}/>
             <Route path='/Acceuil_client/demande_materiels/ajout' element={<DemandeMaterielForm/>}/>
             <Route path='/Acceuil_client/demande/edit/:id' element={<EditDemandeMateriel/>}/>
@@ -122,6 +111,7 @@ function App() {
       </Routes>
     </Router>
   );
+  
 }
 
 export default App;

@@ -10,6 +10,9 @@ const TicketReparationList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const tableRef = useRef(null);
 
+
+
+
   const destroyDataTable = () => {
     if ($.fn.DataTable.isDataTable(tableRef.current)) {
       $(tableRef.current).DataTable().destroy();

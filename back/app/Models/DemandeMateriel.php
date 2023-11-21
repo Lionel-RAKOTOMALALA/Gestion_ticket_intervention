@@ -16,5 +16,9 @@ class DemandeMateriel extends Model
         'num_serie',
         'id_demandeur',
     ];
+    public function demandeur()
+    {
+        return $this->belongsTo(Demandeur::class, 'id_demandeur');
+    }
 
 }

@@ -17,5 +17,14 @@ class Demandeur extends Model
         'id_poste', 
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public function demandesMateriel()
+    {
+        return $this->hasMany(DemandeMateriel::class, 'id_demandeur');
+    }
    
 }

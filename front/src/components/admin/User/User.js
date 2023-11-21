@@ -41,20 +41,16 @@ const User = ({ user, refreshData }) => {
   return (
     <tr>
       <td>{user.id}</td>
-      <td className="text-center">
-        <div style={{ width: "25%", height: "20%", position: "relative" }}>
-          <img
+      
+      <td><img
             src={"http://localhost:8000/uploads/users/" + user.photo_profil_user}
             alt="User Photo"
             className="rounded-circle mx-auto"
             style={{
-              width: "3rem",
-              height: "3rem",
+              width: "2rem",
+              height: "2rem",
             }}
-          />
-        </div>
-      </td>
-      <td>{user.username}</td>
+          /><span className="m-4">{user.username}</span></td>
       <td>{user.email}</td>
       <td>{user.role}</td>
       <td>{user.sexe}</td>

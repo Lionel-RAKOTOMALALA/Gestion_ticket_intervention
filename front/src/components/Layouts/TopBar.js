@@ -3,6 +3,29 @@ import React, { useState,useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import swal from 'sweetalert';
 import Skeleton from '@mui/material/Skeleton'; 
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Box';
+import AppBar from '@mui/material/AppBar';
+import TextField from '@mui/material/TextField';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+// or
+ 
+import MenuIcon from '@mui/icons-material/Menu';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import Paper from '@mui/material/Paper';
+import MenuItem from '@mui/material/MenuItem';
+import Modal from '@mui/material/Modal';
+import Badge from '@mui/material/Badge';
+// import MailIcon from '@mui/icons-material/Mail'
 
 const TopBar = () => {
   const navigate = useNavigate();
@@ -165,11 +188,6 @@ const TopBar = () => {
         <li className="nav-item">
           <NavLink className="nav-link text-white" to="/">
             Accueil
-          </NavLink>
-        </li>
-        <li className="nav-item">
-          <NavLink className="nav-link text-white" to="/register">
-            S'inscrire
           </NavLink>
         </li>
         <li className="nav-item">

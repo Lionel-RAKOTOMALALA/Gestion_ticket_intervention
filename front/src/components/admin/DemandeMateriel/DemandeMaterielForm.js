@@ -177,9 +177,13 @@ const DemandeMaterielForm = () => {
         num_serie: demandeMaterielInput.num_serie,
         id_demandeur: demandeMaterielInput.id_demandeur,
       };
-
+      
+      const authToken = localStorage.getItem('auth_token');
       axios
-        .post("http://127.0.0.1:8000/api/demande_materiel", data)
+        .post("http://127.0.0.1:8000/api/demande_materiel", data, {
+          headers: {
+              'Authorization': `Bearer ${authToken}`
+          }})
         .then((res) => {
           if (res.data.status === 200) {
             swal("Success", res.data.message, "success");

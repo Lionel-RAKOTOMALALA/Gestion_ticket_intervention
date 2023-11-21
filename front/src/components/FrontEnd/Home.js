@@ -4,9 +4,9 @@ import TopBar from '../Layouts/TopBar';
 
 const Home = () => {
   return (
-    <div>
+    <div  >
       <TopBar/>
-      <h1>Home page</h1>
+      <h1>Home page🤡🤡🤡😘</h1>
     </div>
   )
 }

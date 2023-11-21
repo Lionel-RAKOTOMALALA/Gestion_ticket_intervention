@@ -15,6 +15,7 @@ class TicketController extends Controller
             ->join('techniciens', 'ticketReparation.id_technicien', '=', 'techniciens.id_technicien')
             ->join('users as technicien_user', 'techniciens.id_user', '=', 'technicien_user.id')
             ->select('ticketReparation.*', 'materiels.type_materiel','materiels.image_materiel_url', 'technicien_user.username as nom_technicien')
+            ->orderBy('ticketReparation.created_at', 'DESC')
             ->get();
 
         return response()->json([

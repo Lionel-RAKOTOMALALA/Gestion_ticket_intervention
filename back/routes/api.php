@@ -10,6 +10,8 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\DemandeMaterielController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\UserActivityController;
 
 
 Route::middleware('auth:sanctum','isAPIAdmin')->group(function () {
@@ -23,7 +25,18 @@ Route::middleware('auth:sanctum','isAPIAdmin')->group(function () {
     
 Route::get('countDemandeurForAuthenticatedUser', [UserController::class, 'countDemandeurForAuthenticatedUser']);
 Route::get('countTechnicienForAuthenticatedUser', [UserController::class, 'countTechnicienForAuthenticatedUser']); 
-Route::get('/showIdDemandeur', [UserController::class, 'showIdDemandeur']);  
+Route::get('/showIdDemandeur', [UserController::class, 'showIdDemandeur']);
+Route::prefix('demande_materiel')->group(function () {
+    Route::get('/', [DemandeMaterielController::class, 'index']);
+    Route::get('/{id}', [DemandeMaterielController::class, 'show']);
+    Route::post('/', [DemandeMaterielController::class, 'store']);
+    Route::put('/{id}', [DemandeMaterielController::class, 'update']);
+    Route::put('validate/{id}', [DemandeMaterielController::class, 'validationDemande']);
+    Route::put('reject/{id}', [DemandeMaterielController::class, 'rejectDemande']);
+    Route::delete('/{id}', [DemandeMaterielController::class, 'destroy']);
+});
+
+
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -41,6 +54,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('countTechnicienForAuthenticatedUser', [UserController::class, 'countTechnicienForAuthenticatedUser']);
     Route::get('/demandes-utilisateur', [UserController::class, 'getDemandesUtilisateur']);  
     Route::get('/showIdDemandeur', [UserController::class, 'showIdDemandeur']);  
+    Route::prefix('demande_materiel')->group(function () {
+        Route::get('/', [DemandeMaterielController::class, 'index']);
+        Route::get('/{id}', [DemandeMaterielController::class, 'show']);
+        Route::post('/', [DemandeMaterielController::class, 'store']);
+        Route::put('/{id}', [DemandeMaterielController::class, 'update']);
+        Route::put('validate/{id}', [DemandeMaterielController::class, 'validationDemande']);
+        Route::put('reject/{id}', [DemandeMaterielController::class, 'rejectDemande']);
+        Route::delete('/{id}', [DemandeMaterielController::class, 'destroy']);
+    });
+ 
 
 }); 
 
@@ -56,15 +79,7 @@ Route::prefix('tickets')->group(function () {
     Route::put('{id}', [TicketController::class, 'update']);
     Route::delete('{id}', [TicketController::class, 'destroy']);
 });
-Route::prefix('demande_materiel')->group(function () {
-    Route::get('/', [DemandeMaterielController::class, 'index']);
-    Route::get('/{id}', [DemandeMaterielController::class, 'show']);
-    Route::post('/', [DemandeMaterielController::class, 'store']);
-    Route::put('/{id}', [DemandeMaterielController::class, 'update']);
-    Route::put('validate/{id}', [DemandeMaterielController::class, 'validationDemande']);
-    Route::put('reject/{id}', [DemandeMaterielController::class, 'rejectDemande']);
-    Route::delete('/{id}', [DemandeMaterielController::class, 'destroy']);
-});
+
 Route::prefix('demandeurs')->group(function () {
     Route::get('/', [DemandeurController::class, 'index']);
     Route::get('{id}', [DemandeurController::class, 'show']);
@@ -115,3 +130,21 @@ Route::get('userInTechniciens', [UserController::class, 'userInTechniciens']);
 Route::get('newUserSpecialisation', [UserController::class, 'newUserSpecialisation']);
 Route::get('newUserSpecialisation/{id}', [UserController::class, 'showNewUserSpecialisation']);
 Route::get('getTechnicienAdmin', [UserController::class, 'getTechnicienAdmin']);
+
+Route::get('dashboard', [UserController::class, 'dashboard']);
+Route::get('/uploads/materiels/{filename}', [UserController::class, 'imageFetch']);
+Route::prefix('notifications')->group(function () {
+    Route::get('/', [NotificationController::class, 'index']);
+    Route::post('/', [NotificationController::class, 'store']);
+    Route::get('/{id}', [NotificationController::class, 'show']);
+    Route::put('/{id}', [NotificationController::class, 'update']);
+    Route::delete('/{id}', [NotificationController::class, 'destroy']);
+});
+Route::prefix('user-activities')->group(function () {
+    Route::get('/', [UserActivityController::class, 'index']);
+    Route::post('/', [UserActivityController::class, 'store']);
+    Route::get('/{id}', [UserActivityController::class, 'show']);
+    Route::put('/{id}', [UserActivityController::class, 'update']);
+    Route::delete('/{id}', [UserActivityController::class, 'destroy']);
+});
+
