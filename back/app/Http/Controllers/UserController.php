@@ -162,15 +162,18 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        $demandes = DemandeMateriel::select(
+        $demandes = DB::table('demande_materiel')
+        ->select(
             'demande_materiel.*',
             'users.username as demandeur_username',
             'users.nom_entreprise as demandeur_entreprise',
             'materiels.type_materiel'
         )
-        ->join('users', 'demande_materiel.id_demandeur', '=', 'users.id')
-        ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
+        ->leftJoin('demandeurs', 'demande_materiel.id_demandeur', '=', 'demandeurs.id_demandeur')
+        ->leftJoin('users', 'demandeurs.id_user', '=', 'users.id')
+        ->leftJoin('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
         ->where('demande_materiel.id_demandeur', $user->id) 
+        ->orderByDesc('demande_materiel.id_demande')
         ->get();
     
         if ($demandes) {
