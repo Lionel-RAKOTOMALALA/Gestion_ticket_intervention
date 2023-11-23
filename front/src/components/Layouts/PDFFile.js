@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Page, Text, Document, StyleSheet, Image, View } from '@react-pdf/renderer';
-import axios from 'axios';
 
 const styles = StyleSheet.create({
   body: {

@@ -235,7 +235,7 @@ const EditDemandeMateriel = () => {
                         >
                           <option value="">Sélectionner un demandeur</option>
                           {demandeurList.map((item) => (
-                            <option key={item.id} value={item.id}>
+                            <option key={item.id_demandeur} value={item.id_demandeur}>
                               {item.username}
                             </option>
                           ))}

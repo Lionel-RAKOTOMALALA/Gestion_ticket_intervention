@@ -15,7 +15,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_ticket')->nullable();
             $table->unsignedBigInteger('id_demande')->nullable(); // Allow null for 'id_demande'
             $table->string('phrase')->nullable(); // Add the new 'phrase' column
-            
+            $table->tinyInteger('status_notif')->default(0);
             $table->foreign('id_ticket')->references('id_ticket')->on('ticketReparation')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('id_demande')->references('id_demande')->on('demande_materiel')->onDelete('cascade')->onUpdate('cascade');
 

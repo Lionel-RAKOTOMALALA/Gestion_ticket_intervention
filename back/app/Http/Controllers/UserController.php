@@ -19,29 +19,18 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all();
+        $formattedUsers = DB::table('users')
+    ->select('users.id', 'users.username', 'users.email', 'users.logo', 'users.sexe', 'users.photo_profil_user', 'users.nom_entreprise', DB::raw("CASE WHEN users.role_user = 1 THEN 'Admin' ELSE 'Utilisateur simple' END AS role_user"), 'demandeurs.id_demandeur')
+    ->join('demandeurs', 'users.id', '=', 'demandeurs.id_user')
+    ->get();
 
-        $formattedUsers = $users->map(function ($user) {
-            return [
-                'id' => $user->id,
-                'username' => $user->username,
-                'email' => $user->email,
-                'role' => $user->role_user == 1 ? 'Admin' : 'Utilisateur simple',
-                'logo' => $user->logo,
-                'sexe' => $user->sexe,
-                'photo_profil_user' => $user->photo_profil_user,
-                'email_verified_at' => $user->email_verified_at,
-                'nom_entreprise' => $user->nom_entreprise,
-                'created_at' => $user->created_at,
-                'updated_at' => $user->updated_at,
-            ];
-        });
 
         return response()->json([
             'users' => $formattedUsers,
             'status' => 200
         ], 200);
-    }
+    } 
+   
     public function imageFetch($filename){
         $path = storage_path('app/uploads/materiels/' . $filename);
 
@@ -54,17 +43,24 @@ class UserController extends Controller
         return response($file, 200)->header('Content-Type', 'image/jpg');
     }
     public function dashboard(){
-
-        $moisDemandes = DB::table('demande_materiel')
-    ->select(DB::raw('MONTHNAME(MIN(demande_materiel.created_at)) as mois'), DB::raw('COUNT(*) as nombre_demandes'))
-    ->groupBy(DB::raw('MONTH(demande_materiel.created_at)'))
-    ->orderBy(DB::raw('MONTH(demande_materiel.created_at)'))
-    ->get();
+        
+        DB::statement("SET lc_time_names = 'fr_FR'");
+        $result = DB::table('demande_materiel')
+        ->select(
+            DB::raw("MONTHNAME(demande_materiel.created_at) as mois"),
+            DB::raw("users.nom_entreprise as entreprise"),
+            DB::raw("COUNT(*) as nombre_demandes")
+        )
+        ->join('demandeurs', 'demande_materiel.id_demandeur', '=', 'demandeurs.id_demandeur')
+        ->join('users', 'demandeurs.id_user', '=', 'users.id')
+        ->where('users.nom_entreprise', '!=', '') // Vous pouvez ajouter d'autres conditions ici si nécessaire
+        ->groupBy(DB::raw("MONTHNAME(demande_materiel.created_at)"), 'entreprise')
+        ->get();
 
     
 
     return response()->json([
-        'data' => $moisDemandes,
+        'data' => $result,
         'status' => 200
     ], 200);
 
@@ -103,11 +99,10 @@ class UserController extends Controller
     
     public function userInTechniciens()
     {
-        $users = User::whereIn('id', function ($query) {
-            $query->select('id_user')
-                ->from('techniciens');
-        })->get();
-
+        $users = DB::table('users')
+        ->select('techniciens.id_technicien as id_technicien')
+        ->join('techniciens', 'users.id', '=', 'techniciens.id_user')
+        ->get();
         return response()->json([
             'users' => $users,
             'status' => 200
@@ -149,8 +144,18 @@ class UserController extends Controller
         $user = Auth::user();
 
         if ($user) {
+
+        $results = DB::table('notifications')
+            ->select('notifications.*', 'users.*')
+            ->join('demande_materiel', 'notifications.id_demande', '=', 'demande_materiel.id_demande')
+            ->join('demandeurs', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
+            ->join('users', 'demandeurs.id_user', '=', 'users.id')
+            ->where('users.id', $user->id)
+            ->get();
+
             return response()->json([
                 'user' => $user,
+                'notification' => $results,
             ], 200);
         } else {
             return response()->json([
@@ -160,21 +165,16 @@ class UserController extends Controller
     }
     public function getDemandesUtilisateur(Request $request)
     {
-        $user = $request->user();
+        $user = auth()->user(); // Assurez-vous que l'utilisateur est connecté
 
-        $demandes = DB::table('demande_materiel')
-        ->select(
-            'demande_materiel.*',
-            'users.username as demandeur_username',
-            'users.nom_entreprise as demandeur_entreprise',
-            'materiels.type_materiel'
-        )
-        ->leftJoin('demandeurs', 'demande_materiel.id_demandeur', '=', 'demandeurs.id_demandeur')
-        ->leftJoin('users', 'demandeurs.id_user', '=', 'users.id')
-        ->leftJoin('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
-        ->where('demande_materiel.id_demandeur', $user->id) 
-        ->orderByDesc('demande_materiel.id_demande')
-        ->get();
+        $demandes = DB::table('demandeurs')
+            ->select('demande_materiel.*', 'users.username as demandeur_username', 'users.nom_entreprise as demandeur_entreprise', 'materiels.type_materiel')
+            ->join('demande_materiel', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
+            ->join('users', 'demandeurs.id_user', '=', 'users.id')
+            ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
+            ->where('demandeurs.id_user', $user->id)
+            ->get();
+        
     
         if ($demandes) {
             return response()->json([

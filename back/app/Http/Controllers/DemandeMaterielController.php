@@ -15,20 +15,12 @@ class DemandeMaterielController extends Controller
 {
     public function index()
     {
-        $demandes = DB::table('demande_materiel')
-        ->select(
-            'demande_materiel.*',
-            'users.username as demandeur_username',
-            'users.nom_entreprise as demandeur_entreprise',
-            'materiels.type_materiel'
-        )
-        ->leftJoin('demandeurs', 'demande_materiel.id_demandeur', '=', 'demandeurs.id_demandeur')
-        ->leftJoin('users', 'demandeurs.id_user', '=', 'users.id')
-        ->leftJoin('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
-        ->orderByDesc('demande_materiel.id_demande')
+        $demandes = DB::table('demandeurs')
+        ->select('demande_materiel.*', 'users.username as demandeur_username', 'users.nom_entreprise as demandeur_entreprise', 'materiels.type_materiel')
+        ->join('demande_materiel', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
+        ->join('users', 'demandeurs.id_user', '=', 'users.id')
+        ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
         ->get();
-    
-    
     
 
         if ($demandes) {
@@ -87,7 +79,7 @@ public function store(Request $request)
             'type_notif' => 'nouvelle_demande',
             'id_demande' => $id_demande,
             'date_creation' => now(),
-            'phrase' => 'L\'utilisateur' . Auth::user()->username .' vient de faire une demande de reparation',
+            'phrase' => 'L\'utilisateur ' . Auth::user()->username .' vient de faire une demande de reparation',
         ]);
 
         return response()->json([
@@ -128,17 +120,13 @@ public function store(Request $request)
     public function validationDemande(Request $request, $id)
     {
         try {
-            $demande = DemandeMateriel::select(
-                'demande_materiel.*',
-                'users.username as demandeur_username',
-                'users.nom_entreprise as demandeur_entreprise',
-                'materiels.type_materiel'
-            )
-                ->join('users', 'demande_materiel.id_demandeur', '=', 'users.id')
+            // Récupération de la demande de matériel
+            $demande = DemandeMateriel::select('demande_materiel.*', 'users.username as demandeur_username', 'users.nom_entreprise as demandeur_entreprise', 'materiels.type_materiel')
+                ->join('demandeurs', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
+                ->join('users', 'demandeurs.id_user', '=', 'users.id')
                 ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
                 ->where('demande_materiel.id_demande', '=', $id)
                 ->first();
-            
     
             if (!$demande) {
                 return response()->json([
@@ -147,10 +135,11 @@ public function store(Request $request)
                 ]);
             }
     
-    
+            // Mise à jour du statut de la demande de matériel
             $demande->status = 'Validé';
             $demande->save();
     
+            // Validation des données du formulaire
             $validator = Validator::make($request->all(), [
                 'urgence' => 'required|string|max:255',
                 'priorite' => 'required|string|max:255',
@@ -172,7 +161,7 @@ public function store(Request $request)
             // Création du ticket
             $ticket = TicketReparation::create($request->all());
     
-            // Accède à l'id du ticket après avoir sauvegardé le ticket
+            // Accès à l'id du ticket après avoir sauvegardé le ticket
             $idTicket = $ticket->id_ticket;
     
             // Création de l'activité de validation de demande de matériel
@@ -188,7 +177,7 @@ public function store(Request $request)
                 'id_demande' => $demande->id_demande,
                 'id_ticket' => $idTicket,
                 'date_creation' => now(),
-                'phrase' => 'Demande validé',
+                'phrase' => 'Demande validée',
             ]);
     
             return response()->json([
@@ -204,6 +193,7 @@ public function store(Request $request)
             ], 500);
         }
     }
+    
     
     
 
@@ -244,7 +234,7 @@ public function update(Request $request, $id)
                 UserActivity::create([
                     'user_id' => Auth::id(),
                     'activity_type' => 'mise_a_jour_demande_materiel',
-                    'description' => 'Demande de matériel mise à jour par l\'utilisateur avec l\'ID ' . Auth::id() . '.',
+                    'description' => 'Demande de matériel mise à jour par l\'utilisateur avec l\'ID ' . $demande->demandeur_username . '.',
                 ]);
 
                 // Log the notification
@@ -272,48 +262,63 @@ public function update(Request $request, $id)
 
     
 
-    public function rejectDemande(Request $request, $id)
-    {
-        try {
-            $demande = DemandeMateriel::find($id);
-
-            if (!$demande) {
-                return response()->json([
-                    'message' => "La demande de matériel n'existe pas",
-                    'status' => 404,
-                ]);
-            } else {
-                $demande->status = 'rejeté';
-                $demande->save();
-
-                // Enregistrez l'activité de rejet de demande de matériel
-                UserActivity::create([
-                    'user_id' => Auth::id(),
-                    'activity_type' => 'rejet_demande_materiel',
-                    'description' => 'Demande de matériel rejetée par l\'utilisateur avec l\'ID ' . Auth::id(). '.',
-                ]);
-
-                // Enregistrez la notification
-                $notificationPhrase = $this->getNotificationPhrase('rejet_demande');
-                Notification::create([
-                    'type_notif' => 'rejet_demande',
-                    'id_demande' => $demande->id_demande,
-                    'date_creation' => now(),
-                    'phrase' => $notificationPhrase,
-                ]);
-
-                return response()->json([
-                    'message' => "Les informations de la demande de matériel ont été rejetées avec succès",
-                    'status' => 200,
-                ], 200);
-            }
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => "Une erreur est survenue lors du rejet de la demande de matériel",
-                'status' => 500,
-            ], 500);
-        }
+public function rejectDemande(Request $request, $id)
+{
+     // Assurez-vous que l'utilisateur est authentifié
+     if (!Auth::check()) {
+        return response()->json([
+            'message' => "L'utilisateur n'est pas authentifié",
+            'status' => 401,
+        ], 401);
     }
+        try {
+            // Récupération de la demande de matériel
+            $demande = DemandeMateriel::select('demande_materiel.*', 'users.username as demandeur_username', 'users.nom_entreprise as demandeur_entreprise', 'materiels.type_materiel')
+                ->join('demandeurs', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
+                ->join('users', 'demandeurs.id_user', '=', 'users.id')
+                ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
+                ->where('demande_materiel.id_demande', '=', $id)
+                ->first();
+
+        if (!$demande) {
+            return response()->json([
+                'message' => "La demande de matériel n'existe pas",
+                'status' => 404,
+            ]);
+        } else {
+            // Mise à jour du statut de la demande de matériel
+            $demande->status = 'rejeté';
+            $demande->save();
+
+            // Enregistrez l'activité de rejet de demande de matériel
+            UserActivity::create([
+                'user_id' => Auth::id(),
+                'activity_type' => 'rejet_demande_materiel',
+                'description' => 'Demande de matériel rejetée par l\'utilisateur avec l\'ID ' . Auth::id(). '.',
+            ]);
+
+            // Enregistrez la notification
+            $notificationPhrase = $this->getNotificationPhrase('rejet_demande');
+            Notification::create([
+                'type_notif' => 'rejet_demande',
+                'id_demande' => $demande->id_demande,
+                'date_creation' => now(),
+                'phrase' => 'Demande rejetée',
+            ]);
+
+            return response()->json([
+                'message' => "Les informations de la demande de matériel ont été rejetées avec succès",
+                'status' => 200,
+            ], 200);
+        }
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => "Une erreur est survenue lors du rejet de la demande de matériel",
+            'status' => 500,
+        ], 500);
+    }
+    }
+
 
     // Les autres méthodes restent inchangées
 

@@ -20,5 +20,9 @@ class DemandeMateriel extends Model
     {
         return $this->belongsTo(Demandeur::class, 'id_demandeur');
     }
+    public function materiel()
+    {
+        return $this->belongsTo(Materiel::class, 'num_serie', 'num_serie');
+    }
 
 }

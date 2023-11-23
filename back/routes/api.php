@@ -30,9 +30,14 @@ Route::prefix('demande_materiel')->group(function () {
     Route::get('/', [DemandeMaterielController::class, 'index']);
     Route::get('/{id}', [DemandeMaterielController::class, 'show']);
     Route::post('/', [DemandeMaterielController::class, 'store']);
+    Route::put('validate/{id}', [DemandeMaterielController::class, 'validationDemande']);
+    Route::put('reject/{id}', [DemandeMaterielController::class, 'rejectDemande']);
     Route::put('/{id}', [DemandeMaterielController::class, 'update']);
     Route::delete('/{id}', [DemandeMaterielController::class, 'destroy']);
 });
+
+Route::get('/user', [UserController::class, 'getUserData']); 
+
 
 
 });
@@ -56,9 +61,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [DemandeMaterielController::class, 'index']);
         Route::get('/{id}', [DemandeMaterielController::class, 'show']);
         Route::post('/', [DemandeMaterielController::class, 'store']);
+    Route::put('validate/{id}', [DemandeMaterielController::class, 'validationDemande']);
+    Route::put('reject/{id}', [DemandeMaterielController::class, 'rejectDemande']);
         Route::put('/{id}', [DemandeMaterielController::class, 'update']);
-        Route::put('validate/{id}', [DemandeMaterielController::class, 'validationDemande']);
-        Route::put('reject/{id}', [DemandeMaterielController::class, 'rejectDemande']);
         Route::delete('/{id}', [DemandeMaterielController::class, 'destroy']);
     });
  
@@ -108,6 +113,7 @@ Route::prefix('users')->group(function () {
     Route::put('{id}', [UserController::class, 'update']);
     Route::delete('{id}', [UserController::class, 'destroy']);
 });
+Route::get('/getUserTechnicien',[UserController::class,'userTechnicien']);
 
 Route::prefix('materiels')->group(function () {
     Route::get('/', [MaterielController::class, 'index']);

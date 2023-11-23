@@ -26,11 +26,8 @@ const DemandeMaterielList = () => {
   const userRole = localStorage.getItem("role");
   const isAdmin = userRole === "admin";
   const isUserSimple = userRole === "userSimple";
-  const [isApproved, setIsApproved] = useState(false);
-  const [isRejected, setIsRejected] = useState(false);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [buttonText, setButtonText] = useState('Valider');
-  const [rejectButtonText, setRejectButtonText] = useState('Rejeter'); // Ajout de l'état pour le texte du bouton "Rejeter"
+  const [rejectButtonText, setRejectButtonText] = useState('Rejeter');
 
   useEffect(() => {
     const fetchTechnicienAdmin = async () => {
@@ -52,7 +49,7 @@ const DemandeMaterielList = () => {
 
   useEffect(() => {
     refreshData();
-  }, [authToken, isApproved, isRejected, isButtonDisabled]);
+  }, [authToken]);
 
   const refreshData = () => {
     let apiUrl = "http://127.0.0.1:8000/api/demande_materiel";
@@ -133,65 +130,62 @@ const DemandeMaterielList = () => {
   }
 
   const handleValidate = async (e, demande) => {
-    if (!isApproved) {
-        Swal.fire({
-            title: "Confirmer la validation",
-            text: "Êtes-vous sûr de vouloir valider cette demande ?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Oui",
-            cancelButtonText: "Non",
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const validateUrl = `http://127.0.0.1:8000/api/demande_materiel/validate/${demande}`;
+  
+      Swal.fire({
+        title: "Confirmer la validation",
+        text: "Êtes-vous sûr de vouloir valider cette demande ?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Oui",
+        cancelButtonText: "Non",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            const validateUrl = `http://127.0.0.1:8000/api/demande_materiel/validate/${demande}`;
 
-                    const { urgence, priorite } = getUrgencePriorite(
-                        demande.etat_materiel,
-                        demande.demandeur_entreprise
-                    );
+            const { urgence, priorite } = getUrgencePriorite(
+              demande.etat_materiel,
+              demande.demandeur_entreprise
+            );
 
-                    const data = {
-                        urgence,
-                        priorite,
-                        statut_actuel: "En cours de reparation",
-                        id_technicien: technicienAdmin,
-                        id_demande: demande,
-                    };
+            const data = {
+              urgence,
+              priorite,
+              statut_actuel: "En cours de reparation",
+              id_technicien: technicienAdmin,
+              id_demande: demande,
+            };
 
-                    const authToken = localStorage.getItem('auth_token');
+            const authToken = localStorage.getItem('auth_token');
 
-                    try {
-                      const res = await axios.put(validateUrl, data, {
-                        headers: {
-                          'Authorization': `Bearer ${authToken}`
-                        }
-                      });
-
-                      if (res.data.status === 200) {
-                        Swal.fire("Success", res.data.message, "success");
-                        refreshData();
-                        setIsApproved(true);
-                        setIsRejected(false);
-                      } else if (res.data.status === 404) {
-                        Swal.fire("Erreur", res.data.message, "error");
-                        navigate("/admin/demande_materiels");
-                      }
-                    } catch (error) {
-                      console.error(error);
-                      // Gérer les erreurs
-                    }
-
-                } catch (error) {
-                    console.error("Error during validation:", error);
+            try {
+              const res = await axios.put(validateUrl, data, {
+                headers: {
+                  'Authorization': `Bearer ${authToken}`
                 }
+              });
+
+              if (res.data.status === 200) {
+                Swal.fire("Success", res.data.message, "success");
+                refreshData();
+              } else if (res.data.status === 404) {
+                Swal.fire("Erreur", res.data.message, "error");
+                navigate("/admin/demande_materiels");
+              }
+            } catch (error) {
+              console.error(error);
+              // Gérer les erreurs
             }
-        });
-    }
-};
+
+          } catch (error) {
+            console.error("Error during validation:", error);
+          }
+        }
+      });
+    
+  };
 
   const handleReject = async (e, id) => {
-    if (!isRejected) {
       Swal.fire({
         title: "Confirmer le rejet",
         text: "Êtes-vous sûr de vouloir rejeter cette demande ?",
@@ -204,15 +198,17 @@ const DemandeMaterielList = () => {
           try {
             const res = await axios.put(
               `http://127.0.0.1:8000/api/demande_materiel/reject/${id}`,
-              { status: "rejeté" }
-            );
-
+              { status: "rejeté" },
+              {
+                  headers: {
+                      'Authorization': `Bearer ${authToken}`
+                  }
+              }
+          );
+          
             if (res.data.status === 200) {
               Swal.fire("Success", res.data.message, "success");
               refreshData();
-              setIsRejected(true);
-              setIsApproved(false);
-              setRejectButtonText('Rejeté'); // Mettez à jour le texte du bouton ici
             } else if (res.data.status === 404) {
               Swal.fire("Erreur", res.data.message, "error");
               navigate("/admin/demande_materiels");
@@ -222,7 +218,6 @@ const DemandeMaterielList = () => {
           }
         }
       });
-    }
   };
 
   const handleEdit = (id) => {
@@ -241,7 +236,6 @@ const DemandeMaterielList = () => {
       });
 
       if (result.isConfirmed) {
-        setIsDeleting(true);
 
         const res = await axios.delete(
           `http://127.0.0.1:8000/api/demande_materiel/${id}`
@@ -258,7 +252,6 @@ const DemandeMaterielList = () => {
     } catch (error) {
       console.error(error);
     } finally {
-      setIsDeleting(false);
     }
   };
 
@@ -310,7 +303,6 @@ const DemandeMaterielList = () => {
                     variant="contained"
                     color="success"
                     onClick={(e) => handleValidate(e, params.row.id_demande)}
-                    disabled={isButtonDisabled}
                   >
                     {buttonText}
                   </Button>
@@ -320,7 +312,6 @@ const DemandeMaterielList = () => {
                     variant="contained"
                     color="error"
                     onClick={(e) => handleReject(e, params.row.id_demande)}
-                    disabled={isButtonDisabled}
                   >
                     {rejectButtonText} {/* Utilisez la constante pour le texte du bouton */}
                   </Button>
@@ -334,7 +325,6 @@ const DemandeMaterielList = () => {
                     variant="contained"
                     color="success"
                     onClick={(e) => handleValidate(e, params.row.id_demande)}
-                    disabled={isButtonDisabled}
                   >
                     {buttonText}
                   </Button>
@@ -344,7 +334,6 @@ const DemandeMaterielList = () => {
                     variant="contained"
                     color="error"
                     onClick={(e) => handleReject(e, params.row.id_demande)}
-                    disabled={isButtonDisabled}
                   >
                     {rejectButtonText} {/* Utilisez la constante pour le texte du bouton */}
                   </Button>
@@ -392,28 +381,21 @@ const DemandeMaterielList = () => {
               ""
             ) : (
               <>
-                {isApproved === false && isRejected === false && (
-                  <>
+               
+                
                     <button
                       className="btn btn-sm btn-success"
                       onClick={(e) => handleValidate(e, row.id_demande)}
-                      disabled={isApproved}
                     >
-                      {isApproved ? (
-                        "Valider"
-                      ) : <CheckCircleIcon style={{ color: "green" }} /> /* Ajout de l'icône */}
+                      <CheckCircleIcon style={{ color: "green" }} /> 
                     </button>
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={(e) => handleReject(e, row.id_demande)}
-                      disabled={isRejected}
                     >
-                      {isRejected ? (
-                        "Rejet"
-                      ) : <CancelIcon style={{ color: "red" }} /> /* Ajout de l'icône */}
+                     <CancelIcon style={{ color: "red" }} /> 
                     </button>
-                  </>
-                )}
+                 
               </>
             )}
           </>
@@ -431,7 +413,7 @@ const DemandeMaterielList = () => {
 
     // Clear the interval when the component unmounts
     return () => clearInterval(intervalId);
-  }, [authToken, isApproved, isRejected, isButtonDisabled]);
+  }, [authToken]);
 
 
     const columns = [

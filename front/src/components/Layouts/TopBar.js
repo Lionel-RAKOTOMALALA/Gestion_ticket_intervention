@@ -1,59 +1,81 @@
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import React, { useState,useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import swal from 'sweetalert';
-import Skeleton from '@mui/material/Skeleton'; 
+import Skeleton from '@mui/material/Skeleton';
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
-import TextField from '@mui/material/TextField';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-// or
- 
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import Paper from '@mui/material/Paper';
-import MenuItem from '@mui/material/MenuItem';
 import Modal from '@mui/material/Modal';
 import Badge from '@mui/material/Badge';
-// import MailIcon from '@mui/icons-material/Mail'
+import Link from '@mui/material/Link';
+import Divider from '@mui/material/Divider';
+
+import {
+  Paper,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
+  Avatar,
+  Menu,
+  MenuItem,
+} from '@mui/material';
 
 const TopBar = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState({});
-  const [loading, setLoading] =useState(true);
-  const gradientBackground = {
-    background: 'linear-gradient(180deg, #0369a1, #0369a1)'
-  };
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+
   useEffect(() => {
-    // Effectuez une requête pour récupérer les données de l'utilisateur
-    axios
-      .get('http://127.0.0.1:8000/api/user', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-        },
-      })
-      .then((res) => {
-        setUser(res.data.user);
-        setLoading(false)
-        console.log(user);
-      })
-      .catch((error) => {
-        setLoading(false);
-        // Gérer les erreurs de la requête de récupération des données de l'utilisateur
-      });
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/user', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+          },
+        });
+
+        setUser(response.data.user);
+
+        if (response.data.notification) {
+          setNotifications(response.data.notification);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des notifications :', error);
+      }
+    };
+
+    fetchNotifications();
+
+    const intervalId = setInterval(fetchNotifications, 3000);
+
+    return () => clearInterval(intervalId);
   }, []);
-  
-      
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleUserMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   const logoutSubmit = (e) => {
     e.preventDefault();
 
@@ -68,88 +90,117 @@ const TopBar = () => {
           localStorage.removeItem('auth_token');
           localStorage.removeItem('auth_name');
           swal('Success', res.data.message, 'success');
-          // alert(localStorage.removeItem('auth_token'))
           navigate('/login');
-          // alert( localStorage.getItem('auth_token'));
-          //  window.location.reload();
-          
         } else {
-          // Gérer d'autres cas si nécessaire
+          // Handle other cases if necessary
         }
       })
-      .catch((error) => {
-        // Gérer les erreurs de la demande de déconnexion ici
+      .catch(() => {
+        // Handle logout request errors here
       });
   };
 
+  const NotificationsMenu = (
+    <Paper
+      sx={{
+        maxWidth: 300,
+        position: 'fixed',
+        right: 16,
+        top: 64,
+        zIndex: 1200,
+        background: '#fff',
+        boxShadow: 3,
+        overflowY: 'auto',
+        maxHeight: 'calc(100vh - 64px)',
+      }}
+    >
+      <Box p={2}>
+        <Typography variant="h6" gutterBottom style={{ color: '#0369a1' }}>
+          Notifications
+        </Typography>
+        <Divider />
+        <List>
+          {notifications.map((notification, index) => (
+            <ListItem key={index} alignItems="flex-start" sx={{ borderBottom: '1px solid #ddd' }}>
+              <ListItemAvatar>
+                <Avatar sx={{ backgroundColor: '#0369a1', color: '#fff' }}>
+                  <img
+                    src={"http://localhost:8000/uploads/users/" + user.photo_profil_user}
+                    alt="User Photo"
+                    className="rounded-circle mx-auto"
+                    style={{
+                      width: "2rem",
+                      height: "2rem",
+                    }}
+                  />
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText
+                primary={
+                  <Link href="#" color="textPrimary" sx={{ fontWeight: 'bold' }}>
+                    {notification.type_notif}
+                  </Link>
+                }
+                secondary={
+                  <Typography variant="body2" color="textSecondary">
+                    {notification.phrase}
+                  </Typography>
+                }
+              />
+            </ListItem>
+          ))}
+          <ListItem
+            component={Link}
+            href="#"
+            alignItems="center"
+            sx={{
+              justifyContent: 'center',
+              borderTop: '1px solid #ddd',
+              paddingTop: 1,
+              paddingBottom: 1,
+              color: '#0369a1',
+              position: 'sticky',
+              bottom: 0,
+              backgroundColor: '#fff',
+              zIndex: 1201,
+            }}
+          >
+            <Typography variant="body2" color="textSecondary">
+              Voir plus
+            </Typography>
+          </ListItem>
+        </List>
+      </Box>
+    </Paper>
+  );
+
   let AuthButtons = null;
   if (localStorage.getItem('auth_token')) {
-    // Afficher le menu authentifié
     AuthButtons = (
-      <ul className="navbar-nav">
-        {/* Nav Item - Alerts */}
-        <li className="nav-item dropdown no-arrow mx-1">
-          <NavLink className="nav-link dropdown-toggle" to="#" id="alertsDropdown" role="button"
-            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i className="fas fa-bell fa-fw"></i>
-            {/* Counter - Alerts */}
-            <span className="badge badge-danger badge-counter">3+</span>
-          </NavLink>
-          {/* Dropdown - Alerts */}
-          <div className="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-            aria-labelledby="alertsDropdown">
-            <h6 className="dropdown-header">
-              Notifications
-            </h6>
-            <NavLink className="dropdown-item d-flex align-items-center bg-white text-secondary" to="#">
-              <div className="mr-3">
-                <div className="icon-circle bg-primary">
-                  <i className="fas fa-file-alt text-white"></i>
-                </div>
-              </div>
-              <div>
-                <div className="small text-gray-500">December 12, 2019</div>
-                <span className="font-weight-bold">A new monthly report is ready to download!</span>
-              </div>
-            </NavLink>
-            <NavLink className="dropdown-item d-flex align-items-center bg-white text-secondary" to="#">
-              <div className="mr-3">
-                <div className="icon-circle bg-success">
-                  <i className="fas fa-donate text-white"></i>
-                </div>
-              </div>
-              <div>
-                <div className="small text-gray-500">December 7, 2019</div>
-                $290.29 has been deposited into your account!
-              </div>
-            </NavLink>
-            <NavLink className="dropdown-item d-flex align-items-center bg-white text-secondary" to="#">
-              <div className="mr-3">
-                <div className="icon-circle bg-warning">
-                  <i className="fas fa-exclamation-triangle text-white"></i>
-                </div>
-              </div>
-              <div>
-                <div className="small text-gray-500">December 2, 2019</div>
-                Spending Alert: We've noticed unusually high spending for your account.
-              </div>
-            </NavLink>
-            <NavLink className="dropdown-item text-center small text-gray-500 bg-white text-secondary" to="#">Show All Alerts</NavLink>
-          </div>
-        </li>
+      <Box display="flex" alignItems="center">
+        <IconButton color="inherit" className="mx-1" onClick={handleOpen}>
+          <Badge badgeContent={notifications.length} color="error">
+            <NotificationsIcon />
+          </Badge>
+        </IconButton>
+        <Modal open={open} onClose={handleClose}>
+          {NotificationsMenu}
+        </Modal>
 
-        <li className="nav-item dropdown no-arrow">
-        <NavLink className="nav-link dropdown-toggle" to="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    {loading ? (
-        <Skeleton variant="text" sx={{ fontSize: '1rem' }} width={100} /> // Ajoutez une charge de contenu textuel avec une largeur simulée
-    ) : (
-        <span className="mr-2 d-none d-lg-inline text-white small">{user.username}</span>
-    )}
-    {loading ? (
-        <Skeleton variant="circular" width={40} height={40} /> // Ajoutez une charge de contenu circulaire avec une largeur et une hauteur simulées
-    ) : (
-        <img
-            src={"http://localhost:8000/uploads/users/" + user.photo_profil_user}
+        <div>
+          <IconButton
+            id="userDropdown"
+            aria-controls="user-menu"
+            aria-haspopup="true"
+            color="inherit"
+            onClick={handleUserMenuClick}
+            sx={{ ml: 2 }}
+          >
+            {loading ? (
+              <Skeleton variant="circular" width={40} height={40} />
+            ) : (
+              <img
+            src={"http://localhost:8000/uploads/users/" + user.user.photo_profil_user}
             alt="User Photo"
             className="rounded-circle mx-auto"
             style={{
@@ -157,68 +208,119 @@ const TopBar = () => {
                 height: "3rem",
             }}
         />
-    )}
-          </NavLink>
-          <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in bg-white" aria-labelledby="userDropdown">
-            <NavLink className="dropdown-item bg-white text-secondary" to="/admin/profile">
-              <i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-              Profile
-            </NavLink>
-            <NavLink className="dropdown-item bg-white text-secondary" to="#">
-              <i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-              Paramètre
-            </NavLink>
-            <div className="dropdown-divider white-background"></div>
-            <NavLink
-              className="dropdown-item bg-white text-secondary"
-              to="/"
-              onClick={logoutSubmit}
-            >
-              <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-              Se déconnecter
-            </NavLink>
-          </div>
-        </li>
-      </ul>
+            )}
+          </IconButton>
+          <Menu
+            id="user-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleUserMenuClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            <MenuItem onClick={handleUserMenuClose}>
+              <Link
+                component={NavLink}
+                to="/admin/profile"
+                sx={{
+                  textDecoration: 'none',
+                  color: '#0369a1',
+                  '&:hover': {
+                    textDecoration: 'none',
+                    color: '#0369a1',
+                    filter: 'brightness(0.7)',
+                  },
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                <Typography variant="inherit">Profile</Typography>
+              </Link>
+            </MenuItem>
+            <MenuItem onClick={handleUserMenuClose}>
+              <Link
+                component={NavLink}
+                to="#"
+                sx={{
+                  textDecoration: 'none',
+                  color: '#0369a1',
+                  '&:hover': {
+                    textDecoration: 'none',
+                    color: '#0369a1',
+                    filter: 'brightness(0.7)',
+                  },
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                <Typography variant="inherit">Paramètre</Typography>
+              </Link>
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={handleUserMenuClose}>
+              <Link
+                component={NavLink}
+                to="/"
+                onClick={logoutSubmit}
+                sx={{
+                  textDecoration: 'none',
+                  color: '#0369a1',
+                  '&:hover': {
+                    textDecoration: 'none',
+                    color: '#0369a1',
+                    filter: 'brightness(0.7)',
+                  },
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                <Typography variant="inherit">Se déconnecter</Typography>
+              </Link>
+            </MenuItem>
+          </Menu>
+        </div>
+      </Box>
     );
   } else {
     AuthButtons = (
-      // Afficher le menu non authentifié
-      <ul className="navbar-nav">
-        <li className="nav-item">
-          <NavLink className="nav-link text-white" to="/">
+      <Box display="flex" alignItems="center">
+        <Link component={NavLink} to="/" sx={{ textDecoration: 'none', color: '#fff', '&:hover': { textDecoration: 'none' } }}>
+          <Typography variant="h6">
             Accueil
-          </NavLink>
-        </li>
-        <li className="nav-item">
-          <NavLink className="nav-link text-white" to="/login" tabIndex="-1" aria-disabled="true">
-            
+          </Typography>
+        </Link>
+        <Link component={NavLink} to="/login" sx={{ textDecoration: 'none', color: '#fff', ml: 8, '&:hover': { textDecoration: 'none' } }}>
+          <Typography variant="h6">
             Se connecter
-          </NavLink>
-        </li>
-      </ul>
+          </Typography>
+        </Link>
+      </Box>
     );
   }
 
-  const [style, setStyle] = useState("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion");
-
-  const changeStyle1 = () => {
-    if (style === "navbar-nav bg-gradient-primary sidebar sidebar-dark accordion") {
-      setStyle("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled1");
-    } else {
-      setStyle("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion");
-    }
-  };
-
   return (
-    <nav className="navbar navbar-expand navbar-light text-white topbar mb-4 static-top shadow" style={gradientBackground}>
-      <button id="sidebarToggleTop" className="btn btn-link d-md-none rounded-circle mr-3" onClick={changeStyle1}>
-        <i className="fa fa-bars"></i>
-      </button>
-      <ul className="navbar-nav ml-auto">
-        {AuthButtons}
-      </ul>
-    </nav>
+    <AppBar
+      position="static"
+      className="text-white topbar mb-4 static-top shadow"
+      sx={{ background: 'linear-gradient(180deg, #0369a1, #0369a1)' }}
+    >
+      <Toolbar>
+        <IconButton color="inherit" id="sidebarToggleTop" edge="start" className="btn btn-link d-md-none rounded-circle mr-3">
+          <MenuIcon />
+        </IconButton>
+        <Box ml="auto">{AuthButtons}</Box>
+      </Toolbar>
+    </AppBar>
   );
 };
 
