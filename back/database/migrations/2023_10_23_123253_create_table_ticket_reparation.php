@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('priorite');
             $table->string('statut_actuel');
             $table->timestamp('date_resolution')->nullable();
+            $table->tinyInteger('favori')->default(0);
             $table->unsignedBigInteger('id_demande');
             $table->unsignedBigInteger('id_technicien');;
             $table->unsignedBigInteger('id_piece')->nullable();

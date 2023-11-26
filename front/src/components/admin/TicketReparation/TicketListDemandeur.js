@@ -1,4 +1,3 @@
-// TicketList.js
 import React, { useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import {
@@ -45,7 +44,8 @@ export default function TicketList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expanded, setExpanded] = useState({});
-  const [selectedTicketId, setSelectedTicketId] = useState(null);
+  const [imageLoading, setImageLoading] = useState({});
+  const [favoriteColors, setFavoriteColors] = useState({});
 
   const fetchData = async () => {
     try {
@@ -53,10 +53,13 @@ export default function TicketList() {
       setTickets(response.data.tickets);
 
       const initialExpandedState = {};
+      const initialFavoriteColors = {};
       response.data.tickets.forEach((ticket) => {
         initialExpandedState[ticket.id_ticket] = false;
+        initialFavoriteColors[ticket.id_ticket] = '#2f545d'; // initial color
       });
       setExpanded(initialExpandedState);
+      setFavoriteColors(initialFavoriteColors);
 
       setLoading(false);
     } catch (error) {
@@ -66,100 +69,132 @@ export default function TicketList() {
     }
   };
 
+  const loadImage = async (id, imageUrl) => {
+    try {
+      setImageLoading((prevImageLoading) => ({
+        ...prevImageLoading,
+        [id]: true,
+      }));
+
+      const img = new Image();
+      img.src = imageUrl;
+
+      img.onload = () => {
+        setImageLoading((prevImageLoading) => ({
+          ...prevImageLoading,
+          [id]: false,
+        }));
+      };
+    } catch (error) {
+      console.error("Error loading image:", error);
+    }
+  };
+
   useEffect(() => {
     fetchData(); // Initial fetch
 
-    const intervalId = setInterval(fetchData, 60000); 
+    const intervalId = setInterval(fetchData, 60000);
 
-    return () => clearInterval(intervalId); 
+    return () => clearInterval(intervalId);
   }, []);
 
-  const handleExpandClick = async (id) => {
+  const handleExpandClick = async (id, imageUrl) => {
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/tickets/${id}`);
-      const updatedTicket = response.data.ticket;
-
-      console.log("Ticket cliqué :", updatedTicket);
-
-      setTickets((prevTickets) =>
-        prevTickets.map((ticket) =>
-          ticket.id_ticket === updatedTicket.id_ticket ? updatedTicket : ticket
-        )
-      );
-
       setExpanded((prevExpanded) => ({
         ...prevExpanded,
         [id]: !prevExpanded[id],
       }));
 
-      setSelectedTicketId(id);
+      if (expanded[id]) {
+        if (!imageLoading[id]) {
+          await loadImage(id, imageUrl);
+        }
+      }
     } catch (error) {
       setError(error);
-      console.error("Error fetching updated data:", error);
+      console.error("Error handling expand click:", error);
     }
+  };
+
+  const handleFavoriteClick = (id) => {
+    setFavoriteColors((prevColors) => ({
+      ...prevColors,
+      [id]: prevColors[id] === '#2f545d' ? red[500] : '#2f545d',
+    }));
   };
 
   return (
     <Grid container spacing={2}>
-      {loading && <Typography>Loading...</Typography>}
-      {error && <Typography>Error: {error.message}</Typography>}
+      {loading && <Typography color="#2f545d">Loading...</Typography>}
+      {error && <Typography color="#2f545d">Error: {error.message}</Typography>}
       {!loading && !error &&
-        tickets
-          .filter((ticket) => selectedTicketId === null || ticket.id_ticket === selectedTicketId)
-          .map((ticket) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={ticket.id_ticket}>
-              <StyledCard>
-                <CardHeader
-                  avatar={<Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">COP</Avatar>}
-                  action={<IconButton aria-label="settings"><MoreVertIcon /></IconButton>}
-                  title={`Ticket #${ticket.id_ticket}`}
-                  subheader={ticket.date_creation}
-                />
-                <CardMedia
-                  component="img"
-                  height="200"
-                  src={`http://localhost:8000/uploads/materiels/${ticket.image_materiel_url}`}
-                  alt="Materiel Photo"
-                />
-                <CardContent>
-                  <Typography variant="body2" color="text.secondary">
-                    <strong>Technicien:</strong> {ticket.nom_technicien}
+        tickets.map((ticket) => (
+          <Grid item xs={12} sm={6} md={4} lg={3} key={ticket.id_ticket}>
+            <StyledCard>
+              <CardHeader
+                avatar={<Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">COP</Avatar>}
+                action={<IconButton aria-label="settings"><MoreVertIcon /></IconButton>}
+                title={<Typography color="#2f545d">{`Ticket #${ticket.id_ticket}`}</Typography>}
+                subheader={<Typography color="#2f545d">{ticket.date_creation}</Typography>}
+              />
+              <CardMedia
+                component="img"
+                height="200"
+                src={`http://localhost:8000/uploads/materiels/${ticket.image_materiel_url}`}
+                alt="Materiel Photo"
+              />
+              <CardContent>
+                <Typography variant="body2" color="#2f545d">
+                  <strong>Technicien:</strong> {ticket.nom_technicien}
+                  <br />
+                  <strong>Urgence:</strong> {ticket.urgence}
+                  <br />
+                  <strong>Priorité:</strong> {ticket.priorite}
+                  <br />
+                  <strong>Statut:</strong> {ticket.statut_actuel}
+                  <br />
+                  <strong>Type de matériel:</strong> {ticket.type_materiel}
+                </Typography>
+              </CardContent>
+              <CardActions disableSpacing>
+                <IconButton
+                  aria-label="add to favorites"
+                  onClick={() => handleFavoriteClick(ticket.id_ticket)}
+                >
+                  <FavoriteIcon sx={{ color: favoriteColors[ticket.id_ticket] }} />
+                </IconButton>
+                <PDFDownloadLink document={<PDFFile ticketData={ticket} />} fileName={`ticket_${ticket.id_ticket}.pdf`}>
+                  {({ blob, url, loading, error }) => (
+                    <IconButton aria-label="print" disabled={loading}>
+                      <PrintIcon />
+                    </IconButton>
+                  )}
+                </PDFDownloadLink>
+                <ExpandMore
+                  onClick={() => handleExpandClick(ticket.id_ticket, `http://localhost:8000/uploads/materiels/${ticket.image_materiel_url}`)}
+                  aria-expanded={expanded[ticket.id_ticket]}
+                  aria-label="show more"
+                >
+                  <ExpandMoreIcon />
+                </ExpandMore>
+              </CardActions>
+              <Collapse in={expanded[ticket.id_ticket]} timeout="auto" unmountOnExit>
+                <CollapseContent>
+                  <Typography variant="h6" sx={{ color: '#2f545d' }}>Details:</Typography>
+                  <Typography sx={{ color: '#2f545d' }}>
+                    <strong>Statut actuel:</strong> {ticket.statut_actuel}
                     <br />
-                    <strong>Urgence:</strong> {ticket.urgence}
+                    <strong>Date de résolution:</strong> {ticket.date_resolution || 'N/A'}
                     <br />
-                    <strong>Priorité:</strong> {ticket.priorite}
+                    <strong>Intervention faite:</strong> {ticket.intervention_faite || 'N/A'}
                     <br />
-                    <strong>Statut:</strong> {ticket.statut_actuel}
-                    <br />
-                    <strong>Type de matériel:</strong> {ticket.type_materiel}
+                    <strong>Suite à donnée:</strong> {ticket.suite_a_donnee || 'N/A'}
                   </Typography>
-                </CardContent>
-                <CardActions disableSpacing>
-                  <IconButton aria-label="add to favorites"><FavoriteIcon /></IconButton>
-                  <PDFDownloadLink document={<PDFFile ticketData={ticket} />} fileName={`ticket_${ticket.id_ticket}.pdf`}>
-                    {({ blob, url, loading, error }) => (
-                      <IconButton aria-label="print" disabled={loading}>
-                        <PrintIcon />
-                      </IconButton>
-                    )}
-                  </PDFDownloadLink>
-                  <ExpandMore
-                    onClick={() => handleExpandClick(ticket.id_ticket)}
-                    aria-expanded={expanded[ticket.id_ticket]}
-                    aria-label="show more"
-                  >
-                    <ExpandMoreIcon />
-                  </ExpandMore>
-                </CardActions>
-                <Collapse in={expanded[ticket.id_ticket]} timeout="auto" unmountOnExit>
-                  <CollapseContent>
-                    <Typography paragraph>Details:</Typography>
-                    {/* Add more details as needed */}
-                  </CollapseContent>
-                </Collapse>
-              </StyledCard>
-            </Grid>
-          ))}
+                </CollapseContent>
+              </Collapse>
+            </StyledCard>
+          </Grid>
+        ))}
     </Grid>
   );
 }

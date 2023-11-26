@@ -24,6 +24,21 @@ class TicketController extends Controller
         ], 200);
     }
 
+    public function updateFavori($id){
+        
+        $ticket = TicketReparation::find($id);
+    
+        if (!$ticket) {
+            return response()->json(['message' => 'Ticket non trouvée.'], 404);
+        }
+    
+        $ticket->update([
+            'favori' => 1,
+        ]);
+    
+        return response()->json(['message' => 'Le ticket a été marqué comme favori.', 'status' => 200], 200);
+
+    }
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -47,7 +62,22 @@ class TicketController extends Controller
         $ticket = TicketReparation::create($request->all());
         return response()->json(['ticket' => $ticket, 'message' => 'Le ticket a été enregistré avec succès', 'status' => 200], 200);
     }
+    public function reparationFait(Request $request, $id)
+    {
+        $ticket = TicketReparation::find($id);
+    
+        if (!$ticket) {
+            return response()->json(['message' => 'Ticket non trouvée.'], 404);
+        }
+    
+        $ticket->update([
+            'statut_actuel' => 'Fait',
+            'date_resolution' => now(),
+        ]);
+    
+        return response()->json(['message' => 'Le ticket a été marqué comme fait.', 'status' => 200], 200);
 
+    }
     public function show($id)
     {
         $ticket = TicketReparation::join('demande_materiel', 'ticketReparation.id_demande', '=', 'demande_materiel.id_demande')

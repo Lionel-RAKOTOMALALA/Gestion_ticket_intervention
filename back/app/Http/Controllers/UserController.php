@@ -138,13 +138,14 @@ class UserController extends Controller
             ]);
         }
     }
-    
+    public function update_notif(){
+
+    }
     public function getUserData()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        if ($user) {
-
+    if ($user) {
         $results = DB::table('notifications')
             ->select('notifications.*', 'users.*')
             ->join('demande_materiel', 'notifications.id_demande', '=', 'demande_materiel.id_demande')
@@ -153,16 +154,32 @@ class UserController extends Controller
             ->where('users.id', $user->id)
             ->get();
 
-            return response()->json([
-                'user' => $user,
-                'notification' => $results,
-            ], 200);
-        } else {
-            return response()->json([
-                'message' => 'Aucun utilisateur connecté',
-            ], 401);
-        }
+        $count = DB::table('notifications')
+            ->join('demande_materiel', 'notifications.id_demande', '=', 'demande_materiel.id_demande')
+            ->join('demandeurs', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
+            ->join('users', 'demandeurs.id_user', '=', 'users.id')
+            ->where('users.id', $user->id)
+            ->count();
+
+        // Concaténer la clé status dans chaque objet notification
+        $resultsWithStatus = $results->map(function ($item) {
+            $item->status = 0; // Vous pouvez remplacer 0 par la valeur que vous souhaitez.
+            return $item;
+        });
+
+        return response()->json([
+            'user' => $user,
+            'notification' => $resultsWithStatus,
+            'count_notif' => $count,
+        ], 200);
+
+    } else {
+        return response()->json([
+            'message' => 'Aucun utilisateur connecté',
+        ], 401);
     }
+}
+
     public function getDemandesUtilisateur(Request $request)
     {
         $user = auth()->user(); // Assurez-vous que l'utilisateur est connecté
@@ -408,4 +425,21 @@ class UserController extends Controller
 
         return response()->json(['message' => 'Utilisateur non authentifié'], 401);
     }
-}
+    public function updateNotification($id)
+    {
+        try {
+            $updateNotification = DB::table('notifications')
+                ->where('id_notif', $id) 
+                ->update(['status' => 1]);
+
+            if ($updateNotification) {
+                return response()->json(['status' => true]);
+            } else {
+                return response()->json(['status' => false, 'message' => 'La notification n\'a pas pu être mise à jour.']);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+    }
+

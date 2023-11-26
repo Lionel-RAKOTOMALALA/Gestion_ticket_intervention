@@ -106,6 +106,12 @@ function Sidebar() {
               <span>Demande de réparation</span>
             </NavLink>
           </li>
+          <li className="nav-item">
+            <NavLink className="nav-link" to={`${linkRoot}/tickets`}>
+              <UilUserCircle />
+              <span>Tickets de reparation</span>
+            </NavLink>
+          </li>
         </>
       );
     } else if(demandeurVerifCount === 1){
@@ -143,6 +149,12 @@ function Sidebar() {
               </div>
             </div>
           </li>
+          <li className="nav-item">
+            <NavLink className="nav-link" to={`${linkRoot}/tickets`}>
+              <UilUserCircle />
+              <span>Tickets de reparation</span>
+            </NavLink>
+          </li>
         </>
       );
     } else if (demandeurVerifCount === 0) {
@@ -176,6 +188,12 @@ function Sidebar() {
             <NavLink className="nav-link" to={`${linkRoot}/demande_materiels`}>
               <UilUserCircle />
               <span>Demande de réparation</span>
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink className="nav-link" to={`${linkRoot}/tickets`}>
+              <UilUserCircle />
+              <span>Tickets de reparation</span>
             </NavLink>
           </li>
         </>
@@ -219,6 +237,12 @@ function Sidebar() {
               </div>
             </div>
           </li>
+          <li className="nav-item">
+            <NavLink className="nav-link" to={`${linkRoot}/tickets`}>
+              <UilUserCircle />
+              <span>Tickets de reparation</span>
+            </NavLink>
+          </li>
         </>
       );
     } else if (technicienVerifCount === 1) {
@@ -231,7 +255,10 @@ function Sidebar() {
             </NavLink>
           </li>
           <li className="nav-item">
-            {/* Add other menu items for userSimple with technicienVerifCount */}
+            <NavLink className="nav-link" to={`${linkRoot}/tickets`}>
+              <UilUserCircle />
+              <span>Tickets de reparation</span>
+            </NavLink>
           </li>
         </>
       );

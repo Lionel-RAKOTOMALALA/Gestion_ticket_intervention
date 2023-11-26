@@ -80,6 +80,8 @@ Route::prefix('tickets')->group(function () {
     Route::post('/', [TicketController::class, 'store']);
     Route::get('/', [TicketController::class, 'index']);
     Route::put('{id}', [TicketController::class, 'update']);
+    Route::put('reparationFait/{id}',[TicketController::class, 'reparationFait']);
+    Route::put('updateFavori/{id}',[TicketController::class, 'updateFavori']);
     Route::delete('{id}', [TicketController::class, 'destroy']);
 });
 
@@ -114,6 +116,8 @@ Route::prefix('users')->group(function () {
     Route::delete('{id}', [UserController::class, 'destroy']);
 });
 Route::get('/getUserTechnicien',[UserController::class,'userTechnicien']);
+Route::put('/update-notif/{id}', [UserController::class, 'updateNotification']);
+
 
 Route::prefix('materiels')->group(function () {
     Route::get('/', [MaterielController::class, 'index']);

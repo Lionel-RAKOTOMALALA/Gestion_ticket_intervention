@@ -33,6 +33,7 @@ const TopBar = () => {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [getRows, setRows] = useState([]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -44,6 +45,8 @@ const TopBar = () => {
         });
 
         setUser(response.data.user);
+        setRows(response.data.count_notif);
+        setLoading(false);
 
         if (response.data.notification) {
           setNotifications(response.data.notification);
@@ -74,6 +77,28 @@ const TopBar = () => {
 
   const handleUserMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleNotificationClick = async (notificationId) => {
+    try {
+      const response = await axios.put(`http://127.0.0.1:8000/api/update-notif/${notificationId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+        },
+      });
+
+      if (response.data.status) {
+        setNotifications((prevNotifications) =>
+          prevNotifications.map((notification) =>
+            notification.id === notificationId ? { ...notification, status: 1 } : notification
+          )
+        );
+      } else {
+        console.error('La mise à jour de la notification a échoué.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la notification :', error);
+    }
   };
 
   const logoutSubmit = (e) => {
@@ -121,16 +146,22 @@ const TopBar = () => {
         <Divider />
         <List>
           {notifications.map((notification, index) => (
-            <ListItem key={index} alignItems="flex-start" sx={{ borderBottom: '1px solid #ddd' }}>
+            <ListItem
+              key={index}
+              alignItems="flex-start"
+              style={{ backgroundColor: notification.status === 0 ? '#ccffcc' : 'white' }}
+              sx={{ borderBottom: '1px solid #ddd' }}
+              onClick={() => handleNotificationClick(notification.id_notif)}
+            >
               <ListItemAvatar>
                 <Avatar sx={{ backgroundColor: '#0369a1', color: '#fff' }}>
                   <img
-                    src={"http://localhost:8000/uploads/users/" + user.photo_profil_user}
+                    src={`http://localhost:8000/uploads/users/${user.photo_profil_user}`}
                     alt="User Photo"
                     className="rounded-circle mx-auto"
                     style={{
-                      width: "2rem",
-                      height: "2rem",
+                      width: '2rem',
+                      height: '2rem',
                     }}
                   />
                 </Avatar>
@@ -179,7 +210,7 @@ const TopBar = () => {
     AuthButtons = (
       <Box display="flex" alignItems="center">
         <IconButton color="inherit" className="mx-1" onClick={handleOpen}>
-          <Badge badgeContent={notifications.length} color="error">
+          <Badge badgeContent={getRows === '0' ? '0' : getRows} color="error">
             <NotificationsIcon />
           </Badge>
         </IconButton>
@@ -200,14 +231,14 @@ const TopBar = () => {
               <Skeleton variant="circular" width={40} height={40} />
             ) : (
               <img
-            src={"http://localhost:8000/uploads/users/" + user.user.photo_profil_user}
-            alt="User Photo"
-            className="rounded-circle mx-auto"
-            style={{
-                width: "3rem",
-                height: "3rem",
-            }}
-        />
+                src={`http://localhost:8000/uploads/users/${user.photo_profil_user}`}
+                alt="User Photo"
+                className="rounded-circle mx-auto"
+                style={{
+                  width: '3rem',
+                  height: '3rem',
+                }}
+              />
             )}
           </IconButton>
           <Menu
@@ -295,14 +326,10 @@ const TopBar = () => {
     AuthButtons = (
       <Box display="flex" alignItems="center">
         <Link component={NavLink} to="/" sx={{ textDecoration: 'none', color: '#fff', '&:hover': { textDecoration: 'none' } }}>
-          <Typography variant="h6">
-            Accueil
-          </Typography>
+          <Typography variant="h6">Accueil</Typography>
         </Link>
         <Link component={NavLink} to="/login" sx={{ textDecoration: 'none', color: '#fff', ml: 8, '&:hover': { textDecoration: 'none' } }}>
-          <Typography variant="h6">
-            Se connecter
-          </Typography>
+          <Typography variant="h6">Se connecter</Typography>
         </Link>
       </Box>
     );

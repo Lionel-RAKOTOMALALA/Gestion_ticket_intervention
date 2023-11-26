@@ -7,12 +7,36 @@ import { NavLink, useNavigate } from "react-router-dom";
 const TicketReparation = ({ ticket, refreshData }) => {
   const navigate = useNavigate();
 
-
   if (!ticket) {
     return null;
   }
 
-  
+  const handleFait = (id) => {
+    Swal.fire({
+      title: 'Confirmer la validation de la réparation',
+      text: 'Êtes-vous sûr de vouloir valider la clôture de la réparation ?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Oui',
+      cancelButtonText: 'Non',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios.put(`http://127.0.0.1:8000/api/tickets/reparationFait/${id}`)
+          .then((res) => {
+            if (res.data.status === 200) {
+              Swal.fire('Success', res.data.message, 'success');
+              refreshData();
+            } else if (res.data.status === 404) {
+              Swal.fire("Erreur", res.data.message, "error");
+              navigate('/admin/tickets');
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }
+    });
+  };
 
   const deleteTicket = (e, id) => {
     Swal.fire({
@@ -31,7 +55,7 @@ const TicketReparation = ({ ticket, refreshData }) => {
               refreshData();
             } else if (res.data.status === 404) {
               Swal.fire("Erreur", res.data.message, "error");
-              navigate('/admin/tickets'); // Assurez-vous d'utiliser la bonne URL
+              navigate('/admin/tickets');
             }
           })
           .catch((error) => {
@@ -39,7 +63,7 @@ const TicketReparation = ({ ticket, refreshData }) => {
           });
       }
     });
-  }
+  };
 
   return (
     <tr>
@@ -82,9 +106,11 @@ const TicketReparation = ({ ticket, refreshData }) => {
           </NavLink>
         </div>
         <div style={{ display: 'inline-block' }}>
-          <button className="btn btn-success btn-sm equal-width-button">
-            <UilCheckCircle /> Valider
-          </button>
+          {ticket.statut_actuel !== 'Fait' && (
+            <button className="btn btn-success btn-sm equal-width-button" onClick={() => handleFait(ticket.id_ticket)}>
+              <UilCheckCircle /> Fait
+            </button>
+          )}
         </div>
       </td>
     </tr>
