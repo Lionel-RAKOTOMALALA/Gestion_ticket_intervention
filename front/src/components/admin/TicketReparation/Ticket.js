@@ -3,13 +3,14 @@ import { UilEditAlt, UilTrashAlt, UilEye, UilCheckCircle } from "@iconscout/reac
 import axios from "axios";
 import Swal from "sweetalert2";
 import { NavLink, useNavigate } from "react-router-dom";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
 
 const TicketReparation = ({ ticket, refreshData }) => {
   const navigate = useNavigate();
-
-  if (!ticket) {
-    return null;
-  }
+  const [open, setOpen] = useState(false);
+  const [intervention_faite, setInterventionFaite] = useState('');
+  const [suite_a_donnee, setSuiteDonnees] = useState('');
+  
 
   const handleFait = (id) => {
     Swal.fire({
@@ -26,6 +27,7 @@ const TicketReparation = ({ ticket, refreshData }) => {
             if (res.data.status === 200) {
               Swal.fire('Success', res.data.message, 'success');
               refreshData();
+              setOpen(true); // Ouvrir la boîte de dialogue après la validation
             } else if (res.data.status === 404) {
               Swal.fire("Erreur", res.data.message, "error");
               navigate('/admin/tickets');
@@ -35,6 +37,34 @@ const TicketReparation = ({ ticket, refreshData }) => {
             console.error(error);
           });
       }
+    });
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleValidation = () => {
+    axios.put(`http://127.0.0.1:8000/api/tickets/reparation_com/${ticket.id_ticket}`, {
+      intervention_faite,
+      suite_a_donnee,
+    })
+    .then((res) => {
+      if (res.data.status === 200) {
+        Swal.fire('Success', res.data.message, 'success');
+        refreshData();
+      } else if (res.data.status === 404) {
+        Swal.fire("Erreur", res.data.message, "error");
+        navigate('/admin/tickets');
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    })
+    .finally(() => {
+      setInterventionFaite('');
+      setSuiteDonnees('');
+      setOpen(false);
     });
   };
 
@@ -113,6 +143,30 @@ const TicketReparation = ({ ticket, refreshData }) => {
           )}
         </div>
       </td>
+
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Validation de la réparation</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Intervention Faite"
+            fullWidth
+            margin="normal"
+            value={intervention_faite}
+            onChange={(e) => setInterventionFaite(e.target.value)}
+          />
+          <TextField
+            label="Suite à Données"
+            fullWidth
+            margin="normal"
+            value={suite_a_donnee}
+            onChange={(e) => setSuiteDonnees(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Annuler</Button>
+          <Button onClick={handleValidation} color="primary">Valider</Button>
+        </DialogActions>
+      </Dialog>
     </tr>
   );
 };

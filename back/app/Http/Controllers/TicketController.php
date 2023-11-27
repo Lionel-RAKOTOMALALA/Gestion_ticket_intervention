@@ -71,8 +71,26 @@ class TicketController extends Controller
         }
     
         $ticket->update([
+            'intervention_faite' => $request->intervention_faite,
+            'suite_a_donnee' => $request->suite_a_donnee,
             'statut_actuel' => 'Fait',
             'date_resolution' => now(),
+        ]);
+    
+        return response()->json(['message' => 'Le ticket a été marqué comme fait.', 'status' => 200], 200);
+
+    }
+    public function reparation_com(Request $request, $id)
+    {
+        $ticket = TicketReparation::find($id);
+    
+        if (!$ticket) {
+            return response()->json(['message' => 'Ticket non trouvée.'], 404);
+        }
+    
+        $ticket->update([
+            'intervention_faite' => $request->intervention_faite,
+            'suite_a_donnee' => $request->suite_a_donnee,
         ]);
     
         return response()->json(['message' => 'Le ticket a été marqué comme fait.', 'status' => 200], 200);

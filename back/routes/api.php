@@ -33,7 +33,6 @@ Route::prefix('demande_materiel')->group(function () {
     Route::put('validate/{id}', [DemandeMaterielController::class, 'validationDemande']);
     Route::put('reject/{id}', [DemandeMaterielController::class, 'rejectDemande']);
     Route::put('/{id}', [DemandeMaterielController::class, 'update']);
-    Route::delete('/{id}', [DemandeMaterielController::class, 'destroy']);
 });
 
 Route::get('/user', [UserController::class, 'getUserData']); 
@@ -61,8 +60,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [DemandeMaterielController::class, 'index']);
         Route::get('/{id}', [DemandeMaterielController::class, 'show']);
         Route::post('/', [DemandeMaterielController::class, 'store']);
-    Route::put('validate/{id}', [DemandeMaterielController::class, 'validationDemande']);
-    Route::put('reject/{id}', [DemandeMaterielController::class, 'rejectDemande']);
+        Route::put('validate/{id}', [DemandeMaterielController::class, 'validationDemande']);
+        Route::put('reject/{id}', [DemandeMaterielController::class, 'rejectDemande']);
         Route::put('/{id}', [DemandeMaterielController::class, 'update']);
         Route::delete('/{id}', [DemandeMaterielController::class, 'destroy']);
     });
@@ -81,6 +80,7 @@ Route::prefix('tickets')->group(function () {
     Route::get('/', [TicketController::class, 'index']);
     Route::put('{id}', [TicketController::class, 'update']);
     Route::put('reparationFait/{id}',[TicketController::class, 'reparationFait']);
+    Route::put('reparation_com/{id}',[TicketController::class, 'reparation_com']);
     Route::put('updateFavori/{id}',[TicketController::class, 'updateFavori']);
     Route::delete('{id}', [TicketController::class, 'destroy']);
 });

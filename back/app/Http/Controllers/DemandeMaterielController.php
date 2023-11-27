@@ -333,4 +333,16 @@ public function rejectDemande(Request $request, $id)
 
         return $phrases[$type_notif] ?? '';
     }
+    public function destroy($id)
+    {
+        $ticket = DemandeMateriel::find($id);
+        if (!$ticket) {
+            return response()->json([
+                'message' => 'Demande non trouvé',
+                'status' => 404,
+            ]);
+        }
+        $ticket->delete();
+        return response()->json(['message' => 'la demande a été supprimé', 'status' => 200], 200);
+    }
 }

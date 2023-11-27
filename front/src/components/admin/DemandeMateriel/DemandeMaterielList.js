@@ -234,26 +234,35 @@ const DemandeMaterielList = () => {
         confirmButtonText: "Oui",
         cancelButtonText: "Non",
       });
-
+  
       if (result.isConfirmed) {
-
         const res = await axios.delete(
-          `http://127.0.0.1:8000/api/demande_materiel/${id}`
+          `http://127.0.0.1:8000/api/demande_materiel/${id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${authToken}`
+            }
+          }
         );
-
-        if (res.data.status === 200) {
+  
+        if (res.data && res.data.status === 200) {
           Swal.fire("Success", res.data.message, "success");
           refreshData();
-        } else if (res.data.status === 404) {
+        } else if (res.data && res.data.status === 404) {
           Swal.fire("Erreur", res.data.message, "error");
           navigate("/admin/demande_materiels");
+        } else {
+          // Gestion d'une réponse inattendue
+          Swal.fire("Erreur", "Une erreur inattendue s'est produite", "error");
         }
       }
     } catch (error) {
       console.error(error);
-    } finally {
+      // Gestion des erreurs générales
+      Swal.fire("Erreur", "Une erreur s'est produite", "error");
     }
   };
+  
 
   const statusIcon = (status) => {
     if (status === "Validé") {
