@@ -1,32 +1,46 @@
-
 import React, { useEffect, useState } from "react";
-import { UilCheckCircle, UilTimes, UilArrowCircleLeft } from "@iconscout/react-unicons";
+import {
+  Button,
+  Card,
+  CardContent,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  TextField,
+  Select,
+  MenuItem,
+  Box,
+  Typography,
+  Container,
+  Paper
+} from "@mui/material";
+import {
+  CheckCircle,
+  Clear,
+  ArrowCircleLeft,
+} from "@mui/icons-material";
+import { NavLink } from "react-router-dom";
+import { InputLabel, FormHelperText } from "@mui/material";
+
 import axios from "axios";
 import swal from "sweetalert";
-import { NavLink } from "react-router-dom";
 
 const DemandeMaterielForm = () => {
-  
-   
-
-  const userRole = localStorage.getItem('role');
+  const userRole = localStorage.getItem("role");
   let linkBack = null;
-  if(userRole === 'admin') {
-    linkBack = '/admin/demande_materiels';
+  if (userRole === "admin") {
+    linkBack = "/admin/demande_materiels";
   } else {
-    linkBack = '/Acceuil_client/demande_materiels';
-  }
+    linkBack = "/Acceuil_client/demande_materiels";
+  };
 
   const [demandeurList, setDemandeurList] = useState([]);
   const [materielList, setMaterielList] = useState([]);
 
   useEffect(() => {
-    axios.get(`http://127.0.0.1:8000/api/users`).then((res) => {
-      if (res.data.status === 200) {
-        setDemandeurList(res.data.users);
-      }
-    });
-    axios.get(`http://127.0.0.1:8000/api/materiels`).then((res) => {
+    axios.get("http://127.0.0.1:8000/api/materiels").then((res) => {
       if (res.data.status === 200) {
         setMaterielList(res.data.materiels);
       }
@@ -37,8 +51,7 @@ const DemandeMaterielForm = () => {
     etat_materiel: "",
     description_probleme: "",
     num_serie: "",
-    id_demandeur: "",
-    description_etat_personnalise: "", // Correction du nom du champ
+    description_etat_personnalise: "",
     error_list: {},
   });
 
@@ -58,8 +71,7 @@ const DemandeMaterielForm = () => {
       etat_materiel: "",
       description_probleme: "",
       num_serie: "",
-      id_demandeur: "",
-      description_etat_personnalise: "", // Correction du nom du champ
+      description_etat_personnalise: "",
       error_list: {},
     });
     setFormError("");
@@ -68,30 +80,25 @@ const DemandeMaterielForm = () => {
   const submitDemandeMateriel = (e) => {
     e.preventDefault();
 
-    // Réinitialisez les messages d'erreur
     setDemandeMaterielInput({
       ...demandeMaterielInput,
       error_list: {},
     });
     setFormError("");
 
-    // Validation côté client
     const errors = {};
     if (demandeMaterielInput.etat_materiel === "") {
       errors.etat_materiel = "L'état du matériel est requis";
     }
     if (demandeMaterielInput.description_probleme === "") {
-      errors.description_probleme = "La description du problème est requise";
+      errors.description_probleme =
+        "La description du problème est requise";
     }
     if (demandeMaterielInput.num_serie === "") {
       errors.num_serie = "Le numéro de série est requis";
     }
-    if (demandeMaterielInput.id_demandeur === "") {
-      errors.id_demandeur = "L'ID du demandeur est requis";
-    }
 
     if (Object.keys(errors).length > 0) {
-      // Il y a des erreurs, affichez-les avec Swal et dans le formulaire
       let errorString;
       if (Object.keys(errors).length > 1) {
         const errorFields = Object.keys(errors)
@@ -102,8 +109,6 @@ const DemandeMaterielForm = () => {
               return "Description du problème";
             } else if (key === "num_serie") {
               return "Numéro de série";
-            } else if (key === "id_demandeur") {
-              return "ID du demandeur";
             }
             return key;
           })
@@ -117,8 +122,6 @@ const DemandeMaterielForm = () => {
           errorString = "Le champ 'Description du problème' est requis";
         } else if (errorField === "num_serie") {
           errorString = "Le champ 'Numéro de série' est requis";
-        } else if (errorField === "id_demandeur") {
-          errorString = "Le champ 'ID du demandeur' est requis";
         }
       }
 
@@ -133,28 +136,28 @@ const DemandeMaterielForm = () => {
       let etatMaterielValue = demandeMaterielInput.etat_materiel;
 
       if (demandeMaterielInput.etat_materiel === "Autre") {
-        etatMaterielValue = demandeMaterielInput.description_etat_personnalise;
+        etatMaterielValue =
+          demandeMaterielInput.description_etat_personnalise;
       }
 
       const data = {
-        etat_materiel: etatMaterielValue, // Utilisez la valeur correcte
+        etat_materiel: etatMaterielValue,
         status: "En attente de validation",
         description_probleme: demandeMaterielInput.description_probleme,
         num_serie: demandeMaterielInput.num_serie,
-        id_demandeur: demandeMaterielInput.id_demandeur,
       };
-      
-      const authToken = localStorage.getItem('auth_token');
+
+      const authToken = localStorage.getItem("auth_token");
       axios
         .post("http://127.0.0.1:8000/api/demande_materiel", data, {
           headers: {
-              'Authorization': `Bearer ${authToken}`
-          }})
+            Authorization: `Bearer ${authToken}`,
+          },
+        })
         .then((res) => {
           if (res.data.status === 200) {
             swal("Success", res.data.message, "success");
 
-            // Réinitialisez les champs du formulaire
             resetForm();
           } else if (res.data.status === 400) {
             setDemandeMaterielInput({
@@ -167,189 +170,167 @@ const DemandeMaterielForm = () => {
   };
 
   return (
-    <div>
-      <div className="container py-5">
-        <div className="row justify-content-center">
-          <div className="col-md-6">
-            <div className="card">
-              <div className="card-header">
-                <h4>Demande de réparation</h4>
+    <Container maxWidth="sm">
+    <Box my={5}>
+      <Card>
+        <CardContent>
+        <Paper elevation={0} sx={{ backgroundColor: '#f8f8f8', marginBottom: 5, padding: 3 }}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Typography variant="h5" color="primary.main" >Demande de réparation</Typography>
+          <NavLink
+            to={linkBack}
+            className="btn btn-primary btn-sm float-end"
+            sx={{ textDecoration: 'none', color: '#1976D2', '&:hover': { color: '#125699' } }}
+          >
+            <ArrowCircleLeft /> Retour à l'affichage
+          </NavLink>
+        </Box>
+      </Paper>
+          <form onSubmit={submitDemandeMateriel} id="DEMANDE_MATERIEL_FORM">
+            {formError && (
+              <Box mt={3} mb={3} color="error.main">
+                {formError}
+              </Box>
+            )}
+            <FormControl component="fieldset" fullWidth>
+              <FormLabel component="legend">État du matériel</FormLabel>
+              <RadioGroup
+                name="etat_materiel"
+                value={demandeMaterielInput.etat_materiel}
+                onChange={handleInput}
+              >
+               <FormControlLabel
+                    value="En panne"
+                    control={<Radio />}
+                    label="En panne"
+                  />
+                  <FormControlLabel
+                    value="Endommagé"
+                    control={<Radio />}
+                    label="Endommagé"
+                  />
+                  <FormControlLabel
+                    value="Dysfonctionnement"
+                    control={<Radio />}
+                    label="Dysfonctionnement"
+                  />
+                  <FormControlLabel
+                    value="Obsolete"
+                    control={<Radio />}
+                    label="Obsolete"
+                  />
+                  <FormControlLabel
+                    value="Maintenance nécessaire"
+                    control={<Radio />}
+                    label="Maintenance nécessaire"
+                  />
+                  <FormControlLabel
+                    value="Autre"
+                    control={<Radio />}
+                    label="Autre"
+                  />
+                </RadioGroup>
+                {demandeMaterielInput.etat_materiel === "Autre" && (
+                  <Box mt={3}>
+                    <TextField
+                      type="text"
+                      name="description_etat_personnalise"
+                      fullWidth
+                      variant="outlined"
+                      label="Description de l'état personnalisé"
+                      onChange={handleInput}
+                      value={
+                        demandeMaterielInput.description_etat_personnalise
+                      }
+                    />
+                  </Box>
+                )}
+              </FormControl>
+              <Box mt={3}>
+                <TextField
+                  type="text"
+                  name="description_probleme"
+                  fullWidth
+                  variant="outlined"
+                  label="Description du problème"
+                  error={
+                    demandeMaterielInput.error_list.description_probleme
+                      ? true
+                      : false
+                  }
+                  helperText={
+                    demandeMaterielInput.error_list.description_probleme
+                  }
+                  onChange={handleInput}
+                  value={demandeMaterielInput.description_probleme}
+                />
+              </Box>
+              <Box mt={3}>
+                <FormControl fullWidth variant="outlined">
+                  <InputLabel htmlFor="num_serie">
+                    Numéro de série du matériel
+                  </InputLabel>
+                  <Select
+                    name="num_serie"
+                    onChange={handleInput}
+                    value={demandeMaterielInput.num_serie}
+                    label="Numéro de série du matériel"
+                    error={
+                      demandeMaterielInput.error_list.num_serie ? true : false
+                    }
+                  >
+                    <MenuItem value="">Sélectionner un matériel</MenuItem>
+                    {materielList.map((item) => (
+                      <MenuItem
+                        key={item.num_serie}
+                        value={item.num_serie}
+                      >
+                        {item.type_materiel}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <FormHelperText error>
+                    {demandeMaterielInput.error_list.num_serie}
+                  </FormHelperText>
+                </FormControl>
+              </Box>
+              <Box mt={3} display="flex">
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  size="medium"
+                  endIcon={<CheckCircle />}
+                  fullWidth
+                >
+                  Confirmer
+                </Button>
                 <NavLink
                   to={linkBack}
-                  className="btn btn-primary btn-sm float-end"
+                  style={{ textDecoration: "none" }}
                 >
-                  <UilArrowCircleLeft /> Retour à l'affichage
+                  <Button
+                    type="button"
+                    variant="contained"
+                    color="secondary"
+                    size="medium"
+                    endIcon={<Clear />}
+                    fullWidth
+                    style={{ marginLeft: "10px" }}
+                  >
+                    Annuler
+                  </Button>
                 </NavLink>
-              </div>
-              <div className="container">
-                <div className="card-body">
-                  <form onSubmit={submitDemandeMateriel} id="DEMANDE_MATERIEL_FORM">
-                    {formError && (
-                      <div className="alert alert-danger mb-3">
-                        {formError}
-                      </div>
-                    )}
-                    <div className="form-group mb-3">
-                    <label htmlFor="etat_materiel">État du matériel</label>
-                      <div>
-                        <label>
-                          <input
-                            type="radio"
-                            name="etat_materiel"
-                            value="En panne"
-                            checked={demandeMaterielInput.etat_materiel === "En panne"}
-                            onChange={handleInput}
-                          /> En panne
-                        </label>
-                      </div>
-                      <div>
-                        <label>
-                          <input
-                            type="radio"
-                            name="etat_materiel"
-                            value="Endommagé"
-                            checked={demandeMaterielInput.etat_materiel === "Endommagé"}
-                            onChange={handleInput}
-                          /> Endommagé
-                        </label>
-                      </div>
-                      <div>
-                        <label>
-                          <input
-                            type="radio"
-                            name="etat_materiel"
-                            value="Dysfonctionnement"
-                            checked={demandeMaterielInput.etat_materiel === "Dysfonctionnement"}
-                            onChange={handleInput}
-                          /> Dysfonctionnement
-                        </label>
-                      </div>
-                      <div>
-                        <label>
-                          <input
-                            type="radio"
-                            name="etat_materiel"
-                            value="Obsolete"
-                            checked={demandeMaterielInput.etat_materiel === "Obsolete"}
-                            onChange={handleInput}
-                          /> Obsolete
-                        </label>
-                      </div>
-                      <div>
-                        <label>
-                          <input
-                            type="radio"
-                            name="etat_materiel"
-                            value="Maintenance nécessaire"
-                            checked={demandeMaterielInput.etat_materiel === "Maintenance nécessaire"}
-                            onChange={handleInput}
-                          /> Maintenance nécessaire
-                        </label>
-                      </div>
-                      <label>
-                        <input
-                          type="radio"
-                          name="etat_materiel"
-                          value="Autre"
-                          checked={demandeMaterielInput.etat_materiel === "Autre"}
-                          onChange={handleInput}
-                        /> Autre
-                      </label>
-                    </div>
-                    {demandeMaterielInput.etat_materiel === "Autre" && (
-                      <div className="form-group mb-3">
-                        <label htmlFor="description_etat_personnalise">Description de l'état personnalisé</label>
-                        <input
-                          type="text"
-                          name="description_etat_personnalise" // Utilisez "description_etat_personnalise" comme nom
-                          className="form-control"
-                          onChange={handleInput}
-                          value={demandeMaterielInput.description_etat_personnalise} // Affichez la valeur
-                        />
-                      </div>
-                    )}
-
-                    <div className="form-group mb-3">
-                      <label htmlFor="description_probleme">Description du problème</label>
-                      <input
-                        type="text"
-                        name="description_probleme"
-                        className={`form-control ${
-                          demandeMaterielInput.error_list.description_probleme
-                            ? "is-invalid"
-                            : ""
-                        }`}
-                        onChange={handleInput}
-                        value={demandeMaterielInput.description_probleme}
-                      />
-                      {demandeMaterielInput.error_list.description_probleme && (
-                        <div className="text-danger">
-                          {demandeMaterielInput.error_list.description_probleme}
-                        </div>
-                      )}
-                    </div>
-                    <div className="form-group mb-3">
-                      <label htmlFor="num_serie">Numéro de série du matériel</label>
-                      <select name="num_serie" onChange={handleInput} value={demandeMaterielInput.num_serie} className="form-control">
-                        <option value="">Sélectionner un matériel</option>
-                        {materielList.map((item) => {
-                          return (
-                            <option key={item.num_serie} value={item.num_serie}>
-                              {item.type_materiel}
-                            </option>
-                          );
-                        })}
-                      </select>
-                      {demandeMaterielInput.error_list.num_serie && (
-                        <div className="text-danger">
-                          {demandeMaterielInput.error_list.num_serie}
-                        </div>
-                      )}
-                    </div>
-                    <div className="form-group mb-3">
-                      <label htmlFor="id_demandeur">Nom du demandeur</label>
-                      <select name="id_demandeur" onChange={handleInput} value={demandeMaterielInput.id_demandeur} className="form-control">
-                        <option value="">Sélectionner un demandeur</option>
-                        {demandeurList.map((item) => {
-                          return (
-                            <option key={item.id_demandeur} value={item.id_demandeur}>
-                              {item.username}
-                            </option>
-                          );
-                        })}
-                      </select>
-                      {demandeMaterielInput.error_list.id_demandeur && (
-                        <div className="text-danger">
-                          {demandeMaterielInput.error_list.id_demandeur}
-                        </div>
-                      )}
-                    </div>
-                    <div className="row">
-                      <div className="col">
-                        <button
-                          type="submit"
-                          className="btn btn-primary btn-block mb-2"
-                        >
-                          <UilCheckCircle size="20" /> Confirmer
-                        </button>
-                      </div>
-                      <NavLink to={linkBack} className="col">
-                        <button
-                          type="button"
-                          className="btn btn-secondary btn-block mb-2"
-                        >
-                          <UilTimes size="20" /> Annuler
-                        </button>
-                      </NavLink>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+              </Box>
+            </form>
+          </CardContent>
+        </Card>
+      </Box>
+    </Container>
   );
 };
 

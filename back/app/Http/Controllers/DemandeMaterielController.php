@@ -37,62 +37,65 @@ class DemandeMaterielController extends Controller
     }
 
   
-public function store(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'etat_materiel' => 'required|string',
-        'status' => 'required',
-        'description_probleme' => 'required|string',
-        'num_serie' => 'required|integer',
-        'id_demandeur' => 'integer|nullable',
-        // Ajoutez d'autres règles de validation si nécessaire
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'status' => 400,
-            'error_list' => $validator->messages(),
-        ], 400);
+    public function store(Request $request)
+    {
+        try {
+            // Utilisez une jointure pour récupérer l'id_demandeur
+            $demandeurId = DB::table('demandeurs')
+                ->join('users', 'demandeurs.id_user', '=', 'users.id')
+                ->where('demandeurs.id_user', Auth::id())
+                ->value('demandeurs.id_demandeur');
+    
+            $validator = Validator::make($request->all(), [
+                'etat_materiel' => 'required|string',
+                'status' => 'required',
+                'description_probleme' => 'required|string',
+                'num_serie' => 'required|integer',
+                // Vous pouvez ajouter d'autres règles de validation si nécessaire
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 400,
+                    'error_list' => $validator->messages(),
+                ], 400);
+            }
+    
+            $demande = DemandeMateriel::create([
+                'etat_materiel' => $request->etat_materiel,
+                'status' => $request->status,
+                'description_probleme' => $request->description_probleme,
+                'num_serie' => $request->num_serie,
+                'id_demandeur' => $demandeurId,
+            ]);
+    
+            $id_demande = $demande->id_demande;
+    
+            UserActivity::create([
+                'user_id' => Auth::id(),
+                'activity_type' => 'creation_demande_materiel',
+                'description' => 'Creation d\'une nouvelle demande',
+            ]);
+    
+            Notification::create([
+                'type_notif' => 'nouvelle_demande',
+                'id_demande' => $id_demande,
+                'date_creation' => now(),
+                'phrase' => 'L\'utilisateur ' . Auth::user()->username .' vient de faire une demande de réparation',
+            ]);
+    
+            return response()->json([
+                'message' => "La demande de matériel a été créée avec succès",
+                'status' => 200
+            ], 200);
+        } catch (\Exception $e) {
+    
+            return response()->json([
+                'message' => "Il y a une erreur dans l'insertion",
+            ], 500);
+        }
     }
-
-    try {
-        $demande = DemandeMateriel::create([
-            'etat_materiel' => $request->etat_materiel,
-            'status' => $request->status,
-            'description_probleme' => $request->description_probleme,
-            'num_serie' => $request->num_serie,
-            'id_demandeur' => $request->id_demandeur,
-        ]);
-
-        // Récupérez l'id_demande après la création
-        $id_demande = $demande->id_demande;
-
-        // Enregistrez l'activité de création de demande de matériel
-        UserActivity::create([
-            'user_id' => Auth::id(),
-            'activity_type' => 'creation_demande_materiel',
-            'description' => 'Creation d\'une nouvelle demande',
-        ]);
-
-        // Enregistrez la notification avec l'id_demande associé
-        Notification::create([
-            'type_notif' => 'nouvelle_demande',
-            'id_demande' => $id_demande,
-            'date_creation' => now(),
-            'phrase' => 'L\'utilisateur ' . Auth::user()->username .' vient de faire une demande de reparation',
-        ]);
-
-        return response()->json([
-            'message' => "La demande de matériel a été créée avec succès",
-            'status' => 200
-        ], 200);
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => "Il y a une erreur dans l'insertion",
-        ], 500);
-    }
-}
-
+    
     public function show($id)
     {
         $demande = DemandeMateriel::select(

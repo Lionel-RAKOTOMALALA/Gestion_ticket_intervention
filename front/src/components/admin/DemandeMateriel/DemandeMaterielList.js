@@ -364,54 +364,6 @@ const DemandeMaterielList = () => {
     );
   };
 
-  const demandeurCountLogic = (row) => {
-    return isAdmin ? (
-      <>
-        {row.status === "Validé" ? (
-          <span>
-            <CheckCircleIcon size="20" style={{ color: "green" }} />
-            {row.status}
-          </span>
-        ) : row.status === "rejeté" ? (
-          <span>
-            <CancelIcon size="20" style={{ color: "red" }} />
-            {row.status}
-          </span>
-        ) : (
-          // Autres icônes ou contenu ici si nécessaire
-          row.status
-        )}
-      </>
-    ) : (
-      <>
-        {isAdmin ? (
-          <>
-            {row.status === "Validé" || row.status === "rejeté" ? (
-              ""
-            ) : (
-              <>
-               
-                
-                    <button
-                      className="btn btn-sm btn-success"
-                      onClick={(e) => handleValidate(e, row.id_demande)}
-                    >
-                      <CheckCircleIcon style={{ color: "green" }} /> 
-                    </button>
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={(e) => handleReject(e, row.id_demande)}
-                    >
-                     <CancelIcon style={{ color: "red" }} /> 
-                    </button>
-                 
-              </>
-            )}
-          </>
-        ) : null}
-      </>
-    );
-  };
 
 
 
@@ -425,30 +377,47 @@ const DemandeMaterielList = () => {
   }, [authToken]);
 
 
-    const columns = [
-      { field: "id_demande", headerName: "Numéro de la demande", width: 150 },
-      { field: "etat_materiel", headerName: "État du matériel", width: 150 },
-      { field: "description_probleme", headerName: "Description du problème", width: 200 },
-      { field: "type_materiel", headerName: "Type du matériel", width: 150 },
-      { field: "demandeur_username", headerName: "Nom du demandeur", width: 150 },
-      { field: "demandeur_entreprise", headerName: "Entreprise", width: 100 },
-      {
-        field: "status",
-        headerName: "Statut de la demande",
-        width: 150,
-        renderCell: (params) => (
-          <Box style={{ display: "flex", alignItems: "center" }}>
-            {statusIcon(params.row.status)}{statusIcon()} {params.row.status}
-          </Box>
-        ),
-      },
-      {
-        field: "actions",
-        headerName: "Actions",
-        width: 350,
-        renderCell: renderActions,
-      },
-    ];
+
+
+  const columns = [
+    { field: "id_demande", headerName: "Numéro de la demande", width: 150 },
+    { field: "etat_materiel", headerName: "État du matériel", width: isAdmin ? 200 : 250},
+    { field: "type_materiel", headerName: "Type du matériel", width: isAdmin ? 150 : 200 },
+    ...(isAdmin
+      ? [
+          { field: "demandeur_username", headerName: "Nom du demandeur", width: 150 },
+          { field: "demandeur_entreprise", headerName: "Entreprise", width: 150 },
+        ]
+      : []
+    ),
+    {
+      field: "status",
+      headerName: "Statut de la demande",
+      width: isAdmin ? 150 : 200,
+      renderCell: (params) => (
+        <Box
+          style={{
+            display: "flex",
+            alignItems: "center",
+            color: params.row.status === "Validé" ? "#4CAF50" : "#FF5252",
+          }}
+        >
+          {statusIcon(params.row.status)} {params.row.status}
+        </Box>
+      ),
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: isAdmin ? 250 : 350,
+      renderCell: renderActions,
+    },
+  ];
+  
+  
+  
+  
+  
 
     const handleView = (id) => {
       // Implementation for handleView
