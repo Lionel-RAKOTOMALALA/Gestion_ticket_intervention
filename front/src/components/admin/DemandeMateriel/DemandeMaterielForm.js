@@ -163,7 +163,7 @@ const DemandeMaterielForm = () => {
             setDemandeMaterielInput({
               ...demandeMaterielInput,
               error_list: res.data.errors,
-            });
+            }); 
           }
         });
     }

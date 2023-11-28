@@ -82,11 +82,31 @@ function Sidebar() {
     if (demandeurVerifCount === 1 || technicienVerifCount === 1) {
       menuItems = (
         <>
-          <li className="nav-item">
-            <NavLink className="nav-link" to={`${linkRoot}/demandeurs`}>
-              <UilUserCircle />
-              <span>Demandeur</span>
-            </NavLink>
+        <li className="nav-item">
+            <div className="nav-link collapsed"
+              data-toggle="collapse"
+              data-target="#collapseMatériels"
+              aria-expanded="true"
+              aria-controls="collapseMatériels"
+              style={{ cursor: 'pointer' }}
+            >
+              <i className="fas fa-fw fa-cube"></i>
+              <span>Utilisateur</span>
+            </div>
+            <div id="collapseMatériels" className="collapse" aria-labelledby="headingMatériels" data-parent="#accordionSidebar">
+              <div className="bg-white py-2 collapse-inner rounded">
+                <h6 className="collapse-header">Listes des Utilisateurs</h6>
+                <NavLink className="collapse-item" to={`${linkRoot}/demandeurs`}>
+                  Demandeurs
+                </NavLink>
+                <NavLink className="collapse-item" to={`${linkRoot}/techniciens`}>
+                  Techniciens
+                </NavLink>
+                <NavLink className="collapse-item" to={`${linkRoot}/materiels`}>
+                  Tous
+                </NavLink>
+              </div>
+            </div>
           </li>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/postes`}>
@@ -94,12 +114,7 @@ function Sidebar() {
               <span>Postes</span>
             </NavLink>
           </li>
-          <li className="nav-item">
-            <NavLink className="nav-link" to={`${linkRoot}/users`}>
-              <UilUserCircle />
-              <span>Utilisateur</span>
-            </NavLink>
-          </li>
+          
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/demande_materiels`}>
               <UilUserCircle />

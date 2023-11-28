@@ -6,6 +6,8 @@ use App\Http\Requests\TechnicienStoreRequest;
 use App\Models\Technicien;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+
 
 class TechnicienController extends Controller
 {
@@ -16,9 +18,10 @@ class TechnicienController extends Controller
     {
         
         // Utilisez le modèle Eloquent pour récupérer les techniciens avec leurs utilisateurs associés
-        $techniciens = Technicien::join('users', 'techniciens.id_user', '=', 'users.id')
-            ->select('techniciens.id_technicien', 'techniciens.competence', 'users.username as nom_utilisateur')
-            ->get();
+        $techniciens = DB::table('users')
+    ->select('users.id', 'users.username', 'users.email', 'users.logo', 'users.sexe', 'users.photo_profil_user', 'users.nom_entreprise', DB::raw("CASE WHEN users.role_user = 1 THEN 'Admin' ELSE 'Utilisateur simple' END AS role_user"), 'techniciens.id_technicien','techniciens.competence')
+    ->join('techniciens', 'users.id', '=', 'techniciens.id_user')
+    ->get();
 
         return response()->json([
             'techniciens' => $techniciens,

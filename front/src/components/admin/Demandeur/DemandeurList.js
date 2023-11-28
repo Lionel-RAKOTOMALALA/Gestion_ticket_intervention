@@ -1,87 +1,162 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Demandeur from "./Demandeur"; // Assurez-vous que Demandeur est correctement importé
-import $ from "jquery";
+import {
+  Box,
+  Typography,
+  Button,
+  IconButton,
+  Grid,
+  Skeleton,
+} from "@mui/material";
+import { DataGrid, gridClasses } from "@mui/x-data-grid";
+import { Edit, Delete, Visibility } from "@mui/icons-material";
+import { UilEye, UilEditAlt, UilTrash } from "@iconscout/react-unicons";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import Loader from "../materiels/loader";
 
 const DemandeurList = () => {
   const [demandeurs, setDemandeurs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const tableRef = useRef(null);
-
-  const destroyDataTable = () => {
-    if ($.fn.DataTable.isDataTable(tableRef.current)) {
-      $(tableRef.current).DataTable().destroy();
-    }
-  };
-
-  const refreshData = () => {
-    destroyDataTable();
-    axios.get("http://127.0.0.1:8000/api/demandeurs") // Mettez à jour l'URL de l'API pour les demandeurs
-      .then((response) => {
-        setDemandeurs(response.data.demandeurs); // Assurez-vous que la réponse contient les demandeurs
-        setIsLoading(false);
-        if (tableRef.current) {
-          $(tableRef.current).DataTable({
-            language: {
-              search: 'Rechercher :',
-              lengthMenu: 'Afficher _MENU_ éléments par page',
-              info: 'Affichage de _START_ à _END_ sur _TOTAL_ éléments',
-              infoEmpty: 'Aucun élément trouvé',
-              infoFiltered: '(filtré de _MAX_ éléments au total)',
-              paginate: {
-                first: 'Premier',
-                previous: 'Précédent',
-                next: 'Suivant',
-                last: 'Dernier'
-              }
-            }
-          });
-        }
-      });
-  };
+  const [isDeleting, setIsDeleting] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     refreshData();
   }, []);
 
+  const refreshData = () => {
+    axios
+      .get("http://127.0.0.1:8000/api/demandeurs")
+      .then((response) => {
+        setDemandeurs(response.data.demandeurs);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  const handleEdit = (id) => {
+    navigate(`/edit-demandeur/${id}`);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const result = await Swal.fire({
+        title: "Confirmer la suppression",
+        text: "Êtes-vous sûr de vouloir supprimer ce demandeur ?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Oui",
+        cancelButtonText: "Non",
+      });
+
+      if (result.isConfirmed) {
+        const res = await axios.delete(
+          `http://127.0.0.1:8000/api/demandeurs/${id}`
+        );
+
+        if (res.data && res.data.status === 200) {
+          Swal.fire("Success", res.data.message, "success");
+          refreshData();
+        } else if (res.data && res.data.status === 404) {
+          Swal.fire("Erreur", res.data.message, "error");
+          navigate("/admin/demandeurs");
+        } else {
+          // Gestion d'une réponse inattendue
+          Swal.fire("Erreur", "Une erreur inattendue s'est produite", "error");
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      // Gestion des erreurs générales
+      Swal.fire("Erreur", "Une erreur s'est produite", "error");
+    }
+  };
+
+  const columns = [
+    { field: "id", headerName: "ID", width: 70 },
+    { field: "username", headerName: "Nom d'utilisateur", width: 100 },
+    { field: "email", headerName: "Email", width: 100 },
+    { field: "sexe", headerName: "Sexe", width: 120 },
+    { field: "nom_entreprise", headerName: "Nom de l'entreprise", width: 100 },
+    { field: "role_user", headerName: "Role", width: 100 },
+    { field: "nom_poste", headerName: "Nom du poste", width: 100 },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 350,
+      renderCell: (params) => (
+        <Grid container spacing={2}>
+          <Grid item>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<Edit />}
+              onClick={() => handleEdit(params.row.id)}
+            >
+              Modifier
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              color="secondary"
+              startIcon={<Delete />}
+              onClick={() => handleDelete(params.row.id)}
+            >
+              {isDeleting ? "Suppression..." : "Supprimer"}
+            </Button>
+          </Grid>
+        </Grid>
+      ),
+    },
+  ];
+
   return (
-    <div>
-      <div className="card shadow mb-4">
-        <div className="card-header py-3">
-          <h6 className="m-0 font-weight-bold text-primary">Liste des demandeurs</h6>
-        </div>
-        <div className="card-body">
-          {isLoading ? (
-            <Loader />
-          ) : (
-            <div className="table-responsive">
-              <table
-                ref={tableRef}
-                className="table table-bordered table-striped"
-                width="100%"
-                cellSpacing="0"
-              >
-                <thead>
-                  <tr>
-                    <th>ID Demandeur</th>
-                    <th>Nom de l'utilisateur</th>
-                    <th>Poste occupé</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {demandeurs.map((demandeur) => (
-                    <Demandeur key={demandeur.id_demandeur} demandeur={demandeur} refreshData={refreshData} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+    <Box sx={{ height: 400, width: "100%" }}>
+      <Typography variant="h6" component="h6" sx={{ textAlign: "center", mt: 3, mb: 3 }}>
+        Liste des demandeurs
+      </Typography>
+      {isLoading ? (
+        <DataGrid
+          columns={columns.map((col) => ({
+            ...col,
+            renderCell: (params) => (
+              <Skeleton
+                variant="rectangular"
+                height={30}
+                width="80%"
+              />
+            ),
+          }))}
+          rows={[...Array(5).keys()].map((rowId) => ({ id: rowId }))}
+          pageSize={5}
+          rowsPerPageOptions={[5, 10, 20]}
+          disableColumnFilter
+          disableColumnMenu
+          disableColumnSelector
+          disableDensitySelector
+          disableSelectionOnClick
+          disableMultipleSelection
+          hideFooter
+        />
+      ) : (
+        <DataGrid
+          columns={columns}
+          rows={demandeurs}
+          pageSize={5}
+          rowsPerPageOptions={[5, 10, 20]}
+          onCellEditCommit={(params) => console.log(params)}
+          getRowId={(row) => row.id}
+          sx={{
+            [`& .${gridClasses.row}`]: {
+              bgcolor: (theme) => (theme.palette.mode === "light" ? "#eee" : "#333"),
+            },
+          }}
+        />
+      )}
+    </Box>
   );
 };
 

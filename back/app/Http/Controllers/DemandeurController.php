@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DemandeurStoreRequest;
 use App\Models\Demandeur;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class DemandeurController extends Controller
 {
@@ -14,10 +15,22 @@ class DemandeurController extends Controller
     public function index()
     {
         // Utilisez le modèle Eloquent pour récupérer les demandeurs avec leurs utilisateurs associés
-        $demandeurs = Demandeur::join('users', 'demandeurs.id_user', '=', 'users.id')
-            ->join('postes', 'demandeurs.id_poste', '=', 'postes.id_poste')
-            ->select('demandeurs.id_demandeur', 'users.nom_entreprise', 'users.username as nom_utilisateur', 'postes.nom_poste')
-            ->get();
+        $demandeurs = DB::table('users')
+        ->select(
+            'users.id',
+            'users.username',
+            'users.email',
+            'users.logo',
+            'users.sexe',
+            'users.photo_profil_user',
+            'users.nom_entreprise',
+            DB::raw("CASE WHEN users.role_user = 1 THEN 'Admin' ELSE 'Utilisateur simple' END AS role_user"),
+            'postes.nom_poste',
+            'demandeurs.id_demandeur'
+        )
+        ->join('demandeurs', 'users.id', '=', 'demandeurs.id_user')
+        ->join('postes', 'demandeurs.id_poste', '=', 'postes.id_poste')
+        ->get();
 
         return response()->json([
             'demandeurs' => $demandeurs,
