@@ -12,7 +12,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\DemandeMaterielController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserActivityController;
+use App\Http\Controllers\EntrepriseController;
 
+Route::get('/entreprises', [EntrepriseController::class, 'index']);
 
 Route::middleware('auth:sanctum','isAPIAdmin')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
@@ -40,6 +42,9 @@ Route::get('/user', [UserController::class, 'getUserData']);
 
 
 });
+Route::post('register', [UserController::class, 'registerDemandeur']);
+Route::put('editDemandeur/{id}', [UserController::class, 'editDemandeur']);
+Route::post('registerTechnicien', [UserController::class, 'registerTechnicien']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
@@ -50,6 +55,13 @@ Route::middleware('auth:sanctum')->group(function () {
         ], 200);
     });
      
+Route::prefix('materiels')->group(function () {
+    Route::get('/', [MaterielController::class, 'index']);
+    Route::get('{id}', [MaterielController::class, 'show']);
+    Route::post('/', [MaterielController::class, 'store']);
+    Route::put('{id}', [MaterielController::class, 'update']);
+    Route::delete('{id}', [MaterielController::class, 'destroy']);
+});
     Route::get('/user', [UserController::class, 'getUserData']); 
     
     Route::get('countDemandeurForAuthenticatedUser', [UserController::class, 'countDemandeurForAuthenticatedUser']);
@@ -70,7 +82,6 @@ Route::middleware('auth:sanctum')->group(function () {
 }); 
 
 
-Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
 
@@ -111,7 +122,7 @@ Route::prefix('techniciens')->group(function () {
 Route::prefix('users')->group(function () {
     Route::get('/', [UserController::class, 'index']);
     Route::get('{id}', [UserController::class, 'show']);
-    Route::post('/', [UserController::class, 'store']);
+    Route::post('/demandeur', [UserController::class, 'store']);
     Route::put('{id}', [UserController::class, 'update']);
     Route::delete('{id}', [UserController::class, 'destroy']);
 });
@@ -119,13 +130,6 @@ Route::get('/getUserTechnicien',[UserController::class,'userTechnicien']);
 Route::put('/update-notif/{id}', [UserController::class, 'updateNotification']);
 
 
-Route::prefix('materiels')->group(function () {
-    Route::get('/', [MaterielController::class, 'index']);
-    Route::get('{id}', [MaterielController::class, 'show']);
-    Route::post('/', [MaterielController::class, 'store']);
-    Route::put('{id}', [MaterielController::class, 'update']);
-    Route::delete('{id}', [MaterielController::class, 'destroy']);
-});
 Route::prefix('piece_rechanges')->group(function () {
     Route::get('/', [PieceRechangeController::class, 'index']);
     Route::get('{id}', [PieceRechangeController::class, 'show']);

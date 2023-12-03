@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DemandeurStoreRequest;
 use App\Models\Demandeur;
+use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 
@@ -17,19 +18,20 @@ class DemandeurController extends Controller
         // Utilisez le modèle Eloquent pour récupérer les demandeurs avec leurs utilisateurs associés
         $demandeurs = DB::table('users')
         ->select(
-            'users.id',
+            'demandeurs.id_demandeur',
             'users.username',
             'users.email',
             'users.logo',
             'users.sexe',
             'users.photo_profil_user',
-            'users.nom_entreprise',
+            'entreprises.nom_entreprise',
             DB::raw("CASE WHEN users.role_user = 1 THEN 'Admin' ELSE 'Utilisateur simple' END AS role_user"),
             'postes.nom_poste',
             'demandeurs.id_demandeur'
         )
         ->join('demandeurs', 'users.id', '=', 'demandeurs.id_user')
         ->join('postes', 'demandeurs.id_poste', '=', 'postes.id_poste')
+        ->join('entreprises','users.id_entreprise','=','entreprises.id_entreprise')
         ->get();
 
         return response()->json([
@@ -38,9 +40,7 @@ class DemandeurController extends Controller
         ], 200);
     }
 
-    /**
-     * Crée un nouveau demandeur.
-     */
+
     public function store(DemandeurStoreRequest $request)
     {
         $validator = Validator::make($request->all(), [
@@ -85,7 +85,8 @@ class DemandeurController extends Controller
         // Détails du demandeur avec les informations de l'utilisateur associé
         $demandeur = Demandeur::join('users', 'demandeurs.id_user', '=', 'users.id')
             ->join('postes', 'demandeurs.id_poste', '=', 'postes.id_poste')
-            ->select('demandeurs.id_demandeur', 'users.nom_entreprise', 'users.username as nom_utilisateur','users.id as id_user','postes.id_poste as id_poste', 'postes.nom_poste')
+            ->join('entreprises','users.id_entreprise','=','entreprises.id_entreprise')
+            ->select('demandeurs.id_demandeur','users.photo_profil_user','users.role_user','entreprises.*','users.sexe', 'entreprises.nom_entreprise', 'users.username as nom_utilisateur','users.id as id_user','postes.id_poste as id_poste', 'postes.nom_poste')
             ->where('demandeurs.id_demandeur', $id)
             ->first();
 
@@ -156,12 +157,19 @@ class DemandeurController extends Controller
                 'message' => 'Ce demandeur n\'a pas été trouvé'
             ], 404);
         }
-
+    
+        // Suppression de l'utilisateur associé au demandeur
+        $user = User::find($demandeur->id_user);
+        if ($user) {
+            $user->delete();
+        }
+    
+        // Suppression du demandeur
         $demandeur->delete();
-
+    
         // Message de suppression réussie
         return response()->json([
-            'message' => "Demandeur supprimé avec succès",
+            'message' => "Demandeur et utilisateur associé supprimés avec succès",
             'status' => 200
         ], 200);
     }

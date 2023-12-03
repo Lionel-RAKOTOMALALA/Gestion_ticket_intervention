@@ -75,22 +75,22 @@ const EditMateriel = () => {
                 description_materiel: materielInput.description_materiel,
                 image_materiel_url: materielInput.image_materiel_url,
             };
-            axios.put(`http://127.0.0.1:8000/api/materiels/${id}`, data)
-                .then((res) => {
-                    if (res.data.status === 200) {
-                        swal('Succès', res.data.message, 'success');
-                        navigate('/admin/materiels');
-                    } else if (res.data.status === 400) {
-                        setMaterielInput({ ...materielInput, error_list: res.data.error_list });
-                    } else if (res.data.status === 404) {
-                        swal("Erreur", res.data.message, "error");
-                        navigate('/admin/materiels');
-                    }
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
-        }
+                axios.put(`http://127.0.0.1:8000/api/materiels/${id}`, data)
+                    .then((res) => {
+                        if (res.data.status === 200) {
+                            swal('Succès', res.data.message, 'success');
+                            navigate('/admin/materiels');
+                        } else if (res.data.status === 400) {
+                            setMaterielInput({ ...materielInput, error_list: res.data.error_list });
+                        } else if (res.data.status === 404) {
+                            swal("Erreur", res.data.message, "error");
+                            navigate('/admin/materiels');
+                        }
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    });
+            }
     };
 
     return (

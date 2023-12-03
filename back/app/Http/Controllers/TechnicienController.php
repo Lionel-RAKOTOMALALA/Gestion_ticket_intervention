@@ -19,10 +19,11 @@ class TechnicienController extends Controller
         
         // Utilisez le modèle Eloquent pour récupérer les techniciens avec leurs utilisateurs associés
         $techniciens = DB::table('users')
-    ->select('users.id', 'users.username', 'users.email', 'users.logo', 'users.sexe', 'users.photo_profil_user', 'users.nom_entreprise', DB::raw("CASE WHEN users.role_user = 1 THEN 'Admin' ELSE 'Utilisateur simple' END AS role_user"), 'techniciens.id_technicien','techniciens.competence')
+    ->select('techniciens.id_technicien', 'users.username', 'users.email', 'users.logo', 'users.sexe', 'users.photo_profil_user', 'entreprises.nom_entreprise', DB::raw("CASE WHEN users.role_user = 1 THEN 'Admin' ELSE 'Utilisateur simple' END AS role_user"), 'techniciens.id_technicien','techniciens.competence')
     ->join('techniciens', 'users.id', '=', 'techniciens.id_user')
+    ->join('entreprises','users.id_entreprise','=','entreprises.id_entreprise')
     ->get();
-
+        
         return response()->json([
             'techniciens' => $techniciens,
             'status' => 200
@@ -146,21 +147,28 @@ class TechnicienController extends Controller
      * Supprime un technicien.
      */
     public function destroy(int $id)
-    {
-        // Suppression du technicien en utilisant le modèle Eloquent
-        $technicien = Technicien::find($id);
-        if (!$technicien) {
-            return response()->json([
-                'message' => 'Ce technicien n\'a pas été trouvé'
-            ], 404);
-        }
-
-        $technicien->delete();
-
-        // Message de suppression réussie
+{
+    // Suppression du technicien en utilisant le modèle Eloquent
+    $technicien = Technicien::find($id);
+    if (!$technicien) {
         return response()->json([
-            'message' => "Technicien supprimé avec succès",
-            'status' => 200
-        ], 200);
+            'message' => 'Ce technicien n\'a pas été trouvé'
+        ], 404);
     }
+
+    // Suppression de l'utilisateur associé au technicien
+    $user = User::find($technicien->id_user);
+    if ($user) {
+        $user->delete();
+    }
+
+    // Suppression du technicien
+    $technicien->delete();
+
+    // Message de suppression réussie
+    return response()->json([
+        'message' => "Technicien et utilisateur associé supprimés avec succès",
+        'status' => 200
+    ], 200);
+}
 }

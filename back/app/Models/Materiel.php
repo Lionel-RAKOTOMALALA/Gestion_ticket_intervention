@@ -13,7 +13,7 @@ class Materiel extends Model
         'type_materiel',
         'description_materiel',
         'image_materiel_url',
-        'id_demanedeur',
+        'id_demandeur',
     ];
 }
 

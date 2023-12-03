@@ -14,10 +14,16 @@ const MaterielList = () => {
       $(tableRef.current).DataTable().destroy(); // Détruire la DataTable existante
     }
   };
+  const authToken = localStorage.getItem('auth_token');
 
   const refreshData = () => {
     destroyDataTable(); // Détruire DataTable avant de charger de nouvelles données
-    axios.get("http://127.0.0.1:8000/api/materiels")
+    axios.get("http://127.0.0.1:8000/api/materiels", {
+      headers: {
+        'Authorization': `Bearer ${authToken}`, 
+ 
+      }
+  })
       .then((response) => {
         setMateriels(response.data.materiels);
         setIsLoading(false);

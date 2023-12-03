@@ -77,7 +77,7 @@ function App() {
           <Route path='/admin/poste/edit/:id' element={<EditPoste/>}/>
           <Route path='/admin/demandeurs' element={<DemandeurApp/>}/>
           <Route path='/admin/demandeur/ajout' element={<DemandeurForm/>}/>
-          <Route path='/admin/demandeur/edit/:id' element={<EditDemandeur/>}/>
+          <Route path="/admin/demandeurs/edit/:id" exact component={EditDemandeur} />
           <Route path='/admin/demande_materiels' element={<DemandeMaterielApp/>}/>
           <Route path='/admin/demande/ajout' element={<DemandeMaterielForm/>}/>
           <Route path='/admin/demande/edit/:id' element={<EditDemandeMateriel/>}/>

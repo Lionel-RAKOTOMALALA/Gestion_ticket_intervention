@@ -1,133 +1,160 @@
-import React, { useEffect, useState } from 'react';
-import { NavLink, useParams, useNavigate } from 'react-router-dom';
-import { UilArrowCircleLeft, UilCheckCircle, UilTimes } from '@iconscout/react-unicons';
-import swal from 'sweetalert';
+// EditDemandeur.js
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Loader from '../../admin/materiels/loader';
+import swal from 'sweetalert';
+import {
+  TextField,
+  FormControl,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  Input,
+  FormHelperText,
+  Button,
+  Select,
+  MenuItem,
+} from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
 
-const EditDemandeur = () => {
-  const [userList, setUserList] = useState([]);
-  const [posteList, setPosteList] = useState([]);
+function EditDemandeur({ idDemandeur, onClose }) {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const [demandeurInput, setDemandeurInput] = useState({
-    id_user: '',
+  const { /* Add any necessary route parameters */ } = useParams();
+
+  const [formData, setFormData] = useState({
     id_poste: '',
+    username: '',
+    role_user: '',
+    id_entreprise: '',
+    sexe: '',
+    photo_profil_user: null,
     error_list: {},
   });
-  const [formError, setFormError] = useState("");
+
+  const [postes, setPostes] = useState([]);
+  const [entreprises, setEntreprises] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showPosteField, setShowPosteField] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
-
-  useEffect(() => {
-    axios.get(`http://127.0.0.1:8000/api/newUserSpecialisation/${id}`).then((res) => {
-      if (res.data.status === 200) {
-        setUserList(res.data.users);
-      }
-    });
-
-    axios.get(`http://127.0.0.1:8000/api/postes`).then((res) => {
-      if (res.data.status === 200) {
-        setPosteList(res.data.postes);
-      }
-    });
-  }, []);
-
+  const [entrepriseList, setEntrepriseList] = useState([]);
+  const [posteList, setPosteList] = useState([]);
 
   useEffect(() => {
-    // Récupérer les données du demandeur
-    axios.get(`http://127.0.0.1:8000/api/demandeurs/${id}`).then((res) => {
-      if (res.data.demandeur) {
-        setDemandeurInput({
-          id_user: res.data.demandeur.id_user,
-          id_poste: res.data.demandeur.id_poste,
-          error_list: {},
-        });
-        setIsLoading(false);
-      } else {
-        setIsLoading(false);
-        swal('Erreur', 'Demandeur non trouvé', 'error');
-        navigate('/admin/demandeurs');
-      }
-    });
-  }, [id, navigate]);
+    const fetchData = async () => {
+      try {
+        const [postesResponse, entreprisesResponse, demandeurResponse] = await Promise.all([
+          axios.get('http://127.0.0.1:8000/api/postes'),
+          axios.get('http://127.0.0.1:8000/api/entreprises'),
+          axios.get(`http://127.0.0.1:8000/api/demandeurs/${idDemandeur}`),
+        ]);
 
-  const updateDemandeur = (e) => {
-    e.preventDefault();
-    // Réinitialisez les messages d'erreur
-    setDemandeurInput({
-      ...demandeurInput,
-      error_list: {},
-    });
-    setFormError("");
-
-    // Validation côté client
-    const errors = {};
-    if (demandeurInput.id_user === "") {
-      errors.id_user = "Utilisateur est requis";
-    }
-    if (demandeurInput.id_poste === "") {
-      errors.id_poste = "Poste est requis";
-    }
-
-    if (Object.keys(errors).length > 0) {
-      // Il y a des erreurs, affichez-les dans le formulaire
-      let errorString;
-      if (Object.keys(errors).length > 1) {
-        const errorFields = Object.keys(errors).map((key) => {
-          if (key === "id_user") {
-            return "Utilisateur";
-          } else if (key === "id_poste") {
-            return "Poste";
-          }
-          return key;
-        }).join(" et ");
-        errorString = `Les champs "${errorFields}" sont requis`;
-      } else {
-        const errorField = Object.keys(errors)[0];
-        if (errorField === "id_user") {
-          errorString = "Le champ 'Utilisateur' est requis";
-        } else if (errorField === "id_poste") {
-          errorString = "Le champ 'Poste' est requis";
+        if (postesResponse.data.status === 200) {
+          setPostes(postesResponse.data.postes);
         }
-      }
 
-      setDemandeurInput({
-        ...demandeurInput,
-        error_list: errors,
-      });
-      setFormError(errorString);
-      swal("Erreurs", errorString, "error");
-    } else {
-      // Pas d'erreurs, procéder à la requête Axios
-      const data = {
-        id_user: demandeurInput.id_user,
-        id_poste: demandeurInput.id_poste,
-      };
-      console.log(data);
-      axios.put(`http://127.0.0.1:8000/api/demandeurs/${id}`, data)
-        .then((res) => {
-          if (res.data.status === 200) {
-            swal('Success', res.data.message, 'success');
-            navigate('/admin/demandeurs');
-          } else if (res.data.status === 400) {
-            setDemandeurInput({
-              ...demandeurInput,
-              error_list: res.data.errors,
-            });
-          } else {
-            swal("Erreur", res.data.message, "error");
+        setEntrepriseList(entreprisesResponse.data.data);
+        setPosteList(postesResponse.data.postes);
+
+        setEntreprises(entreprisesResponse.data.data);
+
+        if (demandeurResponse.data.demandeur) {
+          const demandeurData = demandeurResponse.data.demandeur;
+          setFormData({
+            id_poste: demandeurData.id_poste,
+            username: demandeurData.nom_utilisateur,
+            role_user: demandeurData.role_user,
+            id_entreprise: demandeurData.id_entreprise,
+            sexe: demandeurData.sexe,
+            error_list: {},
+          });
+
+          if (demandeurData.id_entreprise === '1') {
+            setFormData((prevData) => ({
+              ...prevData,
+              id_poste: postesResponse.data.postes.length > 0 ? postesResponse.data.postes[0].id_poste : '',
+            }));
           }
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+
+          setShowPosteField(demandeurData.id_entreprise === '1');
+        } else {
+          swal('Erreur', 'Demandeur non trouvé', 'error');
+          navigate('/admin/demandeurs');
+        }
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setIsLoading(false);
+        swal('Erreur', 'Une erreur s\'est produite lors du chargement des données', 'error');
+      }
+    };
+
+    fetchData();
+  }, [idDemandeur, navigate]);
+
+  const handleInput = (e, isDemandeur) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [isDemandeur ? name : name]: value,
+    }));
+  };
+
+  const handleFileInput = (e) => {
+    const selectedFile = e.target.files[0];
+    setFormData((prevData) => ({
+      ...prevData,
+      photo_profil_user: selectedFile,
+    }));
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewImage(reader.result);
+    };
+    if (selectedFile) {
+      reader.readAsDataURL(selectedFile);
     }
   };
 
-  const handleInput = (e) => {
-    e.persist();
-    setDemandeurInput({ ...demandeurInput, [e.target.name]: e.target.value });
+  const handleEntrepriseChange = (e) => {
+    const selectedEntreprise = e.target.value;
+    setFormData({ ...formData, id_entreprise: selectedEntreprise });
+    setShowPosteField(selectedEntreprise === '1');
+  };
+
+  const handlePosteChange = (e) => {
+    setFormData({ ...formData, id_poste: e.target.value });
+  };
+
+  const handleSubmit = async (e, isDemandeur) => {
+    e.preventDefault();
+
+    const formDataToSend = {
+      photo_profil_user: null,
+      id_poste: formData.id_poste,
+      username: formData.username,
+      role_user: formData.role_user,
+      sexe: formData.sexe,
+      id_entreprise: formData.id_entreprise,
+    };
+
+    axios
+      .put(`http://127.0.0.1:8000/api/editDemandeur/${idDemandeur}`, formDataToSend)
+      .then((res) => {
+        if (res.data.status === 200) {
+          onClose();
+          swal('Succès', res.data.message, 'success');
+        } else if (res.data.status === 400) {
+          // setMaterielInput({ ...materielInput, error_list: res.data.error_list });
+        } else if (res.data.status === 404) {
+          onClose();
+          swal('Erreur', res.data.message, 'error');
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   return (
@@ -135,90 +162,167 @@ const EditDemandeur = () => {
       <div className="container py-5">
         <div className="row justify-content-center">
           <div className="col-md-6">
-            <div className="card">
+            <div className="card" style={{ marginTop: '-50px' }}>
               <div className="card-header">
                 <h4>Modification du demandeur</h4>
-                <NavLink to="/admin/demandeurs" className="btn btn-primary btn-sm float-end">
-                  <UilArrowCircleLeft /> Retour à l'affichage
-                </NavLink>
+                <Button onClick={onClose} variant="contained" color="primary">
+                  Retour à l'affichage
+                </Button>
               </div>
-              <div className="container">
-                <div className="card-body">
-                  {isLoading ? (
-                    <Loader />
-                  ) : (
-                    <form onSubmit={updateDemandeur}>
-                      {formError && (
-                        <div className="alert alert-danger mb-3">
-                          {formError}
-                        </div>
+              <div className="card-body">
+                {isLoading ? (
+                  <p>Loading...</p>
+                ) : (
+                                    <form onSubmit={handleSubmit} encType="multipart/form-data">
+                    <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                      <TextField
+                        id="username"
+                        name="username"
+                        onChange={(e) => handleInput(e, true)}
+                        value={formData.username}
+                        variant="outlined"
+                        label="Username"
+                        sx={{ marginTop: 1 }}
+                      />
+                      {formData.error_list.username && (
+                        <FormHelperText error>
+                          {formData.error_list.username}
+                        </FormHelperText>
                       )}
-                     <div className="form-group mb-3">
-                      <label htmlFor="id_user">Nom du demandeur</label>
-                      <select name="id_user" onChange={handleInput} value={demandeurInput.id_user} className="form-control">
-                        <option value="">Sélectionner un demandeur</option>
-                        {userList.map((item) => {
-                          return (
-                            <option key={item.id} value={item.id}>
-                              {item.username}
-                            </option>
-                          );
-                        })}
-                      </select>
-                      {demandeurInput.error_list.id_user && (
-                        <div className="text-danger">
-                          {demandeurInput.error_list.id_user}
-                        </div>
-                      )}
-                    </div>
-                    <div className="form-group mb-3">
-                      <label htmlFor="id_poste">Poste</label>
-                      <select
-                        name="id_poste"
-                        onChange={handleInput}
-                        value={demandeurInput.id_poste}
-                        className={`form-control ${
-                          demandeurInput.error_list.id_poste
-                            ? "is-invalid"
-                            : ""
-                        }`}
+                    </FormControl>
+
+                    <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                      <FormLabel>Role User</FormLabel>
+                      <RadioGroup
+                        row
+                        name="role_user"
+                        value={formData.role_user}
+                        onChange={(e) => handleInput(e, true)}
+                        sx={{ marginTop: 1 }}
                       >
-                        <option value="">Sélectionner un poste</option>
-                        {posteList.map((poste) => {
-                          return (
-                            <option key={poste.id_poste} value={poste.id_poste}>
-                              {poste.nom_poste}
-                            </option>
-                          );
-                        })}
-                      </select>
-                      {demandeurInput.error_list.id_poste && (
-                        <div className="text-danger">
-                          {demandeurInput.error_list.id_poste}
-                        </div>
+                        <FormControlLabel
+                          value="1"
+                          control={<Radio />}
+                          label="Admin"
+                        />
+                        <FormControlLabel
+                          value="0"
+                          control={<Radio />}
+                          label="Utilisateur simple"
+                        />
+                      </RadioGroup>
+                    </FormControl>
+
+                    <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                      <FormLabel htmlFor="id_entreprise">Entreprise</FormLabel>
+                      <Select
+                        id="id_entreprise"
+                        name="id_entreprise"
+                        value={formData.id_entreprise}
+                        onChange={handleEntrepriseChange}
+                        displayEmpty
+                        input={<Input />}
+                        sx={{ marginTop: 1 }}
+                      >
+                        <MenuItem value="" disabled>
+                          Sélectionner une entreprise
+                        </MenuItem>
+                        {entrepriseList.map((entreprise) => (
+                          <MenuItem key={entreprise.id_entreprise} value={entreprise.id_entreprise}>
+                            {entreprise.nom_entreprise}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      {formData.error_list.id_entreprise && (
+                        <FormHelperText error>
+                          {formData.error_list.id_entreprise}
+                        </FormHelperText>
                       )}
-                    </div>
-                      <div className="row">
-                        <div className="col">
-                          <button
-                            type="submit"
-                            className="btn btn-primary btn-block mb-2"
-                          >
-                            <UilCheckCircle size="20" /> Confirmer
-                          </button>
-                        </div>
-                        <NavLink to="/admin/demandeurs" className="col">
-                          <button
-                            type="button"
-                            className="btn btn-secondary btn-block mb-2"
-                          >
-                            <UilTimes size="20" /> Annuler
-                          </button>
-                        </NavLink>
+                    </FormControl>
+
+                    {showPosteField && (
+                      <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                        <FormLabel htmlFor="id_poste">Poste</FormLabel>
+                        <Select
+                          id="id_poste"
+                          name="id_poste"
+                          value={formData.id_poste}
+                          onChange={handlePosteChange}
+                          displayEmpty
+                          input={<Input />}
+                          sx={{ marginTop: 1 }}
+                        >
+                          <MenuItem value="" disabled>
+                            Sélectionner un poste
+                          </MenuItem>
+                          {posteList.map((poste) => (
+                            <MenuItem key={poste.id_poste} value={poste.id_poste}>
+                              {poste.nom_poste}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        {formData.error_list.poste && (
+                          <FormHelperText error>
+                            {formData.error_list.poste}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                    )}
+
+                    <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                      <FormLabel>Sexe</FormLabel>
+                      <RadioGroup
+                        row
+                        name="sexe"
+                        value={formData.sexe}
+                        onChange={(e) => handleInput(e, true)}
+                        sx={{ marginTop: 1 }}
+                      >
+                        <FormControlLabel
+                          value="Homme"
+                          control={<Radio />}
+                          label="Homme"
+                        />
+                        <FormControlLabel
+                          value="Femme"
+                          control={<Radio />}
+                          label="Femme"
+                        />
+                      </RadioGroup>
+                    </FormControl>
+
+                    <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                      <FormLabel htmlFor="photo_profil_user">Photo de Profil</FormLabel>
+                      <Input
+                        type="file"
+                        name="photo_profil_user"
+                        onChange={handleFileInput}
+                        sx={{ marginTop: 1 }}
+                      />
+                      {formData.error_list.photo_profil_user && (
+                        <FormHelperText error>
+                          {formData.error_list.photo_profil_user}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+
+                    {previewImage && (
+                      <div>
+                        <img
+                          src={previewImage}
+                          alt="Aperçu de l'image"
+                          style={{ maxWidth: '200px', maxHeight: '70px', marginTop: '0rem' }}
+                        />
                       </div>
-                    </form>
-                  )}
-                </div>
+                    )}
+
+
+                    <Button type="submit" variant="contained" color="primary" sx={{ marginTop: 3 }}>
+                      Enregistrer les modifications
+                    </Button>
+                  </form>
+
+                )}
               </div>
             </div>
           </div>
@@ -226,6 +330,6 @@ const EditDemandeur = () => {
       </div>
     </div>
   );
-};
+}
 
 export default EditDemandeur;

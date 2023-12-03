@@ -174,7 +174,6 @@ const DemandeMaterielList = () => {
               }
             } catch (error) {
               console.error(error);
-              // Gérer les erreurs
             }
 
           } catch (error) {
@@ -252,13 +251,11 @@ const DemandeMaterielList = () => {
           Swal.fire("Erreur", res.data.message, "error");
           navigate("/admin/demande_materiels");
         } else {
-          // Gestion d'une réponse inattendue
           Swal.fire("Erreur", "Une erreur inattendue s'est produite", "error");
         }
       }
     } catch (error) {
       console.error(error);
-      // Gestion des erreurs générales
       Swal.fire("Erreur", "Une erreur s'est produite", "error");
     }
   };
@@ -344,7 +341,7 @@ const DemandeMaterielList = () => {
                     color="error"
                     onClick={(e) => handleReject(e, params.row.id_demande)}
                   >
-                    {rejectButtonText} {/* Utilisez la constante pour le texte du bouton */}
+                    {rejectButtonText} 
                   </Button>
                 </Grid>
               </>
@@ -370,9 +367,9 @@ const DemandeMaterielList = () => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       refreshData();
-    }, 1000); // Set the interval time in milliseconds (e.g., 30000 for every 30 seconds)
+    }, 1000); 
 
-    // Clear the interval when the component unmounts
+  
     return () => clearInterval(intervalId);
   }, [authToken]);
 
@@ -420,20 +417,17 @@ const DemandeMaterielList = () => {
   
 
     const handleView = (id) => {
-      // Implementation for handleView
-      // ...
+     
     };
 
     const calculateSkeletonSize = (content) => {
-      // You can customize this function based on your content and styling needs
-      const defaultSize = 30; // Default size for the Skeleton
+      const defaultSize = 30; 
       const contentLength = content ? content.toString().length : 0;
-  
-      // Adjust the multiplier as needed to fit your layout
+
       return defaultSize + contentLength * 5;
     };
   
-    // Your other functions...
+
   
     return (
       <Box sx={{ height: 400, width: "100%" }}>

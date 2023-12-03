@@ -14,12 +14,32 @@ class MaterielController extends Controller
 {
     public function index()
     {
-        $materiels = Materiel::all();
-
+        $user = Auth::user();
+    
+        if ($user) {
+            // Utiliser l'id de l'utilisateur dans la requête
+            $id_demandeur = DB::table('demandeurs')
+                ->join('users', 'demandeurs.id_user', '=', 'users.id')
+                ->select('demandeurs.id_demandeur')
+                ->where('demandeurs.id_user', $user->id)
+                ->first();
+    
+            if ($id_demandeur) {
+                // L'utilisateur est authentifié, et $id_demandeur contient l'id_demandeur correspondant
+                $materiels = Materiel::where('id_demandeur', $id_demandeur->id_demandeur)->get();
+    
+                return response()->json([
+                    'materiels' => $materiels,
+                    'status' => 200
+                ], 200);
+            }
+        }
+    
+        // L'utilisateur n'est pas authentifié ou $id_demandeur est null, gérer en conséquence
         return response()->json([
-            'materiels' => $materiels,
-            'status' => 200
-        ], 200);
+            'materiels' => [],
+            'status' => 404 // Vous pouvez ajuster le statut en fonction de votre logique
+        ], 404);
     }
     public function MaterielInDemande()
     {
@@ -36,20 +56,31 @@ $materiels = DB::table('materiels')
     ], 200);
     }
 
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'type_materiel' => 'required|string',
-            'description_materiel' => 'required|string',
-            'image_materiel_url' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'id_demandeur'=> 'required|exists:demandeurs,id_demandeur',
-        ]);
+public function store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'type_materiel' => 'required|string',
+        'description_materiel' => 'required|string',
+        'image_materiel_url' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'id_demandeur'=> 'required|exists:demandeurs,id_demandeur',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'validation_errors' => $validator->messages(),
-            ]);
-        }
+    if ($validator->fails()) {
+        return response()->json([
+            'validation_errors' => $validator->messages(),
+        ]);
+    }
+
+    $user = Auth::user();
+
+    // Vérifier si l'utilisateur est authentifié
+    if ($user) {
+        // Utiliser l'id de l'utilisateur dans la requête
+        $id_demandeur = DB::table('demandeurs')
+            ->join('users', 'demandeurs.id_user', '=', 'users.id')
+            ->select('demandeurs.id_demandeur')
+            ->where('demandeurs.id_user', $user->id)
+            ->first();  // Utilisez first() au lieu de get()
 
         if ($request->hasFile('image_materiel_url')) {
             $file = $request->file('image_materiel_url');
@@ -64,15 +95,21 @@ $materiels = DB::table('materiels')
             'type_materiel' => $request->input('type_materiel'),
             'description_materiel' => $request->input('description_materiel'),
             'image_materiel_url' => $filename,
-            'id_demandeur' => $request->input('id_demnadeur'),
+            'id_demandeur' => $id_demandeur->id_demandeur,  // Accédez à la propriété id_demandeur
         ]);
 
-        return response()->json([
-            'status' => 200,
-            'filename' => $filename,
-            'message' => 'Le matériel a été ajouté avec succès',
-        ]);
+    } else {
+        // L'utilisateur n'est pas authentifié, gérer en conséquence
+        $id_demandeur = null;  // Définissez la variable à une valeur par défaut
     }
+
+    return response()->json([
+        'status' => 200,
+        'filename' => $filename,
+        'message' => 'Le matériel a été ajouté avec succès',
+    ]);
+}
+
 
 
     

@@ -58,7 +58,6 @@ const DemandeMaterielForm = () => {
   const [formError, setFormError] = useState("");
 
   const handleInput = (e) => {
-    e.persist();
     setDemandeMaterielInput({
       ...demandeMaterielInput,
       [e.target.name]: e.target.value,

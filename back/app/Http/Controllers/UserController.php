@@ -10,6 +10,9 @@ use App\Models\DemandeMateriel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Demandeur;
+use App\Models\Technicien;
+use Illuminate\Support\Str;
+
 
 
 class UserController extends Controller
@@ -20,8 +23,9 @@ class UserController extends Controller
     public function index()
     {
         $formattedUsers = DB::table('users')
-    ->select('users.id', 'users.username', 'users.email', 'users.logo', 'users.sexe', 'users.photo_profil_user', 'users.nom_entreprise', DB::raw("CASE WHEN users.role_user = 1 THEN 'Admin' ELSE 'Utilisateur simple' END AS role_user"), 'demandeurs.id_demandeur')
+    ->select('users.id', 'users.username', 'users.email', 'users.logo', 'users.sexe', 'users.photo_profil_user', 'entreprises.nom_entreprise', DB::raw("CASE WHEN users.role_user = 1 THEN 'Admin' ELSE 'Utilisateur simple' END AS role_user"), 'demandeurs.id_demandeur')
     ->join('demandeurs', 'users.id', '=', 'demandeurs.id_user')
+    ->join('entreprises','users.id_entreprise','=','entreprises.id_entreprise')
     ->get();
 
 
@@ -48,12 +52,13 @@ class UserController extends Controller
         $result = DB::table('demande_materiel')
         ->select(
             DB::raw("MONTHNAME(demande_materiel.created_at) as mois"),
-            DB::raw("users.nom_entreprise as entreprise"),
+            DB::raw("entreprises.nom_entreprise as entreprise"),
             DB::raw("COUNT(*) as nombre_demandes")
         )
         ->join('demandeurs', 'demande_materiel.id_demandeur', '=', 'demandeurs.id_demandeur')
         ->join('users', 'demandeurs.id_user', '=', 'users.id')
-        ->where('users.nom_entreprise', '!=', '') // Vous pouvez ajouter d'autres conditions ici si nécessaire
+        ->join('entreprises','users.id_entreprise','=','entreprises.id_entreprise')
+        ->where('entreprises.nom_entreprise', '!=', '') // Vous pouvez ajouter d'autres conditions ici si nécessaire
         ->groupBy(DB::raw("MONTHNAME(demande_materiel.created_at)"), 'entreprise')
         ->get();
 
@@ -65,14 +70,183 @@ class UserController extends Controller
     ], 200);
 
     }
+    public function registerDemandeur(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|max:191',
+            'email' => 'required|email',
+            'password' => 'required|min:8',
+            'id_entreprise' => 'required',
+            'role_user' => 'required',
+            'photo_profil_user' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:552929',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'validation_errors' => $validator->messages(),
+            ]);
+        }
+    
+        if ($request->hasFile('photo_profil_user')) {
+            $profileFile = $request->file('photo_profil_user');
+            $profileExtension = $profileFile->getClientOriginalExtension();
+            $profileFilename = Str::random(32) . '.' . $profileExtension;
+            $profileFile->move('uploads/users', $profileFilename);
+        } else {
+            $profileFilename = null;
+        }
+    
+    
+        $user = User::create([
+            'username' => $request->input('username'),
+            'email' => $request->input('email'),
+            'password' => bcrypt($request->input('password')),
+            'role_user' => $request->input('role_user'),
+            'sexe' => $request->input('sexe'),
+            'photo_profil_user' => $profileFilename,
+            'id_entreprise' => $request->input('id_entreprise'),
+        ]);
+    
+        // Create a demandeur for the user
+        Demandeur::create([
+            'id_user' => $user->id,
+            'id_poste' => $request->input('id_poste'),
+            // Add other fields as needed
+        ]);
+    
+        // Do not create and return a token
+    
+        return response()->json([
+            'status' => 200,
+            'profile_filename' => $profileFilename,
+            'message' => 'L\'utilisateur a été ajouté avec succès',
+        ]);
+    }
+    public function editDemandeur(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|max:191',
+            'id_entreprise' => 'required',
+            'role_user' => 'required',
+            'sexe' => 'required', 
+            'photo_profil_user' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:552929', 
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'validation_errors' => $validator->messages(),
+            ]);
+        }
+    
+        $demandeur = Demandeur::where('id_demandeur', $id)->first();
+    
+        if (!$demandeur) {
+            return response()->json([
+                'message' => 'Demandeur non trouvé',
+            ], 404);
+        }
+    
+        $user = User::find($demandeur->id_user);
+    
+        if (!$user) {
+            return response()->json([
+                'message' => 'Utilisateur non trouvé',
+            ], 404);
+        }
+    
+        // Update user data
+        $user->update([
+            'username' => $request->input('username'),
+            'role_user' => $request->input('role_user'),
+            'sexe' => $request->input('sexe'),
+            'id_entreprise' => $request->input('id_entreprise'),
+        ]);
+    
+        // Update profile photo if provided
+        if ($request->hasFile('photo_profil_user')) {
+            $profileFile = $request->file('photo_profil_user');
+            $profileExtension = $profileFile->getClientOriginalExtension();
+            $profileFilename = Str::random(32) . '.' . $profileExtension;
+            $profileFile->move('uploads/users', $profileFilename);
+    
+            // Update photo filename in the user table
+            $user->update(['photo_profil_user' => $profileFilename]);
+        }
+    
+     
+    
+        // Update demandeur data
+        $demandeur->update([
+            'id_poste' => $request->input('id_poste'),
+            // Update other fields as needed
+        ]);
+    
+        return response()->json([
+            'status' => 200,
+            'message' => 'Demandeur modifié avec succès',
+        ]);
+    }
+    
+
+ public function registerTechnicien(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'username' => 'required|max:191',
+        'password' => 'required|min:8',
+        'sexe' => 'required',
+        'photo_profil_user' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:552929',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'validation_errors' => $validator->messages(),
+        ]);
+    }
+
+    if ($request->hasFile('photo_profil_user')) {
+        $profileFile = $request->file('photo_profil_user');
+        $profileExtension = $profileFile->getClientOriginalExtension();
+        $profileFilename = Str::random(32) . '.' . $profileExtension;
+        $profileFile->move('uploads/users', $profileFilename);
+    } else {
+        $profileFilename = null;
+    }
+
+    $user = User::create([
+        'username' => $request->input('username'),
+        'email' => $request->input('email'),
+        'password' => bcrypt($request->input('password')),
+        'role_user' => 1,
+        'sexe' => $request->input('sexe'),
+        'photo_profil_user' => $profileFilename,
+        'id_entreprise' => 1, 
+    ]);
+
+    // Create a technicien for the user
+    Technicien::create([
+        'id_user' => $user->id,
+        'competence' => $request->input('competence'),
+        // Ajoutez d'autres champs au besoin
+    ]);
+
+    // Ne créez pas et ne retournez pas un jeton
+
+    return response()->json([
+        'status' => 200,
+        'profile_filename' => $profileFilename,
+        'message' => 'Le technicien a été ajouté avec succès',
+    ]);
+}
+
     public function newUserSpecialisation()
     {
         $users = DB::table('users')
     ->leftJoin('techniciens', 'users.id', '=', 'techniciens.id_user')
     ->leftJoin('demandeurs', 'users.id', '=', 'demandeurs.id_user')
+    ->join('entreprises','users.id_entreprise','=','entreprises.id_entreprise')
     ->whereNull('techniciens.id_user')
     ->whereNull('demandeurs.id_user')
-    ->select('users.*')
+    ->select('users.*','entreprises.nom_entreprise')
     ->get();
 
     return response()->json([
@@ -185,9 +359,10 @@ class UserController extends Controller
         $user = auth()->user(); // Assurez-vous que l'utilisateur est connecté
 
         $demandes = DB::table('demandeurs')
-            ->select('demande_materiel.*', 'users.username as demandeur_username', 'users.nom_entreprise as demandeur_entreprise', 'materiels.type_materiel')
+            ->select('demande_materiel.*', 'users.username as demandeur_username', 'entreprises.nom_entreprise as demandeur_entreprise', 'materiels.type_materiel')
             ->join('demande_materiel', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
             ->join('users', 'demandeurs.id_user', '=', 'users.id')
+            ->join('entreprises','users.id_entreprise','=','entreprises.id_entreprise')
             ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
             ->where('demandeurs.id_user', $user->id)
             ->get();

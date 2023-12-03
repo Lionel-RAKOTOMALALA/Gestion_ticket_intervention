@@ -16,9 +16,10 @@ class DemandeMaterielController extends Controller
     public function index()
     {
         $demandes = DB::table('demandeurs')
-        ->select('demande_materiel.*', 'users.username as demandeur_username', 'users.nom_entreprise as demandeur_entreprise', 'materiels.type_materiel')
+        ->select('demande_materiel.*', 'users.username as demandeur_username', 'entreprises.nom_entreprise as demandeur_entreprise', 'materiels.type_materiel')
         ->join('demande_materiel', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
         ->join('users', 'demandeurs.id_user', '=', 'users.id')
+        ->join('entreprises','users.id_entreprise','=','entreprises.id_entreprise')
         ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
         ->get();
     
@@ -124,10 +125,11 @@ class DemandeMaterielController extends Controller
     {
         try {
             // Récupération de la demande de matériel
-            $demande = DemandeMateriel::select('demande_materiel.*', 'users.username as demandeur_username', 'users.nom_entreprise as demandeur_entreprise', 'materiels.type_materiel')
+            $demande = DemandeMateriel::select('demande_materiel.*', 'users.username as demandeur_username', 'entreprises.nom_entreprise as demandeur_entreprise', 'materiels.type_materiel')
                 ->join('demandeurs', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
                 ->join('users', 'demandeurs.id_user', '=', 'users.id')
                 ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
+                ->join('entreprises','users.id_entreprise','=','entreprises.id_entreprise')
                 ->where('demande_materiel.id_demande', '=', $id)
                 ->first();
     
@@ -276,9 +278,10 @@ public function rejectDemande(Request $request, $id)
     }
         try {
             // Récupération de la demande de matériel
-            $demande = DemandeMateriel::select('demande_materiel.*', 'users.username as demandeur_username', 'users.nom_entreprise as demandeur_entreprise', 'materiels.type_materiel')
+            $demande = DemandeMateriel::select('demande_materiel.*', 'users.username as demandeur_username', 'entreprises.nom_entreprise as demandeur_entreprise', 'materiels.type_materiel')
                 ->join('demandeurs', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
                 ->join('users', 'demandeurs.id_user', '=', 'users.id')
+                ->join('entreprises','users.id_entreprise','=','entreprises.id_entreprise')
                 ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
                 ->where('demande_materiel.id_demande', '=', $id)
                 ->first();

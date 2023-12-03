@@ -135,10 +135,13 @@ function MaterielForm() {
             if (userRole === 'userSimple' && demandeurVerifCount > 0) {
                 formData.append('id_demandeur', id_demandeur);
             }
-
+            const authToken = localStorage.getItem('auth_token');
+            
+             
             axios.post("http://127.0.0.1:8000/api/materiels", formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${authToken}`, 
                 },
             }).then((res) => {
                 if (res.data.status === 200) {

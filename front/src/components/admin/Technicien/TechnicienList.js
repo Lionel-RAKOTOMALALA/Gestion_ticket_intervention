@@ -20,19 +20,34 @@ const TechnicienList = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    refreshData();
-  }, []);
-
-  const refreshData = () => {
-    axios
-      .get("http://127.0.0.1:8000/api/techniciens")
-      .then((response) => {
+   
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/techniciens");
         setTechniciens(response.data.techniciens);
         setIsLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error(error);
-      });
+      }
+    };
+
+    
+    fetchData();
+
+    const intervalId = setInterval(fetchData, 3000);
+
+
+    return () => clearInterval(intervalId);
+  }, []); 
+
+  const refreshData = async () => {
+    try {
+      const response = await axios.get("http://127.0.0.1:8000/api/techniciens");
+      setTechniciens(response.data.techniciens);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleEdit = (id) => {
@@ -55,10 +70,10 @@ const TechnicienList = () => {
           `http://127.0.0.1:8000/api/techniciens/${id}`
         );
 
-        if (res.data && res.data.status === 200) {
+        if (res.data.status === 200) {
           Swal.fire("Success", res.data.message, "success");
           refreshData();
-        } else if (res.data && res.data.status === 404) {
+        } else if (res.data.status === 404) {
           Swal.fire("Erreur", res.data.message, "error");
           navigate("/admin/techniciens");
         } else {
@@ -74,7 +89,7 @@ const TechnicienList = () => {
   };
 
   const columns = [
-    { field: "id", headerName: "ID", width: 70 },
+    { field: "id_technicien", headerName: "ID", width: 70 },
     { field: "username", headerName: "Nom d'utilisateur", width: 150 },
     { field: "email", headerName: "Email", width: 180 },
     { field: "sexe", headerName: "Sexe", width: 80 },
@@ -92,7 +107,7 @@ const TechnicienList = () => {
               variant="contained"
               color="primary"
               startIcon={<Edit />}
-              onClick={() => handleEdit(params.row.id)}
+              onClick={() => handleEdit(params.row.id_technicien)}
             >
               Modifier
             </Button>
@@ -102,7 +117,7 @@ const TechnicienList = () => {
               variant="contained"
               color="secondary"
               startIcon={<Delete />}
-              onClick={() => handleDelete(params.row.id)}
+              onClick={() => handleDelete(params.row.id_technicien)}
             >
               {isDeleting ? "Suppression..." : "Supprimer"}
             </Button>
@@ -147,7 +162,7 @@ const TechnicienList = () => {
           pageSize={5}
           rowsPerPageOptions={[5, 10, 20]}
           onCellEditCommit={(params) => console.log(params)}
-          getRowId={(row) => row.id}
+          getRowId={(row) => row.id_technicien}
           sx={{
             [`& .${gridClasses.row}`]: {
               bgcolor: (theme) => (theme.palette.mode === "light" ? "#eee" : "#333"),
