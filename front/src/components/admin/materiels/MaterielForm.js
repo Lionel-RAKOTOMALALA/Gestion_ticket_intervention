@@ -1,10 +1,28 @@
-import React, { useState, useEffect } from "react";
-import { UilCheckCircle, UilTimes, UilArrowCircleLeft } from "@iconscout/react-unicons";
+import React, { useEffect, useState } from 'react';
+import {
+  Button,
+  Card,
+  CardContent,
+  TextField,
+  Box,
+  Typography,
+  Container,
+  Paper,
+  Input,
+  FormControl,
+  FormLabel,
+  FormHelperText
+} from "@mui/material";
+import {
+  CheckCircle,
+  Clear,
+  ArrowCircleLeft,
+} from "@mui/icons-material";
+import { NavLink } from "react-router-dom";
 import axios from "axios";
 import swal from "sweetalert";
-import { NavLink } from 'react-router-dom';
 
-function MaterielForm() {
+const MaterielForm = () => {
     const [demandeurVerifCount, setDemandeurVerifCount] = useState(null);
     const [technicienVerifCount, setTechnicienVerifCount] = useState(null);
     const [id_demandeur, setidDemandeur] = useState(null);
@@ -73,7 +91,7 @@ function MaterielForm() {
     const userRole = localStorage.getItem('role');
     let linkBack = userRole === 'admin' ? '/admin/materiels' : '/Acceuil_client/materiels';
 
-    const handleFileInput = (e) => {
+    const handleImageInput = (e) => {
         const file = e.target.files[0];
         setMaterielInput({
             ...materielInput,
@@ -137,7 +155,6 @@ function MaterielForm() {
             }
             const authToken = localStorage.getItem('auth_token');
             
-             
             axios.post("http://127.0.0.1:8000/api/materiels", formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -158,94 +175,116 @@ function MaterielForm() {
     };
 
     return (
-        <div>
-            <div className="container py-5">
-                <div className="row justify-content-center">
-                    <div className="col-md-6">
-                        <div className="card">
-                            <div className="card-header">
-                                <h4>Demande de réparation</h4>
-                                <NavLink to={linkBack} className='btn btn-primary btn-sm float-end'><UilArrowCircleLeft /> Retour à l'affichage</NavLink>
-                            </div>
-                            <div className="container">
-                                <div className="card-body">
-                                    <form onSubmit={submitMateriel} id="MATERIEL_FORM">
-                                        {formError && (
-                                            <div className="alert alert-danger mb-3">
-                                                {formError}
-                                            </div>
-                                        )}
-                                        <div className="form-group mb-3">
-                                            <label htmlFor="type_materiel">Type de matériel</label>
-                                            <input
-                                                type="text"
-                                                name="type_materiel"
-                                                className={`form-control ${materielInput.error_list.type_materiel ? 'is-invalid' : ''}`}
-                                                onChange={handleInput}
-                                                value={materielInput.type_materiel}
-                                            />
-                                            {materielInput.error_list.type_materiel && (
-                                                <div className="text-danger">
-                                                    {materielInput.error_list.type_materiel}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="form-group mb-3">
-                                            <label htmlFor="description_materiel">Description du problème</label>
-                                            <input
-                                                type="text"
-                                                name="description_materiel"
-                                                className={`form-control ${materielInput.error_list.description_materiel ? 'is-invalid' : ''}`}
-                                                onChange={handleInput}
-                                                value={materielInput.description_materiel}
-                                            />
-                                            {materielInput.error_list.description_materiel && (
-                                                <div className="text-danger">
-                                                    {materielInput.error_list.description_materiel}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="form-group mb-3">
-                                            <label htmlFor="image_materiel_url">Image du matériel</label>
-                                            <input
-                                                type="file"
-                                                name="image_materiel_url"
-                                                className={`form-control ${materielInput.error_list.image_materiel_url ? 'is-invalid' : ''}`}
-                                                onChange={handleFileInput}
-                                            />
-                                            {materielInput.error_list.image_materiel_url && (
-                                                <div className="text-danger">
-                                                    {materielInput.error_list.image_materiel_url}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="row">
-                                            <div className="col">
-                                                <button
-                                                    type="submit"
-                                                    className="btn btn-primary btn-block mb-2"
-                                                >
-                                                    <UilCheckCircle size="20" /> Confirm
-                                                </button>
-                                            </div>
-                                            <NavLink to={linkBack} className="col">
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-secondary btn-block mb-2"
-                                                >
-                                                    <UilTimes size="20" /> Annuler
-                                                </button>
-                                            </NavLink>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <Container maxWidth="sm">
+            <Box my={5}>
+                <Card>
+                    <CardContent>
+                        <Paper elevation={0} sx={{ backgroundColor: '#f8f8f8', marginBottom: 5, padding: 3 }}>
+                            <Box
+                                display="flex"
+                                justifyContent="space-between"
+                                alignItems="center"
+                            >
+                                <Typography variant="h5" color="primary.main" >Ajouter un matériel</Typography>
+                                <NavLink
+                                    to={linkBack}
+                                    className="btn btn-primary btn-sm float-end"
+                                    sx={{ textDecoration: 'none', color: '#1976D2', '&:hover': { color: '#125699' } }}
+                                >
+                                    <ArrowCircleLeft /> Retour à l'affichage
+                                </NavLink>
+                            </Box>
+                        </Paper>
+                        <form onSubmit={submitMateriel} encType="multipart/form-data">
+                            {formError && (
+                                <Box mt={3} mb={3} color="error.main">
+                                    {formError}
+                                </Box>
+                            )}
+                            <Box mt={3}>
+                                <TextField
+                                    type="text"
+                                    name="type_materiel"
+                                    fullWidth
+                                    variant="outlined"
+                                    label="Type de matériel"
+                                    error={
+                                        materielInput.error_list.type_materiel ? true : false
+                                    }
+                                    helperText={
+                                        materielInput.error_list.type_materiel
+                                    }
+                                    onChange={handleInput}
+                                    value={materielInput.type_materiel}
+                                />
+                            </Box>
+                            <Box mt={3}>
+                                <TextField
+                                    type="text"
+                                    name="description_materiel"
+                                    fullWidth
+                                    variant="outlined"
+                                    label="description_materiel"
+                                    error={
+                                        materielInput.error_list.description_materiel ? true : false
+                                    }
+                                    helperText={
+                                        materielInput.error_list.description_materiel
+                                    }
+                                    onChange={handleInput}
+                                    value={materielInput.description_materiel}
+                                />
+                            </Box>
+                            <Box mt={3}>
+                                <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                                    <FormLabel htmlFor="image_materiel_url">Image du matériel</FormLabel>
+                                    <Input
+                                        type="file"
+                                        name="image_materiel_url"
+                                        onChange={handleImageInput}
+                                        sx={{ marginTop: 1 }}
+                                    />
+                                    {materielInput.error_list.image_materiel_url && (
+                                        <FormHelperText error>
+                                            {materielInput.error_list.image_materiel_url}
+                                        </FormHelperText>
+                                    )}
+                                </FormControl>
+                            </Box>
+                            <Box mt={3} display="flex">
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    color="primary"
+                                    size="medium"
+                                    endIcon={<CheckCircle />}
+                                    fullWidth
+                                >
+                                    Ajouter
+                                </Button>
+                                <NavLink
+                                    to={linkBack}
+                                    style={{ textDecoration: "none" }}
+                                >
+                                    <Button
+                                        type="button"
+                                        variant="contained"
+                                        color="secondary"
+                                        size="medium"
+                                        endIcon={<Clear />}
+                                        fullWidth
+                                        style={{ marginLeft: "10px" }}
+                                    >
+                                        Annuler
+                                    </Button>
+                                </NavLink>
+                            </Box>
+                        </form>
+                    </CardContent>
+                </Card>
+            </Box>
+        </Container>
     );
-}
+};
 
 export default MaterielForm;

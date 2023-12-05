@@ -1,6 +1,6 @@
 import React from 'react'
 import './Dashboard.css';
-import Box from './Boxs';
+import MyBox from './Boxs';
 import Chart from './chart';
 import Recap from './Recap';
 import PostHeader from './PostHeader';
@@ -22,7 +22,7 @@ const Content_dashboard = () => {
       {/* <Chart/> */}
 
       {/*   <!-- Content Row --> */}
-      <Box/>
+      <MyBox/>
     </div>
 
 

@@ -38,9 +38,17 @@ const DemandeMaterielForm = () => {
 
   const [demandeurList, setDemandeurList] = useState([]);
   const [materielList, setMaterielList] = useState([]);
+  const authToken = localStorage.getItem("auth_token");
 
-  useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/materiels").then((res) => {
+
+  useEffect(() => { 
+    axios
+      .get('http://127.0.0.1:8000/api/materiels', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      })
+      .then((res) => {
       if (res.data.status === 200) {
         setMaterielList(res.data.materiels);
       }
@@ -146,7 +154,6 @@ const DemandeMaterielForm = () => {
         num_serie: demandeMaterielInput.num_serie,
       };
 
-      const authToken = localStorage.getItem("auth_token");
       axios
         .post("http://127.0.0.1:8000/api/demande_materiel", data, {
           headers: {

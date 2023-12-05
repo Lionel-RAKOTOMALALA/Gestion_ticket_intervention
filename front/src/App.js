@@ -57,7 +57,7 @@ function App() {
     
     <Router>
       <Routes>
-        <Route path="/" element={!!localStorage.getItem('auth_token') ? <Navigate to={linkRoot} /> : <Home />} /> 
+        <Route path="/" element={ !!localStorage.getItem('auth_token') ? <Navigate to={linkRoot} /> : <Home />} /> 
         <Route path="/login" element={!!localStorage.getItem('auth_token') ? <Navigate to={linkRoot} /> : <Login/>} />
         <Route path="/admin" element={<PrivateRoute />}>
         <Route index element={<Content_dashboard />} /> {/* Utilisez l'index pour /admin/dashboard */}

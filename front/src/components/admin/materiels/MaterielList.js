@@ -1,92 +1,151 @@
-import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
-import Materiel from "./Materiel";
-import Loader from "./loader"; // Importez le composant Loader
-import $ from "jquery";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import {
+  Box,
+  Typography,
+  Button,
+  Modal,
+  Backdrop,
+  Fade,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from '@mui/material';
+import EditMateriel from './EditMateriel';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const MaterielList = () => {
   const [materiels, setMateriels] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); // État pour gérer le chargement
-  const tableRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedMateriel, setSelectedMateriel] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const destroyDataTable = () => {
-    if ($.fn.DataTable.isDataTable(tableRef.current)) {
-      $(tableRef.current).DataTable().destroy(); // Détruire la DataTable existante
-    }
-  };
+  useEffect(() => {
+    refreshData();
+    
+    const fetchDataInterval = setInterval(() => {
+      refreshData();
+    }, 3000); 
+
+    return () => {
+      clearInterval(fetchDataInterval);
+    };
+  }, []);
+
   const authToken = localStorage.getItem('auth_token');
-
   const refreshData = () => {
-    destroyDataTable(); // Détruire DataTable avant de charger de nouvelles données
-    axios.get("http://127.0.0.1:8000/api/materiels", {
-      headers: {
-        'Authorization': `Bearer ${authToken}`, 
- 
-      }
-  })
+    axios
+      .get('http://127.0.0.1:8000/api/materiels', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      })
       .then((response) => {
         setMateriels(response.data.materiels);
         setIsLoading(false);
-        if (tableRef.current) {
-          $(tableRef.current).DataTable({
-            language: {
-              search: 'Rechercher :',
-              lengthMenu: 'Afficher _MENU_ éléments par page',
-              info: 'Affichage de _START_ à _END_ sur _TOTAL_ éléments',
-              infoEmpty: 'Aucun élément trouvé',
-              infoFiltered: '(filtré de _MAX_ éléments au total)',
-              paginate: {
-                first: 'Premier',
-                previous: 'Précédent',
-                next: 'Suivant',
-                last: 'Dernier'
-              }
-            }
-          });
-        }
+      })
+      .catch((error) => {
+        console.error(error);
       });
   };
 
   useEffect(() => {
-    refreshData(); // Appeler la fonction ici pour charger les données lors du montage du composant
-  }, []);
+    const pathname = location.pathname;
+    const match = pathname.match(/\/Accueil_client\/materiels\/edit\/(\d+)/);
+    if (match) {
+      const num_serie = parseInt(match[1], 10);
+      const selected = materiels.find((materiel) => materiel.num_serie === num_serie);
+      setSelectedMateriel(selected);
+      setIsEditModalOpen(true);
+    }
+  }, [location.pathname, materiels]);
+
+  const handleCloseEditModal = () => {
+    setSelectedMateriel(null);
+    setIsEditModalOpen(false);
+    refreshData();
+  };
+
+  const columns = [
+    { field: 'num_serie', headerName: 'Numero de serie', width: 150 },
+    { field: 'type_materiel', headerName: 'Type du materiel', width: 150 },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 200,
+      renderCell: (params) => (
+        <div>
+          <Button variant="contained" color="primary" onClick={() => handleEdit(params.row.num_serie)}>
+            Modifier
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  const handleEdit = (num_serie) => {
+    const selected = materiels.find((materiel) => materiel.num_serie === num_serie);
+    setSelectedMateriel(selected);
+    setIsEditModalOpen(true);
+  };
 
   return (
-    <div>
-      <div className="card shadow mb-4">
-        <div className="card-header py-3">
-          <h6 className="m-0 font-weight-bold text-primary">Liste des materiels</h6>
-        </div>
-        <div className="card-body">
-          {isLoading ? ( // Condition d'affichage du loader
-            <Loader />
-          ) : (
-            <div className="table-responsive">
-              <table
-                ref={tableRef}
-                className="table table-bordered table-striped"
-                width="100%"
-                cellSpacing="0"
-              >
-                <thead>
-                  <tr>
-                    <th>Numero de serie du matériel</th>
-                    <th>Type du matériel</th>
-                    <th>Apercu du matériel</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {materiels.map((materiel) => (
-                    <Materiel key={materiel.num_serie} materiel={materiel} refreshData={refreshData} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+    <Box sx={{ height: 400, width: '100%' }}>
+      <Typography variant="h6" component="h6" sx={{ textAlign: 'center', mt: 3, mb: 3 }}>
+        Liste des materiels
+      </Typography>
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Numero de serie du materiel</TableCell>
+                <TableCell>Type du materiel</TableCell>
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {materiels.map((materiel) => (
+                <TableRow key={materiel.num_serie}>
+                  <TableCell>{materiel.num_serie}</TableCell>
+                  <TableCell>{materiel.type_materiel}</TableCell>
+                  <TableCell>
+                    <Button variant="contained" color="primary" onClick={() => handleEdit(materiel.num_serie)}>
+                      Modifier
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+      <Modal
+        open={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+      >
+        <Fade in={isEditModalOpen}>
+          <div>
+            {selectedMateriel && (
+              <EditMateriel isOpen={isEditModalOpen} onClose={handleCloseEditModal} id={selectedMateriel.num_serie} />
+            )}
+          </div>
+        </Fade>
+      </Modal>
+    </Box>
   );
 };
 

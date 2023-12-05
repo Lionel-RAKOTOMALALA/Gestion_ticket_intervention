@@ -113,66 +113,91 @@ public function store(Request $request)
 
 
     
-    public function show(string $id)
-    {
+public function show(string $id)
+{
+    $user = Auth::user();
+
+    if ($user) {
+        // Utiliser l'id de l'utilisateur dans la requête
+        $id_demandeur = DB::table('demandeurs')
+            ->join('users', 'demandeurs.id_user', '=', 'users.id')
+            ->select('demandeurs.id_demandeur')
+            ->where('demandeurs.id_user', $user->id)
+            ->first();
+
+        if ($id_demandeur) {
+            // L'utilisateur est authentifié, et $id_demandeur contient l'id_demandeur correspondant
+            $materiel = Materiel::where('id_demandeur', $id_demandeur->id_demandeur)
+                ->where('num_serie', $id)
+                ->first();
+
+            if ($materiel) {
+                // Le matériel a été trouvé
+                return response()->json([
+                    'materiel' => $materiel,
+                    'status' => 200,
+                ], 200);
+            } else {
+                // Le matériel n'a pas été trouvé pour cet utilisateur
+                return response()->json([
+                    'message' => 'Ce matériel n\'a pas été trouvé pour cet utilisateur',
+                    'status' => 404,
+                ], 404);
+            }
+        }
+    }
+}
+
+
+public function update(Request $request, string $id)
+{
+    try {
+        $validator = Validator::make($request->all(), [
+            'type_materiel' => 'required|string',
+            'description_materiel' => 'required|string',
+            'image_materiel_url' => 'string|nullable',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 400,
+                'error_list' => $validator->messages(),
+            ], 400);
+        }
+
         $materiel = Materiel::find($id);
 
         if (!$materiel) {
             return response()->json([
-                'message' => 'Ce matériel n\'a pas été trouvé',
+                'message' => "Le matériel n'existe pas",
                 'status' => 404,
             ]);
         }
 
-        return response()->json([
-            'materiel' => $materiel,
-            'status' => 200,
-        ]);
-    }
+        $materiel->type_materiel = $request->type_materiel;
+        $materiel->description_materiel = $request->description_materiel;
 
-    public function update(Request $request, string $id)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'type_materiel' => 'required|string',
-                'description_materiel' => 'required|string',
-                'image_materiel_url' => 'string|nullable',
-                'id_demandeur' => 'required|exists:demandeurs,id_demandeur', 
-            ]);
-    
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => 400,
-                    'error_list' => $validator->messages(),
-                ], 400);
-            }
-    
-            $materiel = Materiel::find($id);
-    
-            if (!$materiel) {
-                return response()->json([
-                    'message' => "Le matériel n'existe pas",
-                    'status' => 404,
-                ]);
-            }
-    
-            $materiel->type_materiel = $request->type_materiel;
-            $materiel->description_materiel = $request->description_materiel;
+        // Vérifiez si une nouvelle image est fournie
+        if ($request->has('image_materiel_url')) {
             $materiel->image_materiel_url = $request->image_materiel_url;
-            $materiel->id_demandeur = $request->id_demandeur; 
-            $materiel->save();
-    
-            return response()->json([
-                'message' => "Le matériel a été modifié avec succès",
-                'status' => 200,
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => "Une erreur est survenue lors de la modification du matériel",
-                'status' => 500,
-            ], 500);
         }
+
+        // Assurez-vous de traiter id_demandeur correctement si nécessaire
+
+        $materiel->save();
+
+        return response()->json([
+            'message' => "Le matériel a été modifié avec succès",
+            'status' => 200,
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => "Une erreur est survenue lors de la modification du matériel",
+            'status' => 500,
+        ], 500);
     }
+}
+
     
 
     public function destroy(string $id)

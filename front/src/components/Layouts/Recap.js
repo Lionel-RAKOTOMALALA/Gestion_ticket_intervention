@@ -52,7 +52,7 @@ const Recap = () => {
                 </div>
                 <div className="row no-gutters align-items-center">
                   <div className="col-auto text-center"> {/* Ajout de la classe text-center */}
-                    <div className="h5 mb-0 mr-3 font-weight-bold text-gray-800">50%</div>
+                    <div className="h5 mb-0 ml-2 font-weight-bold text-gray-800">50%</div>
                   </div>
                   <div className="col">
                     <div className="progress progress-sm mr-2">

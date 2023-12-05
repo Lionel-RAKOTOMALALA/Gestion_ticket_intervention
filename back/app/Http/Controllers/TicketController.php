@@ -11,10 +11,13 @@ class TicketController extends Controller
     public function index()
     {
         $tickets = TicketReparation::join('demande_materiel', 'ticketReparation.id_demande', '=', 'demande_materiel.id_demande')
-            ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
-            ->join('techniciens', 'ticketReparation.id_technicien', '=', 'techniciens.id_technicien')
-            ->join('users as technicien_user', 'techniciens.id_user', '=', 'technicien_user.id')
-            ->select('ticketReparation.*', 'materiels.type_materiel','materiels.image_materiel_url', 'technicien_user.username as nom_technicien')
+        ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
+        ->join('demandeurs', 'demande_materiel.id_demandeur', '=', 'demandeurs.id_demandeur')
+        ->join('techniciens', 'ticketReparation.id_technicien', '=', 'techniciens.id_technicien')
+        ->join('users as technicien_user', 'techniciens.id_user', '=', 'technicien_user.id')
+        ->join('users as demandeur_user', 'demandeurs.id_user', '=', 'demandeur_user.id')
+        ->join('entreprises', 'entreprises.id_entreprise', '=', 'demandeur_user.id_entreprise')
+            ->select('ticketReparation.*', 'materiels.type_materiel','materiels.image_materiel_url','demandeur_user.*','entreprises.nom_entreprise',     'technicien_user.username as nom_technicien')
             ->orderBy('ticketReparation.created_at', 'DESC')
             ->get();
 
