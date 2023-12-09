@@ -17,6 +17,7 @@ use App\Http\Controllers\EntrepriseController;
 Route::get('/entreprises', [EntrepriseController::class, 'index']);
 
 Route::middleware('auth:sanctum','isAPIAdmin')->group(function () {
+    Route::get('dashboard', [UserController::class, 'dashboard']);
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('/checkingAuthenticated', function(){
         return response()->json([
@@ -31,10 +32,8 @@ Route::get('/showIdDemandeur', [UserController::class, 'showIdDemandeur']);
 Route::prefix('demande_materiel')->group(function () {
     Route::get('/', [DemandeMaterielController::class, 'index']);
     Route::get('/{id}', [DemandeMaterielController::class, 'show']);
-    Route::post('/', [DemandeMaterielController::class, 'store']);
     Route::put('validate/{id}', [DemandeMaterielController::class, 'validationDemande']);
     Route::put('reject/{id}', [DemandeMaterielController::class, 'rejectDemande']);
-    Route::put('/{id}', [DemandeMaterielController::class, 'update']);
 });
 
 Route::get('/user', [UserController::class, 'getUserData']); 
@@ -47,6 +46,11 @@ Route::put('editDemandeur/{id}', [UserController::class, 'editDemandeur']);
 Route::post('registerTechnicien', [UserController::class, 'registerTechnicien']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/listeMateriel', [MaterielController::class, 'listeMateriel']);
+    Route::get('/materiel_endomage', [MaterielController::class, 'materiel_endomage']);
+    Route::get('/materiel_repare', [MaterielController::class, 'materiel_repare']);
+    Route::get('/tickets', [TicketController::class, 'index']);
+    Route::get('dashboard', [UserController::class, 'dashboard']);
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('/checkingAuthenticatedUserSimple', function(){
         return response()->json([
@@ -57,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
      
 Route::prefix('materiels')->group(function () {
     Route::get('/', [MaterielController::class, 'index']);
+   
     Route::get('{id}', [MaterielController::class, 'show']);
     Route::post('/', [MaterielController::class, 'store']);
     Route::put('{id}', [MaterielController::class, 'update']);
@@ -88,7 +93,6 @@ Route::post('login', [AuthController::class, 'login']);
 Route::prefix('tickets')->group(function () {
     Route::get('{id}', [TicketController::class, 'show']);
     Route::post('/', [TicketController::class, 'store']);
-    Route::get('/', [TicketController::class, 'index']);
     Route::put('{id}', [TicketController::class, 'update']);
     Route::put('reparationFait/{id}',[TicketController::class, 'reparationFait']);
     Route::put('reparation_com/{id}',[TicketController::class, 'reparation_com']);
@@ -143,7 +147,6 @@ Route::get('newUserSpecialisation', [UserController::class, 'newUserSpecialisati
 Route::get('newUserSpecialisation/{id}', [UserController::class, 'showNewUserSpecialisation']);
 Route::get('getTechnicienAdmin', [UserController::class, 'getTechnicienAdmin']);
 
-Route::get('dashboard', [UserController::class, 'dashboard']);
 Route::get('/uploads/materiels/{filename}', [UserController::class, 'imageFetch']);
 Route::prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index']);

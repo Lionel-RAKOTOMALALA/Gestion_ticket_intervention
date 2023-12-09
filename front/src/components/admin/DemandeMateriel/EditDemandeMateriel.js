@@ -29,7 +29,7 @@ const EditDemandeMateriel = () => {
     });
 
     // Récupérer la liste des matériels
-    axios.get('http://127.0.0.1:8000/api/materiels').then((res) => {
+    axios.get('http://127.0.0.1:8000/api/materiels/listeMateriel').then((res) => {
       if (res.data.status === 200) {
         setMaterielList(res.data.materiels);
       }

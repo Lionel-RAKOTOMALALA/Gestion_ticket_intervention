@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Pie, Line, Doughnut, Bar } from 'react-chartjs-2';
 import axios from 'axios';
-import ChartJS, {
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
+import {
+  CartesianGrid,
+  Legend as RechartsLegend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip as RechartsTooltip,
+  XAxis,
+  YAxis, 
+  PieChart,
+  BarChart ,
+  Pie,
   Tooltip,
-  Legend,
-} from 'chart.js/auto';
+  Cell,
+} from 'recharts';
 import {
   Grid,
+  Card,
+  CardContent,
   Typography,
   Box as MuiBox,
   Table,
@@ -22,14 +30,44 @@ import {
   Paper,
 } from '@mui/material';
 
-ChartJS.register(
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend
-);
+import moment from 'moment';
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const data = [
+  {
+    date: '2000-01',
+    uv: 4000,
+    pv: 2400,
+    amt: 2400,
+  },
+  // ... other data entries
+];
+const monthTickFormatter = (tick) => {
+  const date = new Date(tick);
+  return date.getMonth() + 1;
+};
+
+const renderQuarterTick = (tickProps) => {
+  const { x, y, payload } = tickProps;
+  const { value, offset } = payload;
+  const date = new Date(value);
+  const month = date.getMonth();
+  const quarterNo = Math.floor(month / 3) + 1;
+  const isMidMonth = month % 3 === 1;
+
+  if (month % 3 === 1) {
+    return <text x={x} y={y - 4} textAnchor="middle">{`Q${quarterNo}`}</text>;
+  }
+
+  const isLast = month === 11;
+
+  if (month % 3 === 0 || isLast) {
+    const pathX = Math.floor(isLast ? x + offset : x - offset) + 0.5;
+    return <path d={`M${pathX},${y - 4}v${-35}`} stroke="red" />;
+  }
+
+  return null;
+};
 
 function MyBox() {
   const [lineChartData, setLineChartData] = useState({
@@ -37,54 +75,14 @@ function MyBox() {
     datasets: [],
   });
 
+  const [recentActivities, setRecentActivities] = useState([]);
   const [pieChartData, setPieChartData] = useState({
     labels: [],
-    datasets: [],
-  });
-
-  const recentActivities = [
-    { id: 1, name: 'Activity 1', date: '2023-01-01' },
-    { id: 2, name: 'Activity 2', date: '2023-01-02' },
-    { id: 3, name: 'Activity 3', date: '2023-01-03' },
-    // Add more sample activities as needed
-  ];
-
-  const [doughnutChartData, setDoughnutChartData] = useState({
-    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
     datasets: [
       {
-        label: '# of Votes',
-        data: [12, 19, 3, 5, 2, 3],
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)',
-          'rgba(153, 102, 255, 0.2)',
-          'rgba(255, 159, 64, 0.2)',
-        ],
-        borderColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)',
-        ],
-        borderWidth: 1,
-      },
-    ],
-  });
-
-  const [radarChartData, setRadarChartData] = useState({
-    labels: ['Thing 1', 'Thing 2', 'Thing 3', 'Thing 4', 'Thing 5', 'Thing 6'],
-    datasets: [
-      {
-        label: '# of Votes',
-        data: [2, 9, 3, 5, 2, 3],
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 1,
+        label: 'Demandes par entreprise',
+        data: [],
+        backgroundColor: COLORS,
       },
     ],
   });
@@ -92,198 +90,210 @@ function MyBox() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await axios.get('http://127.0.0.1:8000/api/dashboard');
+        const authToken = localStorage.getItem('auth_token');
+        const response = await axios.get('http://127.0.0.1:8000/api/dashboard', {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = response.data;
 
-        if (data && data.data) {
-          // Organize data by enterprise
-          const groupedData = {};
-          data.data.forEach((item) => {
-            if (!groupedData[item.entreprise]) {
-              groupedData[item.entreprise] = [];
-            }
-            groupedData[item.entreprise].push({
-              mois: item.mois,
-              nombre_demandes: item.nombre_demandes,
-            });
-          });
+        setLineChartData({
+          labels: data.labels,
+          datasets: data.datasets.map((dataset) => ({
+            label: dataset.label,
+            data: dataset.data,
+            borderColor: dataset.borderColor,
+          })),
+        });
 
-          // Create arrays for charts
-          const lineChartDatasets = Object.keys(groupedData).map((entreprise, index) => {
-            const maxRequests = Math.max(...groupedData[entreprise].map((item) => item.nombre_demandes));
-            return {
-              label: `${entreprise} - Demande`,
-              data: groupedData[entreprise].map((item) => item.nombre_demandes),
-              fill: true,
-              borderColor: `rgba(125, 211, 252, 0.3)`,
-              yAxisID: 'y-axis-' + index,
-              maxRequests,
-            };
-          });
+        setRecentActivities(data.user_activities);
 
-          const pieChartDatasets = Object.keys(groupedData).map((entreprise, index) => {
-            const colorIndex = index % 4;
-            return {
-              label: `${entreprise} - Demande`,
-              data: groupedData[entreprise].map((item) => item.nombre_demandes),
-              fill: true,
-              backgroundColor: [
-                `rgba(125, 211, 252, 0.6)`,
-                `rgba(54, 162, 235, 0.6)`,
-                `rgba(255, 99, 132, 0.6)`,
-                `rgba(255, 205, 86, 0.6)`,
-              ][colorIndex],
-              borderColor: [
-                `rgba(125, 211, 252, 1)`,
-                `rgba(54, 162, 235, 1)`,
-                `rgba(255, 99, 132, 1)`,
-                `rgba(255, 205, 86, 1)`,
-              ][colorIndex],
-            };
-          });
-
-          setLineChartData({
-            labels: data.data.map((item) => item.mois),
-            datasets: lineChartDatasets,
-          });
-
-          setPieChartData({
-            labels: Object.keys(groupedData),
-            datasets: pieChartDatasets,
-          });
-        }
+        setPieChartData({
+          labels: data.total_demandes_par_entreprise.map((item) => item.entreprise),
+          datasets: [
+            {
+              label: 'Demandes par entreprise',
+              data: data.total_demandes_par_entreprise.map((item) => item.nombre_total_demandes),
+              backgroundColor: COLORS,
+            },
+          ],
+        });
       } catch (error) {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Error fetching data from the API:', error);
       }
     };
 
     fetchData();
   }, []);
 
+  console.log(pieChartData);
+
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={2}>
       <Grid item xs={12} md={8}>
         <Paper elevation={3} sx={{ p: 2 }}>
           <Typography variant="h6" color="textPrimary" gutterBottom>
             Demande Mensuel
           </Typography>
           <div className="line-chart-container" style={{ height: '350px' }}>
-            <Line
-              data={lineChartData}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: { position: 'top' },
-                  title: { display: true, text: 'Demande Mensuel', fontSize: 16 },
-                },
-                maintainAspectRatio: false,
-                scales: {
-                  x: {
-                    type: 'category',
-                  },
-                  y: lineChartData.datasets.map((dataset) => ({
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
-                    id: 'y-axis-' + lineChartData.datasets.indexOf(dataset),
-                    max: dataset.maxRequests,
-                  })),
-                },
-              }}
-              className="line-chart"
-            />
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={lineChartData.labels.map((label, index) => {
+                  const entry = { name: label };
+                  lineChartData.datasets.forEach((dataset) => {
+                    const matchingDataPoint = dataset.data.find(
+                      (dataPoint) => dataPoint.mois === label
+                    );
+                    entry[dataset.label] = matchingDataPoint
+                      ? matchingDataPoint.nombre_demandes
+                      : 0;
+                  });
+                  return entry;
+                })}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <RechartsTooltip />
+                <RechartsLegend />
+                {lineChartData.datasets.map((dataset) => (
+                  <Line
+                    type="monotone"
+                    dataKey={dataset.label}
+                    key={dataset.label}
+                    stroke={dataset.borderColor}
+                    strokeWidth={2}
+                    dot={{ r: 4, fill: dataset.pointBackgroundColor }}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </Paper>
       </Grid>
 
       <Grid item xs={12} md={4} mb={4}>
-        <MuiBox sx={{ height: '350px', width: '100%' }}>
-          <Doughnut
-            data={doughnutChartData}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: { position: 'top' },
-                title: { display: true, text: 'Doughnut Chart', fontSize: 16 },
-              },
-              maintainAspectRatio: false,
-              aspectRatio: 1,
-              cutout: '50%', // Adjust the cutout value to make the Doughnut smaller
-            }}
-          />
-        </MuiBox>
-      </Grid>
+  <Card>
+    <CardContent>
+      <Typography variant="h6" color="textPrimary" gutterBottom>
+        Statistique de demande pour chaque entreprise
+      </Typography>
+      <MuiBox sx={{ height: '360px', width: '100%' }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart width={400} height={400}>
+            <Pie
+              data={pieChartData.datasets[0].data.map((value, index) => ({
+                value,
+                name: `${((value / pieChartData.datasets[0].data.reduce((acc, val) => acc + val, 0)) * 100).toFixed(0)}% ${pieChartData.labels[index]}`,
+              }))}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              outerRadius={80}
+              fill="#8884d8"
+              dataKey="value"
+              label={({ cx, cy, midAngle, percentage, index }) => {
+                const radius = 80;
+                const angle = midAngle * -1;
+                const x = cx + radius * Math.cos(angle);
+                const y = cy + radius * Math.sin(angle);
+
+                return (
+                  <text
+                    x={x}
+                    y={y}
+                    fill="white"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                  >
+                  </text>
+                );
+              }}
+            >
+              {pieChartData.labels.map((label, index) => (
+                <Cell key={`cell-${index}`} fill={pieChartData.datasets[0].backgroundColor[index]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <RechartsLegend
+              align="center"
+              verticalAlign="bottom"
+              layout="horizontal"
+              iconSize={10}
+              wrapperStyle={{
+                paddingTop: '10px',
+              }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </MuiBox>
+    </CardContent>
+  </Card>
+</Grid>
+
+
 
       <Grid item xs={12} md={8}>
-        <Paper elevation={3} sx={{ p: 2, mt: 4 }}>
-          <Typography variant="h6" color="textPrimary" gutterBottom>
-            Bar Chart
-          </Typography>
-          <div className="chart" style={{ height: '350px' }}>
-            <Bar
-              data={{
-                labels: ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5'],
-                datasets: [
-                  {
-                    label: 'Bar Chart Example',
-                    data: [10, 20, 15, 25, 18], // Replace this array with your actual data
-                    backgroundColor: [
-                      'rgba(255, 99, 132, 0.2)',
-                      'rgba(54, 162, 235, 0.2)',
-                      'rgba(255, 206, 86, 0.2)',
-                      'rgba(75, 192, 192, 0.2)',
-                      'rgba(153, 102, 255, 0.2)',
-                    ],
-                    borderColor: [
-                      'rgba(255, 99, 132, 1)',
-                      'rgba(54, 162, 235, 1)',
-                      'rgba(255, 206, 86, 1)',
-                      'rgba(75, 192, 192, 1)',
-                      'rgba(153, 102, 255, 1)',
-                    ],
-                    borderWidth: 1,
-                  },
-                ],
-              }}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: { position: 'top' },
-                  title: { display: true, text: 'Bar Chart', fontSize: 16 },
-                },
-                scales: {
-                  x: {
-                    type: 'category',
-                  },
-                  y: {
-                    beginAtZero: true,
-                  },
-                },
-              }}
-            />
-          </div>
-        </Paper>
-      </Grid>
-
-      <Grid item xs={12} md={4} mb={4}>
-        <Paper>
+        <Paper elevation={3} sx={{ p: 2, height: '89%' }}>
           <TableContainer>
-            <Table>
+            <Table className="MuiTable">
               <TableHead>
                 <TableRow>
-                  <TableCell>Activity</TableCell>
+                  <TableCell>Activité récente</TableCell>
                   <TableCell>Date</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {recentActivities.map((activity) => (
-                  <TableRow key={activity.id}>
-                    <TableCell>{activity.name}</TableCell>
-                    <TableCell>{activity.date}</TableCell>
+                  <TableRow key={activity.id_user_activity}>
+                    <TableCell>{activity.description}</TableCell>
+                    <TableCell>{moment(activity.created_at).format('YYYY-MM-DD [à] HH:mm:ss')}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
+        </Paper>
+      </Grid>
+
+      <Grid item xs={12} md={4} mb={4}>
+        <Paper elevation={3} sx={{ p: 2, height: '240px' }}>
+          <Typography variant="h6" color="textPrimary" gutterBottom>
+            Bar Chart
+          </Typography>
+          <div className="chart" style={{ height: '180px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={data}
+                margin={{
+                  top: 5,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" tickFormatter={monthTickFormatter} />
+                <XAxis
+                  dataKey="date"
+                  axisLine={false}
+                  tickLine={false}
+                  interval={0}
+                  tick={renderQuarterTick}
+                  height={1}
+                  scale="band"
+                  xAxisId="quarter"
+                />
+                <YAxis />
+                <RechartsTooltip />
+                <RechartsLegend />
+                <Line dataKey="pv" fill="#8884d8" />
+                <Line dataKey="uv" fill="#82ca9d" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </Paper>
       </Grid>
     </Grid>

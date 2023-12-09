@@ -33,6 +33,8 @@ import DemandeMaterielApp from './components/admin/DemandeMateriel/DemandeMateri
 import DemandeMaterielForm from './components/admin/DemandeMateriel/DemandeMaterielForm';
 import EditDemandeMateriel from './components/admin/DemandeMateriel/EditDemandeMateriel';
 import TicketListDemandeur from './components/admin/TicketReparation/TicketListDemandeur';
+import MaterielEndomage from './components/admin/materiels/MaterielEndomage';
+import MaterielRepare from './components/admin/materiels/materielRepare';
 import PrivateRoute from './PrivateRoute';
 import Page403 from './components/Layouts/403';
 import Page404 from './components/Layouts/404';
@@ -94,8 +96,8 @@ function App() {
             path="materiels"
             element={<MaterielApp />}
             />
-            <Route path="materiels/en-cours" element={<Materiel />} />
-            <Route path="materiels/repare" element={<Materiel />} />
+            <Route path="materiels/en-cours" element={<MaterielEndomage />} />
+            <Route path="materiels/repare" element={<MaterielRepare />} />
             <Route path="materiels/tous" element={<Materiel />} />
             <Route path="materiels/demande_reparation" element={<MaterielForm />} />
             <Route path="materiels/:id" element={<EditMateriel />} />

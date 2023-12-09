@@ -41,6 +41,114 @@ class MaterielController extends Controller
             'status' => 404 // Vous pouvez ajuster le statut en fonction de votre logique
         ], 404);
     }
+    public function listeMateriel()
+    {
+        $user = Auth::user();
+    
+        if ($user) {
+            // Utiliser l'id de l'utilisateur dans la requête
+            $id_demandeur = DB::table('demandeurs')
+                ->join('users', 'demandeurs.id_user', '=', 'users.id')
+                ->where('demandeurs.id_user', $user->id)
+                ->value('demandeurs.id_demandeur');
+    
+            if ($id_demandeur) {
+                // L'utilisateur est authentifié, et $id_demandeur contient l'id_demandeur correspondant
+                $results = DB::table('materiels')
+                    ->leftJoin('demande_materiel', 'materiels.num_serie', '=', 'demande_materiel.num_serie')
+                    ->leftJoin('ticketReparation', 'demande_materiel.id_demande', '=', 'ticketReparation.id_demande')
+                    ->where('materiels.id_demandeur',  $id_demandeur)
+                    ->where(function ($query) {
+                        $query->whereNull('demande_materiel.num_serie') // Matériels non inscrits dans demande_materiel
+                            ->orWhere('ticketReparation.statut_actuel', 'Fait'); // Matériels réparés dans ticketReparation
+                    })
+                    ->get();
+    
+                return response()->json([
+                    'materiels' => $results,
+                    'status' => 200
+                ], 200);
+            }
+        }
+    
+        // L'utilisateur n'est pas authentifié ou $id_demandeur est null, gérer en conséquence
+        return response()->json([
+            'materiels' => [],
+            'status' => 404 // Vous pouvez ajuster le statut en fonction de votre logique
+        ], 404);
+    }
+    
+    
+    
+    public function materiel_endomage()
+    {
+        $user = Auth::user();
+    
+        if ($user) {
+            // Utiliser l'id de l'utilisateur dans la requête
+            $id_demandeur = DB::table('demandeurs')
+                ->join('users', 'demandeurs.id_user', '=', 'users.id')
+                ->select('demandeurs.id_demandeur')
+                ->where('demandeurs.id_user', $user->id)
+                ->first();
+    
+            if ($id_demandeur) {
+                // L'utilisateur est authentifié, et $id_demandeur contient l'id_demandeur correspondant
+                $materiels = Materiel::join('demande_materiel', 'materiels.num_serie', '=', 'demande_materiel.num_serie')
+                    ->join('ticketReparation', 'ticketReparation.id_demande', '=', 'demande_materiel.id_demande')
+                    ->where('materiels.id_demandeur', $id_demandeur->id_demandeur)
+                    ->where('ticketReparation.statut_actuel', '=', 'En cours de reparation')
+                    ->get();
+    
+                return response()->json([
+                    'materiels' => $materiels,
+                    'status' => 200
+                ], 200);
+            }
+        }
+    
+        // L'utilisateur n'est pas authentifié ou $id_demandeur est null, gérer en conséquence
+        return response()->json([
+            'materiels' => [],
+            'status' => 404 // Vous pouvez ajuster le statut en fonction de votre logique
+        ], 404);
+    }
+    
+    public function materiel_repare()
+    {
+        $user = Auth::user();
+    
+        if ($user) {
+            // Utiliser l'id de l'utilisateur dans la requête
+            $id_demandeur = DB::table('demandeurs')
+                ->join('users', 'demandeurs.id_user', '=', 'users.id')
+                ->select('demandeurs.id_demandeur')
+                ->where('demandeurs.id_user', $user->id)
+                ->first();
+    
+            if ($id_demandeur) {
+                // L'utilisateur est authentifié, et $id_demandeur contient l'id_demandeur correspondant
+                $materiels = Materiel::join('demande_materiel', 'materiels.num_serie', '=', 'demande_materiel.num_serie')
+                    ->join('ticketReparation', 'ticketReparation.id_demande', '=', 'demande_materiel.id_demande')
+                    ->where('materiels.id_demandeur', $id_demandeur->id_demandeur)
+                    ->where('ticketReparation.statut_actuel', '=', 'Fait')
+                    ->get();
+    
+                return response()->json([
+                    'materiels' => $materiels,
+                    'status' => 200
+                ], 200);
+            }
+        }
+    
+        // L'utilisateur n'est pas authentifié ou $id_demandeur est null, gérer en conséquence
+        return response()->json([
+            'materiels' => [],
+            'status' => 404 // Vous pouvez ajuster le statut en fonction de votre logique
+        ], 404);
+    }
+    
+
     public function MaterielInDemande()
     {
 

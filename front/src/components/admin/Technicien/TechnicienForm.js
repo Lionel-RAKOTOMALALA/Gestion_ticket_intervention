@@ -95,7 +95,7 @@ function TechnicienForm({ isOpen, onClose, initialValues }) {
               <div className="col-md-6">
                 <div className="card" style={{ marginTop: '-70px' }}>
                   <div className="card-header">
-                    <h4>Register Technicien</h4>
+                    <h4>Ajout de Technicien</h4>
                   </div>
                   <div className="card-body">
                   <form onSubmit={registerSubmit} encType="multipart/form-data">

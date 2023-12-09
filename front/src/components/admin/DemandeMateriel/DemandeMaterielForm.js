@@ -43,7 +43,7 @@ const DemandeMaterielForm = () => {
 
   useEffect(() => { 
     axios
-      .get('http://127.0.0.1:8000/api/materiels', {
+      .get('http://127.0.0.1:8000/api/listeMateriel', {
         headers: {
           'Authorization': `Bearer ${authToken}`,
         },
@@ -64,14 +64,16 @@ const DemandeMaterielForm = () => {
   });
 
   const [formError, setFormError] = useState("");
-
+  
   const handleInput = (e) => {
     setDemandeMaterielInput({
       ...demandeMaterielInput,
       [e.target.name]: e.target.value,
     });
+    console.log("Numéro de série sélectionné :", e.target.value);
     setFormError("");
   };
+  
 
   const resetForm = () => {
     setDemandeMaterielInput({
@@ -291,13 +293,11 @@ const DemandeMaterielForm = () => {
                   >
                     <MenuItem value="">Sélectionner un matériel</MenuItem>
                     {materielList.map((item) => (
-                      <MenuItem
-                        key={item.num_serie}
-                        value={item.num_serie}
-                      >
+                      <MenuItem key={item.num_serie} value={item.num_serie}>
                         {item.type_materiel}
                       </MenuItem>
                     ))}
+
                   </Select>
                   <FormHelperText error>
                     {demandeMaterielInput.error_list.num_serie}

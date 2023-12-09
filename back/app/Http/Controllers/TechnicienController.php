@@ -19,7 +19,7 @@ class TechnicienController extends Controller
         
         // Utilisez le modèle Eloquent pour récupérer les techniciens avec leurs utilisateurs associés
         $techniciens = DB::table('users')
-    ->select('techniciens.id_technicien', 'users.username', 'users.email', 'users.logo', 'users.sexe', 'users.photo_profil_user', 'entreprises.nom_entreprise', DB::raw("CASE WHEN users.role_user = 1 THEN 'Admin' ELSE 'Utilisateur simple' END AS role_user"), 'techniciens.id_technicien','techniciens.competence')
+    ->select('techniciens.id_technicien', 'users.username', 'users.email', 'entreprises.logo', 'users.sexe', 'users.photo_profil_user', 'entreprises.nom_entreprise', DB::raw("CASE WHEN users.role_user = 1 THEN 'Admin' ELSE 'Utilisateur simple' END AS role_user"), 'techniciens.id_technicien','techniciens.competence')
     ->join('techniciens', 'users.id', '=', 'techniciens.id_user')
     ->join('entreprises','users.id_entreprise','=','entreprises.id_entreprise')
     ->get();

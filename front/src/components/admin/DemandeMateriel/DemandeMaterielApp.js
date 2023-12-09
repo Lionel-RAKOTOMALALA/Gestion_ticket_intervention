@@ -55,24 +55,26 @@ const DemandeMaterielApp = () => {
             </motion.div>
           )}
         </AnimatePresence>
+        {userRole == 'userSimple' && 
         <NavLink to={linkAdd}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3, marginLeft: 'auto' }}>
-            <AnimatePresence>
-              {showButton && (
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                >
-                  <Button variant="contained" color="primary" startIcon={<UilPlus size="20" />} onClick={handleButtonClick}>
-                    Ajouter
-                  </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </Box>
-        </NavLink>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3, marginLeft: 'auto' }}>
+          <AnimatePresence>
+            {showButton && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <Button variant="contained" color="primary" startIcon={<UilPlus size="20" />} onClick={handleButtonClick}>
+                  Ajouter
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Box>
+      </NavLink>
+        }
         <DemandeMaterielList />
       </Box>
     </Slide>

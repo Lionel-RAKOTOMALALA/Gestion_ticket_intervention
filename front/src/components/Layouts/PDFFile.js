@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Page, Text, Document, StyleSheet, Image, View } from '@react-pdf/renderer';
+import logoCopef from '../../assets/logo/copefrito.png';
 
 const styles = StyleSheet.create({
   body: {
@@ -9,11 +10,23 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: '#f4f4f4',
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logo: {
+    width: 50, // ajuster la taille du logo selon vos besoins
+    height: 50, // ajuster la taille du logo selon vos besoins
+    borderRadius: 20, // pour rendre le logo rond
+  },
   coupon: {
     border: '2pt solid #3498db',
-    padding: 10,
+    padding: 20,
     marginBottom: 20,
     backgroundColor: '#fff',
+    boxShadow: '5px 5px 5px #888888',
   },
   title: {
     fontSize: 24,
@@ -40,6 +53,7 @@ const styles = StyleSheet.create({
     display: 'table',
     width: '100%',
     borderCollapse: 'collapse',
+    marginTop: 10, // ajuster la marge pour abaisser le tableau
   },
   tableRow: {
     flexDirection: 'row',
@@ -51,14 +65,21 @@ const styles = StyleSheet.create({
     padding: 8,
     backgroundColor: '#ecf0f1',
     fontWeight: 'bold',
-    width: '40%', // ajuster la largeur selon les besoins
+    width: '40%',
   },
   tableCellValue: {
     borderBottomColor: '#bdc3c7',
     borderBottomWidth: 1,
     textAlign: 'left',
     padding: 8,
-    width: '60%', // ajuster la largeur selon les besoins
+    width: '60%',
+  },
+  interventionCell: {
+    borderBottomColor: '#bdc3c7',
+    borderBottomWidth: 1,
+    textAlign: 'left',
+    padding: 10,
+    width: '100%',
   },
   pageNumber: {
     position: 'absolute',
@@ -108,6 +129,9 @@ const PDFFile = ({ ticketData }) => {
   return (
     <Document>
       <Page style={styles.body}>
+        <View style={styles.header}>
+          <Image style={styles.logo} src={logoCopef} />
+        </View>
         <View style={styles.coupon}>
           <Text style={styles.title}>Ticket Information</Text>
           <View style={styles.table}>

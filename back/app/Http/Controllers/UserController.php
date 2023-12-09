@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserStoreRequest;
 use App\Models\User;
+use App\Models\UserActivity;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use App\Models\DemandeMateriel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Demandeur;
@@ -46,30 +46,193 @@ class UserController extends Controller
 
         return response($file, 200)->header('Content-Type', 'image/jpg');
     }
-    public function dashboard(){
-        
+    public function dashboard()
+    {
+        $user = Auth::user();
+        // Utiliser lc_time_names pour obtenir les noms de mois en français
         DB::statement("SET lc_time_names = 'fr_FR'");
+    
+        // Récupérer les activités de l'utilisateur ordonnées par date de création
+        $userActivities = UserActivity::where('user_id', Auth::id())
+            ->orderByDesc('created_at')
+            ->get();
+    
+        // Requête pour récupérer les données du tableau de bord
         $result = DB::table('demande_materiel')
-        ->select(
-            DB::raw("MONTHNAME(demande_materiel.created_at) as mois"),
-            DB::raw("entreprises.nom_entreprise as entreprise"),
-            DB::raw("COUNT(*) as nombre_demandes")
-        )
-        ->join('demandeurs', 'demande_materiel.id_demandeur', '=', 'demandeurs.id_demandeur')
-        ->join('users', 'demandeurs.id_user', '=', 'users.id')
-        ->join('entreprises','users.id_entreprise','=','entreprises.id_entreprise')
-        ->where('entreprises.nom_entreprise', '!=', '') // Vous pouvez ajouter d'autres conditions ici si nécessaire
-        ->groupBy(DB::raw("MONTHNAME(demande_materiel.created_at)"), 'entreprise')
-        ->get();
+            ->select(
+                DB::raw("entreprises.nom_entreprise as entreprise"),
+                DB::raw("MONTHNAME(demande_materiel.created_at) as mois"),
+                DB::raw("MONTH(demande_materiel.created_at) as mois_num"),
+                DB::raw("COUNT(*) as nombre_demandes")
+            )
+            ->join('demandeurs', 'demande_materiel.id_demandeur', '=', 'demandeurs.id_demandeur')
+            ->join('users', 'demandeurs.id_user', '=', 'users.id')
+            ->join('entreprises', 'users.id_entreprise', '=', 'entreprises.id_entreprise')
+            ->where('entreprises.nom_entreprise', '!=', ''); // Ajouter d'autres conditions ici si nécessaire
+    
+        // Ajouter la contrainte supplémentaire si le rôle de l'utilisateur est égal à 0
+        if ($user->role_user == 0) {
+            $result->where('users.id', $user->id);
+        }
+    
+        // Continuer avec le reste de la requête
+        $result = $result
+            ->groupBy('entreprise', 'mois', 'mois_num')
+            ->get();
+    
+        // Initialiser un tableau pour stocker les données de chaque entreprise
+        $dataByCompany = [];
+    
+        // Initialiser une variable pour suivre l'entreprise la plus demandée
+        $mostRequestedCompany = [
+            'entreprise' => '',
+            'nombre_demandes' => 0,
+        ];
+    
+        // Parcourir les résultats de la requête et organiser les données par entreprise et par mois
+        foreach ($result as $entry) {
+            $company = $entry->entreprise;
+            $dataByCompany[$company][$entry->mois_num] = [
+                'nombre_demandes' => $entry->nombre_demandes,
+                'mois' => $entry->mois,
+            ];
+    
+            // Mettre à jour l'entreprise la plus demandée si nécessaire
+            if ($entry->nombre_demandes > $mostRequestedCompany['nombre_demandes']) {
+                $mostRequestedCompany['entreprise'] = $company;
+                $mostRequestedCompany['nombre_demandes'] = $entry->nombre_demandes;
+            }
+        }
+    
+        // Initialiser un tableau pour stocker les datasets dans le format attendu par le composant React
+        $datasets = [];
+    
+        // Parcourir les données organisées par entreprise et créer les datasets
+        foreach ($dataByCompany as $company => $data) {
+            $datasets[] = [
+                'label' => "Entreprise $company - Demandes",
+                'data' => array_values($data),
+                'borderColor' => '#' . substr(md5($company), 0, 6),
+            ];
+        }
+    
+        // Ajouter l'entreprise la plus demandée à la réponse JSON
+        $mostRequestedCompanyData = [
+            'entreprise_la_plus_demandeuse' => $mostRequestedCompany['entreprise'],
+            'nombre_demandes' => $mostRequestedCompany['nombre_demandes'],
+        ];
+    
+        // Calculer le taux de demande traitée pour l'année actuelle
+        $tauxAnnee = $this->getTauxDemandeTraiteeAnnee($user);
+    
+        // Calculer le taux de demande traitée pour le mois actuel
+        $tauxMois = $this->getTauxDemandeTraiteeMois($user);
+    
+        // Calculer le nombre total de demandes pour l'année actuelle
+        $totalDemandesAnnee = $this->getTotalDemandesAnnee($user);
+    
+        // Calculer le nombre total de demandes pour le mois actuel
+        $totalDemandesMois = $this->getTotalDemandesMois($user);
+    
+        // Calculer le nombre total de demandes par entreprise
+        $totalDemandesParEntreprise = $this->getTotalDemandesParEntreprise();
+    
+        // Répondre avec les données du tableau de bord, y compris les taux de demande traitée et les totaux
+        return response()->json([
+            'labels' => ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'],
+            'datasets' => $datasets,
+            'user_activities' => $userActivities,
+            'most_requested_company' => $mostRequestedCompanyData,
+            'taux_demande_traitee_annee' => intval($tauxAnnee),
+            'taux_demande_traitee_mois' => intval($tauxMois),
+            'total_demandes_annee' => $totalDemandesAnnee,
+            'total_demandes_mois' => $totalDemandesMois,
+            'total_demandes_par_entreprise' => $totalDemandesParEntreprise,
+            'status' => 200,
+        ], 200);
+    }
+    
+    private function getTauxDemandeTraiteeAnnee($user)
+    {
+        // Vérifier le rôle de l'utilisateur avant d'appliquer la contrainte sur l'id
+        $query = DB::table('ticketReparation as tr')
+            ->join('demande_materiel', 'tr.id_demande', '=', 'demande_materiel.id_demande')
+            ->whereYear('tr.date_creation', now()->year)
+            ->selectRaw('(COUNT(CASE WHEN tr.date_resolution IS NOT NULL THEN 1 END) / COUNT(demande_materiel.id_demande)) * 100 AS taux_demande_traitee_annee')
+            ->first();
+    
+        return $query->taux_demande_traitee_annee;
+    }
+    
+    private function getTauxDemandeTraiteeMois($user)
+    {
+        // Vérifier le rôle de l'utilisateur avant d'appliquer la contrainte sur l'id
+        $query = DB::table('ticketReparation as tr')
+            ->join('demande_materiel', 'tr.id_demande', '=', 'demande_materiel.id_demande')
+            ->whereYear('tr.date_creation', now()->year)
+            ->whereMonth('tr.date_creation', now()->month)
+            ->selectRaw('(COUNT(CASE WHEN tr.date_resolution IS NOT NULL THEN 1 END) / COUNT(demande_materiel.id_demande)) * 100 AS taux_demande_traitee_mois')
+            ->first();
+    
+        return $query->taux_demande_traitee_mois;
+    }
+    
+    private function getTotalDemandesAnnee($user)
+    {
+        // Vérifier le rôle de l'utilisateur avant d'appliquer la contrainte sur l'id
+        $query = DB::table('demande_materiel')
+            ->join('demandeurs', 'demande_materiel.id_demandeur', '=', 'demandeurs.id_demandeur')
+            ->join('users', 'demandeurs.id_user', '=', 'users.id')
+            ->whereYear('demande_materiel.created_at', now()->year);
+    
+        if ($user->role_user == 0) {
+            $query->where('demandeurs.id_user', '=', $user->id);
+        }
+    
+        return $query->count();
+    }
+    
+    private function getTotalDemandesMois($user)
+    {
+        // Vérifier le rôle de l'utilisateur avant d'appliquer la contrainte sur l'id
+        $query = DB::table('ticketReparation as tr')
+            ->join('demande_materiel', 'tr.id_demande', '=', 'demande_materiel.id_demande')
+            ->join('demandeurs', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
+            ->whereYear('tr.date_creation', now()->year)
+            ->whereMonth('tr.date_creation', now()->month);
+    
+        if ($user->role_user == 0) {
+            $query->where('demandeurs.id_user', '=', $user->id);
+        }
+    
+        return $query->count();
+    }
+    
+    private function getTotalDemandesParEntreprise()
+    {
+        return DB::table('demande_materiel')
+            ->select(
+                'entreprises.nom_entreprise as entreprise',
+                DB::raw('COUNT(*) as nombre_total_demandes')
+            )
+            ->join('demandeurs', 'demande_materiel.id_demandeur', '=', 'demandeurs.id_demandeur')
+            ->join('users', 'demandeurs.id_user', '=', 'users.id')
+            ->join('entreprises', 'users.id_entreprise', '=', 'entreprises.id_entreprise')
+            ->where('entreprises.nom_entreprise', '!=', '')
+            ->groupBy('entreprise')
+            ->get();
+    }
+    
+    
+    
+    
+    
+        
 
     
-
-    return response()->json([
-        'data' => $result,
-        'status' => 200
-    ], 200);
-
-    }
+    
+    
+    
     public function registerDemandeur(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -316,43 +479,65 @@ class UserController extends Controller
 
     }
     public function getUserData()
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    if ($user) {
-        $results = DB::table('notifications')
-            ->select('notifications.*', 'users.*')
-            ->join('demande_materiel', 'notifications.id_demande', '=', 'demande_materiel.id_demande')
-            ->join('demandeurs', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
-            ->join('users', 'demandeurs.id_user', '=', 'users.id')
-            ->where('users.id', $user->id)
-            ->get();
+$entreprise = DB::table('entreprises')
+    ->join('users', 'entreprises.id_entreprise', '=', 'users.id_entreprise')
+    ->where('users.id', $user->id)
+    ->select('entreprises.*')
+    ->get();
 
+        $query = DB::table('notifications as n')
+            ->select('n.*', 'u.*', 'e.*') // Include the enterprise fields
+            ->join('demande_materiel as dm', 'n.id_demande', '=', 'dm.id_demande')
+            ->join('demandeurs as d', 'd.id_demandeur', '=', 'dm.id_demandeur')
+            ->join('users as u', 'd.id_user', '=', 'u.id')
+            ->join('entreprises as e', 'e.id_entreprise', '=', 'u.id_entreprise'); // Join with the enterprises table
+    
+        if ($user->role_user == 1) {
+            // Admin user: Fetch notifications of type 'nouvelle_demande'
+            $query->whereIn('n.type_notif', ['nouvelle_demande']);
+        } else {
+            // Non-admin user: Fetch notifications of type 'validation_demande' for the logged-in user
+            $query->where('u.id', $user->id)
+                ->whereIn('n.type_notif', ['validation_demande']);
+        }
+    
+        $results = $query->get();
+    
         $count = DB::table('notifications')
             ->join('demande_materiel', 'notifications.id_demande', '=', 'demande_materiel.id_demande')
             ->join('demandeurs', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
-            ->join('users', 'demandeurs.id_user', '=', 'users.id')
-            ->where('users.id', $user->id)
+            ->join('users', 'demandeurs.id_user', '=', 'users.id');
+    
+        if ($user->role_user == 1) {
+            // Admin user
+            $count->whereIn('notifications.type_notif', ['nouvelle_demande']);
+        } else {
+            // Non-admin user
+            $count->where('users.id', $user->id)
+                ->whereIn('notifications.type_notif', ['validation_demande']);
+        }
+    
+        $count = $count->where('notifications.status_notif', '=', 0)
             ->count();
-
-        // Concaténer la clé status dans chaque objet notification
+    
+        // Concatenate the 'status' key in each notification object
         $resultsWithStatus = $results->map(function ($item) {
-            $item->status = 0; // Vous pouvez remplacer 0 par la valeur que vous souhaitez.
+            $item->status = 0; // You can replace 0 with the value you desire.
             return $item;
         });
-
+    
         return response()->json([
             'user' => $user,
+            'entreprise'=>$entreprise,
             'notification' => $resultsWithStatus,
             'count_notif' => $count,
         ], 200);
-
-    } else {
-        return response()->json([
-            'message' => 'Aucun utilisateur connecté',
-        ], 401);
     }
-}
+    
+    
 
     public function getDemandesUtilisateur(Request $request)
     {
@@ -605,7 +790,7 @@ class UserController extends Controller
         try {
             $updateNotification = DB::table('notifications')
                 ->where('id_notif', $id) 
-                ->update(['status' => 1]);
+                ->update(['status_notif' => 1]);
 
             if ($updateNotification) {
                 return response()->json(['status' => true]);

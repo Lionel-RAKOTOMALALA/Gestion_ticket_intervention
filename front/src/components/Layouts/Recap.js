@@ -1,84 +1,90 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import Switch from '@mui/material/Switch';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
+import Typography from '@mui/material/Typography';
+import DashboardCard from './DashboardCard';
+const Recap = ({ mostRequestedCompany,nbrDmdTraiteAnnee,nbrDmdTraiteMois,total_demandes_annee,total_demandes_mois })=>{
+const [choix, setChoix] = useState('mois');
 
-const Recap = () => {
   return (
     <div className="row">
-      {/* Earnings (Monthly) Card Example */}
+      {/* Total Demandes Année Card Example */}
+      <DashboardCard
+  title="Total Demandes Année"
+  value={total_demandes_annee}
+  
+  icon="description"
+/>
+
+<DashboardCard
+  title="Total Demandes Mois"
+  value={total_demandes_mois}
+  icon="description"
+/>
+
+
+    
       <div className="col-xl-3 col-md-6 mb-4">
-        <div className="card border-left-primary shadow h-100 py-2">
-          <div className="card-body">
-            <div className="row no-gutters align-items-center">
-              <div className="col mr-2">
-                <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                  Earnings (Monthly)
-                </div>
-                <div className="h5 mb-0 font-weight-bold text-gray-800">$40,000</div>
+  <div className="card border-left-info shadow h-100 py-2">
+    <div className="card-body">
+      <div className="row no-gutters align-items-center">
+        <div className="col mr-2">
+          <div className="text-xs font-weight-bold text-info text-uppercase mb-1">
+            Taux de demande Traité
+          </div>
+          <div className="row no-gutters align-items-center mt-2">
+            <div className="col-auto text-center">
+              <div className="h5 mb-0 ml-2 font-weight-bold text-gray-800">
+                {choix === 'annee' ? `${nbrDmdTraiteAnnee}%` : `${nbrDmdTraiteMois}%`}
               </div>
-              <div className="col-auto">
-                <i className="fas fa-calendar fa-2x text-gray-300"></i>
+            </div>
+            <div className="col">
+              <div className="progress progress-sm mr-2">
+                <div
+                  className="progress-bar bg-info a1"
+                  role="progressbar"
+                  style={{ width: `${choix === 'annee' ? nbrDmdTraiteAnnee : nbrDmdTraiteMois}%` }}
+                ></div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Earnings (Annual) Card Example */}
-      <div className="col-xl-3 col-md-6 mb-4">
-        <div className="card border-left-success shadow h-100 py-2">
-          <div className="card-body">
-            <div className="row no-gutters align-items-center">
-              <div className="col mr-2">
-                <div className="text-xs font-weight-bold text-success text-uppercase mb-1">
-                  Earnings (Annual)
-                </div>
-                <div className="h5 mb-0 font-weight-bold text-gray-800">$215,000</div>
-              </div>
-              <div className="col-auto">
-                <i className="fas fa-dollar-sign fa-2x text-gray-300"></i>
-              </div>
-            </div>
-          </div>
+        <div className="col-auto">
+          <i className="fas fa-clipboard-list fa-2x text-gray-300"></i>
         </div>
       </div>
-
-      {/* Tasks Card Example */}
-      <div className="col-xl-3 col-md-6 mb-4">
-        <div className="card border-left-info shadow h-100 py-2">
-          <div className="card-body">
-            <div className="row no-gutters align-items-center">
-              <div className="col mr-2">
-                <div className="text-xs font-weight-bold text-info text-uppercase mb-1">
-                  Tasks
-                </div>
-                <div className="row no-gutters align-items-center">
-                  <div className="col-auto text-center"> {/* Ajout de la classe text-center */}
-                    <div className="h5 mb-0 ml-2 font-weight-bold text-gray-800">50%</div>
-                  </div>
-                  <div className="col">
-                    <div className="progress progress-sm mr-2">
-                      <div className="progress-bar bg-info a1" role="progressbar" style={{ width: '50%' }}></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-auto">
-                <i className="fas fa-clipboard-list fa-2x text-gray-300"></i>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="text-right">
+        <IconButton onClick={() => setChoix((prev) => (prev === 'mois' ? 'annee' : 'mois'))}>
+          <ShowChartIcon color="inherit" />
+        </IconButton>
+        <span className="text-gray-500 ml-1">{choix === 'annee' ? 'Année' : 'Mois'}</span>
       </div>
+    </div>
+  </div>
+</div>
 
-      {/* Pending Requests Card Example */}
-      <div className="col-xl-3 col-md-6 mb-4">
+
+   {/* Pending Requests Card Example */}
+   <div className="col-xl-3 col-md-6 mb-4">
         <div className="card border-left-warning shadow h-100 py-2">
           <div className="card-body">
             <div className="row no-gutters align-items-center">
               <div className="col mr-2">
                 <div className="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                  Pending Requests
+                  Demandes en Attente
                 </div>
-                <div className="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                <div className="h5 mb-0 font-weight-bold text-gray-800">
+                  {mostRequestedCompany ? mostRequestedCompany.nombre_demandes : 'Loading...'}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {mostRequestedCompany ? `Entreprise la plus demandée : ${mostRequestedCompany.entreprise_la_plus_demandeuse}` : 'Chargement...'}
+                </div>
               </div>
               <div className="col-auto">
                 <i className="fas fa-comments fa-2x text-gray-300"></i>

@@ -48,13 +48,7 @@ const TicketApp = () => {
           <p className="mb-5">
             Gérez les tickets d'intervention de votre équipe ici.
           </p>
-          <NavLink to="/admin/ticket/ajout">
-            <div className="d-flex justify-content-end">
-              <button type="button" className="btn btn-primary mb-3">
-                <UilPlus size="20" /> Créer un nouveau ticket
-              </button>
-            </div>
-          </NavLink>
+         
         </>
       ) : (
         <TicketListDemandeur />

@@ -88,7 +88,7 @@ function DemandeurForm({ isOpen, onClose, initialValues }) {
     setRegister({ ...registerInput, id_entreprise: selectedEntreprise });
 
     // Mettre à jour la visibilité du champ du poste en fonction de l'entreprise sélectionnée
-    setShowPosteField(selectedEntreprise === '1');
+    setShowPosteField(selectedEntreprise === 1);
   };
 
   const handlePosteChange = (e) => {
@@ -145,185 +145,201 @@ function DemandeurForm({ isOpen, onClose, initialValues }) {
         <div>
           <div className="container py-5">
             <div className="row justify-content-center">
-              <div className="col-md-6">
-                <div className="card" style={{marginTop:'-70px'}}>
+              <div className="col-md-8">
+                <div className="card" style={{marginTop:'50px'}}>
                   <div className="card-header">
-                    <h4>Register</h4>
+                    <h4>Ajout de demandeur</h4>
                   </div>
                   <div className="card-body">
-                  <form onSubmit={registerSubmit} encType="multipart/form-data">
-                    <FormControl fullWidth sx={{ marginBottom: 3 }}>
-                      <TextField
-                        id="username"
-                        name="username"
-                        onChange={handleInput}
-                        value={registerInput.username}
-                        variant="outlined"
-                        label="Username"
-                        sx={{ marginTop: 1 }}
-                      />
-                      {registerInput.error_list.username && (
-                        <FormHelperText error>
-                          {registerInput.error_list.username}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-
-                    <FormControl fullWidth sx={{ marginBottom: 3 }}>
-                      <TextField
-                        id="email"
-                        name="email"
-                        type="email"
-                        onChange={handleInput}
-                        value={registerInput.email}
-                        variant="outlined"
-                        label="Email"
-                        sx={{ marginTop: 1 }}
-                      />
-                      {registerInput.error_list.email && (
-                        <FormHelperText error>
-                          {registerInput.error_list.email}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-
-                    <FormControl fullWidth sx={{ marginBottom: 3 }}>
-                      <TextField
-                        id="password"
-                        name="password"
-                        type="password"
-                        onChange={handleInput}
-                        value={registerInput.password}
-                        variant="outlined"
-                        label="Password"
-                        sx={{ marginTop: 1 }}
-                      />
-                      {registerInput.error_list.password && (
-                        <FormHelperText error>
-                          {registerInput.error_list.password}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-
-                    <FormControl fullWidth sx={{ marginBottom: 3 }}>
-                      <FormLabel>Role User</FormLabel>
-                      <RadioGroup
-                        row
-                        name="role_user"
-                        value={registerInput.role_user}
-                        onChange={handleInput}
-                        sx={{ marginTop: 1 }}
-                      >
-                        <FormControlLabel
-                          value="1"
-                          control={<Radio />}
-                          label="Admin"
-                        />
-                        <FormControlLabel
-                          value="0"
-                          control={<Radio />}
-                          label="Utilisateur simple"
-                        />
-                      </RadioGroup>
-                    </FormControl>
-
-                    <FormControl fullWidth sx={{ marginBottom: 3 }}>
-                      <FormLabel htmlFor="id_entreprise">Entreprise</FormLabel>
-                      <Select
-                        id="id_entreprise"
-                        name="id_entreprise"
-                        value={registerInput.id_entreprise}
-                        onChange={handleEntrepriseChange}
-                        displayEmpty
-                        input={<Input />}
-                        sx={{ marginTop: 1 }}
-                      >
-                        <MenuItem value="" disabled>
-                          Select Entreprise
-                        </MenuItem>
-                        {entreprises.map(entreprise => (
-                          <MenuItem key={entreprise.id_entreprise} value={entreprise.id_entreprise}>
-                            {entreprise.nom_entreprise}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      {registerInput.error_list.id_entreprise && (
-                        <FormHelperText error>
-                          {registerInput.error_list.id_entreprise}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-
-                    {showPosteField && (
-                      <FormControl fullWidth sx={{ marginBottom: 3 }}>
-                        <FormLabel htmlFor="id_poste">Poste</FormLabel>
-                        <Select
-                          id="id_poste"
-                          name="id_poste"
-                          value={registerInput.id_poste}
-                          onChange={handlePosteChange}
-                          displayEmpty
-                          input={<Input />}
-                          sx={{ marginTop: 1 }}
-                        >
-                          <MenuItem value="" disabled>
-                            Select Poste
-                          </MenuItem>
-                          {postes.map(poste => (
-                            <MenuItem key={poste.id_poste} value={poste.id_poste}>
-                              {poste.nom_poste}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                        {registerInput.error_list.poste && (
-                          <FormHelperText error>
-                            {registerInput.error_list.poste}
-                          </FormHelperText>
+                    <form onSubmit={registerSubmit} encType="multipart/form-data">
+                      <div className="row">
+                        <div className="col-md-6">
+                          <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                            <TextField
+                              id="username"
+                              name="username"
+                              onChange={handleInput}
+                              value={registerInput.username}
+                              variant="outlined"
+                              label="Username"
+                              sx={{ marginTop: 1 }}
+                            />
+                            {registerInput.error_list.username && (
+                              <FormHelperText error>
+                                {registerInput.error_list.username}
+                              </FormHelperText>
+                            )}
+                          </FormControl>
+                        </div>
+                        <div className="col-md-6">
+                          <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                            <TextField
+                              id="email"
+                              name="email"
+                              type="email"
+                              onChange={handleInput}
+                              value={registerInput.email}
+                              variant="outlined"
+                              label="Email"
+                              sx={{ marginTop: 1 }}
+                            />
+                            {registerInput.error_list.email && (
+                              <FormHelperText error>
+                                {registerInput.error_list.email}
+                              </FormHelperText>
+                            )}
+                          </FormControl>
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-md-6">
+                          <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                            <TextField
+                              id="password"
+                              name="password"
+                              type="password"
+                              onChange={handleInput}
+                              value={registerInput.password}
+                              variant="outlined"
+                              label="Password"
+                              sx={{ marginTop: 1 }}
+                            />
+                            {registerInput.error_list.password && (
+                              <FormHelperText error>
+                                {registerInput.error_list.password}
+                              </FormHelperText>
+                            )}
+                          </FormControl>
+                        </div>
+                        <div className="col-md-6">
+                          <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                            <FormLabel>Role User</FormLabel>
+                            <RadioGroup
+                              row
+                              name="role_user"
+                              value={registerInput.role_user}
+                              onChange={handleInput}
+                              sx={{ marginTop: 1 }}
+                            >
+                              <FormControlLabel
+                                value="1"
+                                control={<Radio />}
+                                label="Admin"
+                              />
+                              <FormControlLabel
+                                value="0"
+                                control={<Radio />}
+                                label="Utilisateur simple"
+                              />
+                            </RadioGroup>
+                          </FormControl>
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-md-6">
+                          <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                            <FormLabel htmlFor="id_entreprise">Entreprise</FormLabel>
+                            <Select
+                              id="id_entreprise"
+                              name="id_entreprise"
+                              value={registerInput.id_entreprise}
+                              onChange={handleEntrepriseChange}
+                              displayEmpty
+                              input={<Input />}
+                              sx={{ marginTop: 1 }}
+                            >
+                              <MenuItem value="" disabled>
+                                Select Entreprise
+                              </MenuItem>
+                              {entreprises.map(entreprise => (
+                                <MenuItem key={entreprise.id_entreprise} value={entreprise.id_entreprise}>
+                                  {entreprise.nom_entreprise}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                            {registerInput.error_list.id_entreprise && (
+                              <FormHelperText error>
+                                {registerInput.error_list.id_entreprise}
+                              </FormHelperText>
+                            )}
+                          </FormControl>
+                        </div>
+                        {showPosteField && (
+                          <div className="col-md-6">
+                            <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                              <FormLabel htmlFor="id_poste">Poste</FormLabel>
+                              <Select
+                                id="id_poste"
+                                name="id_poste"
+                                value={registerInput.id_poste}
+                                onChange={handlePosteChange}
+                                displayEmpty
+                                input={<Input />}
+                                sx={{ marginTop: 1 }}
+                              >
+                                <MenuItem value="" disabled>
+                                  Select Poste
+                                </MenuItem>
+                                {postes.map(poste => (
+                                  <MenuItem key={poste.id_poste} value={poste.id_poste}>
+                                    {poste.nom_poste}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                              {registerInput.error_list.poste && (
+                                <FormHelperText error>
+                                  {registerInput.error_list.poste}
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                          </div>
                         )}
-                      </FormControl>
-                    )}
-
-                    <FormControl fullWidth sx={{ marginBottom: 3 }}>
-                      <FormLabel>Sexe</FormLabel>
-                      <RadioGroup
-                        row
-                        name="sexe"
-                        value={registerInput.sexe}
-                        onChange={handleInput}
-                        sx={{ marginTop: 1 }}
-                      >
-                        <FormControlLabel
-                          value="Homme"
-                          control={<Radio />}
-                          label="Homme"
-                        />
-                        <FormControlLabel
-                          value="Femme"
-                          control={<Radio />}
-                          label="Femme"
-                        />
-                      </RadioGroup>
-                    </FormControl>
-
-                    <FormControl fullWidth sx={{ marginBottom: 3 }}>
-                      <FormLabel htmlFor="photo_profil_user">Photo de Profil</FormLabel>
-                      <Input
-                        type="file"
-                        name="photo_profil_user"
-                        onChange={handleFileInput}
-                        sx={{ marginTop: 1 }}
-                      />
-                      {registerInput.error_list.photo_profil_user && (
-                        <FormHelperText error>
-                          {registerInput.error_list.photo_profil_user}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-
-                    <Button type="submit" variant="contained" color="primary" sx={{ marginTop: 3 }}>
-                      Register
-                    </Button>
-                  </form>
+                      </div>
+                      <div className="row">
+                        <div className="col-md-6">
+                          <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                            <FormLabel>Sexe</FormLabel>
+                            <RadioGroup
+                              row
+                              name="sexe"
+                              value={registerInput.sexe}
+                              onChange={handleInput}
+                              sx={{ marginTop: 1 }}
+                            >
+                              <FormControlLabel
+                                value="Homme"
+                                control={<Radio />}
+                                label="Homme"
+                              />
+                              <FormControlLabel
+                                value="Femme"
+                                control={<Radio />}
+                                label="Femme"
+                              />
+                            </RadioGroup>
+                          </FormControl>
+                        </div>
+                        <div className="col-md-6">
+                          <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                            <FormLabel htmlFor="photo_profil_user">Photo de Profil</FormLabel>
+                            <Input
+                              type="file"
+                              name="photo_profil_user"
+                              onChange={handleFileInput}
+                              sx={{ marginTop: 1 }}
+                            />
+                            {registerInput.error_list.photo_profil_user && (
+                              <FormHelperText error>
+                                {registerInput.error_list.photo_profil_user}
+                              </FormHelperText>
+                            )}
+                          </FormControl>
+                        </div>
+                      </div>
+                      <Button type="submit" variant="contained" color="primary" sx={{ marginTop: 3 }}>
+                        Register
+                      </Button>
+                    </form>
                   </div>
                 </div>
               </div>

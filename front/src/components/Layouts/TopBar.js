@@ -24,7 +24,18 @@ import {
   Avatar,
   Menu,
   MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Card,
+  CardContent,
+  Grid,
+  DialogActions,
+  Button,
 } from '@mui/material';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import moment from 'moment';
 
 const TopBar = () => {
   const navigate = useNavigate();
@@ -34,6 +45,8 @@ const TopBar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [getRows, setRows] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState(null);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -78,26 +91,44 @@ const TopBar = () => {
   const handleUserMenuClose = () => {
     setAnchorEl(null);
   };
+  const userRole = localStorage.getItem('role');
+  const isAdmin = userRole === 'admin';
+  const isUserSimple = userRole === 'userSimple';
 
-  const handleNotificationClick = async (notificationId) => {
-    try {
-      const response = await axios.put(`http://127.0.0.1:8000/api/update-notif/${notificationId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-        },
-      });
+  const linkRoot = isAdmin ? '/admin' : isUserSimple ? '/Acceuil_client' : '';
+  const handleNotificationClick = (notificationId) => {
+    const clickedNotification = notifications.find(
+      (notification) => notification.id_notif === notificationId
+    );
 
-      if (response.data.status) {
-        setNotifications((prevNotifications) =>
-          prevNotifications.map((notification) =>
-            notification.id === notificationId ? { ...notification, status: 1 } : notification
-          )
-        );
-      } else {
-        console.error('La mise à jour de la notification a échoué.');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour de la notification :', error);
+    if (clickedNotification) {
+      setSelectedNotification(clickedNotification);
+      setIsModalOpen(true);
+
+      // Close modal after a certain time
+      setTimeout(() => {
+        setIsModalOpen(false);
+        setSelectedNotification(null); // Reset selected notification
+      }, 3000);
+
+      // Update Notification table
+      axios
+        .put(`http://localhost:8000/api/update-notif/${notificationId}`)
+        .then((result) => {
+          setOpen(false);
+          toast.success('Notification lue avec succès!', {
+            position: 'bottom-left',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        })
+        .catch(() => {
+          alert('Error in the Code');
+        });
     }
   };
 
@@ -140,68 +171,73 @@ const TopBar = () => {
       }}
     >
       <Box p={2}>
-        <Typography variant="h6" gutterBottom style={{ color: '#0369a1' }}>
-          Notifications
-        </Typography>
-        <Divider />
-        <List>
-          {notifications.map((notification, index) => (
-            <ListItem
-              key={index}
-              alignItems="flex-start"
-              style={{ backgroundColor: notification.status === 0 ? '#ccffcc' : 'white' }}
-              sx={{ borderBottom: '1px solid #ddd' }}
-              onClick={() => handleNotificationClick(notification.id_notif)}
-            >
-              <ListItemAvatar>
-                <Avatar sx={{ backgroundColor: '#0369a1', color: '#fff' }}>
-                  <img
-                    src={`http://localhost:8000/uploads/users/${user.photo_profil_user}`}
-                    alt="User Photo"
-                    className="rounded-circle mx-auto"
-                    style={{
-                      width: '2rem',
-                      height: '2rem',
-                    }}
-                  />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={
-                  <Link href="#" color="textPrimary" sx={{ fontWeight: 'bold' }}>
-                    {notification.type_notif}
-                  </Link>
-                }
-                secondary={
-                  <Typography variant="body2" color="textSecondary">
-                    {notification.phrase}
-                  </Typography>
-                }
-              />
-            </ListItem>
-          ))}
-          <ListItem
-            component={Link}
-            href="#"
-            alignItems="center"
-            sx={{
-              justifyContent: 'center',
-              borderTop: '1px solid #ddd',
-              paddingTop: 1,
-              paddingBottom: 1,
-              color: '#0369a1',
-              position: 'sticky',
-              bottom: 0,
-              backgroundColor: '#fff',
-              zIndex: 1201,
-            }}
-          >
+  <Typography variant="h6" gutterBottom style={{ color: '#0369a1' }}>
+    Notifications
+  </Typography>
+  <Divider />
+  <List>
+    {notifications.map((notification, index) => (
+      <ListItem
+        key={index}
+        alignItems="flex-start"
+        style={{
+          backgroundColor: notification.status_notif === 0 ? '#ccffcc' : 'white',
+          cursor: 'pointer', // Ajoutez cette ligne pour définir le curseur comme pointeur
+        }}
+        sx={{ borderBottom: '1px solid #ddd' }}
+        onClick={() => handleNotificationClick(notification.id_notif)}
+      >
+        <ListItemAvatar>
+          <Avatar sx={{ backgroundColor: '#0369a1', color: '#fff' }}>
+            <img
+              src={`http://localhost:8000/uploads/users/${user.photo_profil_user}`}
+              alt="User Photo"
+              className="rounded-circle mx-auto"
+              style={{
+                width: '2rem',
+                height: '2rem',
+              }}
+            />
+          </Avatar>
+        </ListItemAvatar>
+        <ListItemText
+          primary={
+            <Link href="#" color="textPrimary" sx={{ fontWeight: 'bold' }}>
+              {notification.type_notif}
+            </Link>
+          }
+          secondary={
             <Typography variant="body2" color="textSecondary">
-              Voir plus
+              {notification.phrase}
             </Typography>
-          </ListItem>
-        </List>
-      </Box>
+          }
+        />
+      </ListItem>
+    ))}
+    <ListItem
+      component={Link}
+      href="#"
+      alignItems="center"
+      sx={{
+        justifyContent: 'center',
+        borderTop: '1px solid #ddd',
+        paddingTop: 1,
+        paddingBottom: 1,
+        color: '#0369a1',
+        position: 'sticky',
+        bottom: 0,
+        backgroundColor: '#fff',
+        zIndex: 1201,
+        cursor: 'pointer', // Ajoutez cette ligne pour définir le curseur comme pointeur
+      }}
+    >
+      <Typography variant="body2" color="textSecondary">
+        Voir plus
+      </Typography>
+    </ListItem>
+  </List>
+</Box>
+
     </Paper>
   );
 
@@ -259,7 +295,7 @@ const TopBar = () => {
             <MenuItem onClick={handleUserMenuClose}>
               <Link
                 component={NavLink}
-                to="/admin/profile"
+                to={`${linkRoot}/profile`}
                 sx={{
                   textDecoration: 'none',
                   color: '#0369a1',
@@ -276,26 +312,7 @@ const TopBar = () => {
                 <Typography variant="inherit">Profile</Typography>
               </Link>
             </MenuItem>
-            <MenuItem onClick={handleUserMenuClose}>
-              <Link
-                component={NavLink}
-                to="#"
-                sx={{
-                  textDecoration: 'none',
-                  color: '#0369a1',
-                  '&:hover': {
-                    textDecoration: 'none',
-                    color: '#0369a1',
-                    filter: 'brightness(0.7)',
-                  },
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                <i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                <Typography variant="inherit">Paramètre</Typography>
-              </Link>
-            </MenuItem>
+            
             <Divider />
             <MenuItem onClick={handleUserMenuClose}>
               <Link
@@ -346,7 +363,31 @@ const TopBar = () => {
           <MenuIcon />
         </IconButton>
         <Box ml="auto">{AuthButtons}</Box>
+        <ToastContainer />
       </Toolbar>
+      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} fullWidth maxWidth="md">
+        <DialogTitle style={{ backgroundColor: 'rgba(33, 150, 243, 0.9)', color: '#fff' }}>Détails de la notification</DialogTitle>
+        <DialogContent>
+          <Card style={{ backdropFilter: 'blur(10px)', backgroundColor: 'rgba(255, 255, 255, 0.8)', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', borderRadius: '12px', overflow: 'hidden', marginTop : '2%', border: 'none' }}>
+            <CardContent>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Typography variant="body1">{`Type de notification: ${selectedNotification?.type_notif}`}</Typography>
+                  <Typography variant="body1">{`Phrase: ${selectedNotification?.phrase}`}</Typography>
+                  <Typography variant="body1">{`Phrase: ${selectedNotification?.created_at}`}</Typography>
+                  {/* Add more information as needed */}
+                </Grid>
+                <Grid item xs={6}>
+                  {/* Add more fields if necessary */}
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        </DialogContent>
+        <DialogActions>
+          <Button style={{ color: '#2196f3' }} onClick={() => setIsModalOpen(false)}>Fermer</Button>
+        </DialogActions>
+      </Dialog>
     </AppBar>
   );
 };

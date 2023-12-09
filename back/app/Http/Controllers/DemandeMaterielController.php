@@ -19,9 +19,10 @@ class DemandeMaterielController extends Controller
         ->select('demande_materiel.*', 'users.username as demandeur_username', 'entreprises.nom_entreprise as demandeur_entreprise', 'materiels.type_materiel')
         ->join('demande_materiel', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
         ->join('users', 'demandeurs.id_user', '=', 'users.id')
-        ->join('entreprises','users.id_entreprise','=','entreprises.id_entreprise')
+        ->join('entreprises', 'users.id_entreprise', '=', 'entreprises.id_entreprise')
         ->join('materiels', 'demande_materiel.num_serie', '=', 'materiels.num_serie')
         ->get();
+    
     
 
         if ($demandes) {
@@ -182,7 +183,7 @@ class DemandeMaterielController extends Controller
                 'id_demande' => $demande->id_demande,
                 'id_ticket' => $idTicket,
                 'date_creation' => now(),
-                'phrase' => 'Demande validée',
+                'phrase' => ' ' . Auth::user()->username .' vient de valider votre demande de réparation',
             ]);
     
             return response()->json([

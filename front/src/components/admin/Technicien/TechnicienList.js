@@ -7,6 +7,7 @@ import {
   IconButton,
   Grid,
   Skeleton,
+  Avatar
 } from "@mui/material";
 import { DataGrid, gridClasses } from "@mui/x-data-grid";
 import { Edit, Delete } from "@mui/icons-material";
@@ -90,10 +91,31 @@ const TechnicienList = () => {
 
   const columns = [
     { field: "id_technicien", headerName: "ID", width: 70 },
-    { field: "username", headerName: "Nom d'utilisateur", width: 150 },
+    { 
+      field: 'photo_profil_user', // Assurez-vous que le nom du champ correspond à votre modèle de données
+      headerName: 'Profil', 
+      width: 200,
+      renderCell: (params) => (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar src={`http://localhost:8000/uploads/users/${params.row.photo_profil_user}`} alt={params.row.username} style={{ marginRight: 8 }} />
+          {params.row.username}
+        </div>
+      ),
+    },
     { field: "email", headerName: "Email", width: 180 },
     { field: "sexe", headerName: "Sexe", width: 80 },
-    { field: "nom_entreprise", headerName: "Nom de l'entreprise", width: 150 },
+    { 
+      
+      field: 'logo', // Assurez-vous que le nom du champ correspond à votre modèle de données
+      headerName: 'Entreprise', 
+      width: 200,
+      renderCell: (params) => (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <img src={`http://localhost:8000/uploads/logo/${params.row.logo}`} alt={params.row.logo} style={{ marginRight: 8, width: 80}} />
+          
+        </div>
+      ),
+    },
     { field: "role_user", headerName: "Role", width: 100 },
     { field: "competence", headerName: "Compétence", width: 120 },
     {

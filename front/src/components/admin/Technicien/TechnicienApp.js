@@ -1,9 +1,10 @@
-// TechnicienApp.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Button, Slide } from '@mui/material';
 import { UilPlus } from '@iconscout/react-unicons';
 import { NavLink } from 'react-router-dom';
-import TechnicienList from "./TechnicienList";
-import TechnicienForm from "./TechnicienForm"; // Ajoutez l'import du composant TechnicienForm
+import { AnimatePresence, motion } from 'framer-motion';
+import TechnicienList from './TechnicienList';
+import TechnicienForm from './TechnicienForm';
 
 const TechnicienApp = () => {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -12,7 +13,7 @@ const TechnicienApp = () => {
   const [initialFormValues, setInitialFormValues] = useState(null);
 
   const handleOpenFormModal = () => {
-    setInitialFormValues(null); // Réinitialiser les valeurs initiales du formulaire
+    setInitialFormValues(null);
     setIsFormModalOpen(true);
   };
 
@@ -35,28 +36,65 @@ const TechnicienApp = () => {
   };
 
   return (
-    <div className="container-fluid">
-      <h1 className="h3 mb-2 text-gray-800">Techniciens</h1>
-      <p className="mb-5">Gérez les techniciens de votre équipe ici.</p>
-      <NavLink to="/admin/techniciens">
-        <div className="d-flex justify-content-end">
-          <button type="button" className="btn btn-primary mb-3" onClick={handleOpenFormModal}>
-            <UilPlus size="20" /> Ajouter un technicien
-          </button>
-        </div>
-      </NavLink>
-      <TechnicienList onEdit={handleOpenEditModal} />
-      <TechnicienForm
-        isOpen={isFormModalOpen}
-        onClose={handleCloseFormModal}
-        initialValues={initialFormValues}
-      />
-      <TechnicienForm
-        isOpen={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        initialValues={initialFormValues}
-      />
-    </div>
+    <Slide direction="up" in={true} mountOnEnter unmountOnExit>
+      <Box sx={{ p: 3 }}>
+        <AnimatePresence>
+          <motion.h1
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.5 }}
+            className="h3 mb-2 text-gray-800"
+          >
+            Techniciens
+          </motion.h1>
+        </AnimatePresence>
+
+        <AnimatePresence>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mb-5"
+          >
+            Gérez les techniciens de votre équipe ici.
+          </motion.p>
+        </AnimatePresence>
+
+        <NavLink to="/admin/techniciens">
+          <div className="d-flex justify-content-end">
+            <AnimatePresence>
+              <motion.button
+                type="button"
+                className="btn btn-primary mb-3"
+                onClick={handleOpenFormModal}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <UilPlus size="20" /> Ajouter un technicien
+              </motion.button>
+            </AnimatePresence>
+          </div>
+        </NavLink>
+
+        <TechnicienList onEdit={handleOpenEditModal} />
+
+        <TechnicienForm
+          isOpen={isFormModalOpen}
+          onClose={handleCloseFormModal}
+          initialValues={initialFormValues}
+        />
+
+        <TechnicienForm
+          isOpen={isEditModalOpen}
+          onClose={handleCloseEditModal}
+          initialValues={initialFormValues}
+        />
+      </Box>
+    </Slide>
   );
 };
 

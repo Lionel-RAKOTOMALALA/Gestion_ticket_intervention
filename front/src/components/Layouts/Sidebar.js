@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { UilUserCircle } from '@iconscout/react-unicons';
 import axios from 'axios';
 import Skeleton from '@mui/material/Skeleton';
+import SvgIcon from '@mui/material/SvgIcon';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
+import ComputerIcon from '@mui/icons-material/Computer';
+import HelpIcon from '@mui/icons-material/Help';
+import EventIcon from '@mui/icons-material/Event';
+
 
 function Sidebar() {
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
   const [style, setStyle] = useState("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion");
-
   const [demandeurVerifCount, setDemandeurVerifCount] = useState(null);
   const [technicienVerifCount, setTechnicienVerifCount] = useState(null);
 
@@ -66,6 +71,7 @@ function Sidebar() {
 
   const location = useLocation();
   const gradientBackground = {
+    color:'white',
     background: 'linear-gradient(180deg, #0369a1,#082f49)',
   };
 
@@ -73,7 +79,6 @@ function Sidebar() {
   const isAdmin = userRole === 'admin';
   const isUserSimple = userRole === 'userSimple';
 
-  // Racine des liens en fonction du rôle
   const linkRoot = isAdmin ? '/admin' : isUserSimple ? '/Acceuil_client' : '';
 
   let menuItems = null;
@@ -82,7 +87,7 @@ function Sidebar() {
     if (demandeurVerifCount === 1 || technicienVerifCount === 1) {
       menuItems = (
         <>
-        <li className="nav-item">
+          <li className="nav-item">
             <div className="nav-link collapsed"
               data-toggle="collapse"
               data-target="#collapseMatériels"
@@ -90,7 +95,7 @@ function Sidebar() {
               aria-controls="collapseMatériels"
               style={{ cursor: 'pointer' }}
             >
-              <i className="fas fa-fw fa-cube"></i>
+              <SvgIcon component={ComputerIcon} />
               <span>Utilisateur</span>
             </div>
             <div id="collapseMatériels" className="collapse" aria-labelledby="headingMatériels" data-parent="#accordionSidebar">
@@ -102,39 +107,35 @@ function Sidebar() {
                 <NavLink className="collapse-item" to={`${linkRoot}/techniciens`}>
                   Techniciens
                 </NavLink>
-                <NavLink className="collapse-item" to={`${linkRoot}/materiels`}>
-                  Tous
-                </NavLink>
               </div>
             </div>
           </li>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/postes`}>
-              <UilUserCircle />
+              <SvgIcon component={AssignmentIndIcon} />
               <span>Postes</span>
             </NavLink>
           </li>
-          
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/demande_materiels`}>
-              <UilUserCircle />
+            <AssignmentIndIcon/>
               <span>Demande de réparation</span>
             </NavLink>
           </li>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/tickets`}>
-              <UilUserCircle />
-              <span>Tickets de reparation</span>
+              <SvgIcon component={EventIcon} />
+              <span>Tickets de réparation</span>
             </NavLink>
           </li>
         </>
       );
-    } else if(demandeurVerifCount === 1){
+    } else if (demandeurVerifCount === 1) {
       menuItems = (
         <>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/demande_materiels`}>
-              <UilUserCircle />
+            <AssignmentIndIcon/>
               <span>Demande de réparation</span>
             </NavLink>
           </li>
@@ -146,7 +147,7 @@ function Sidebar() {
               aria-controls="collapseMatériels"
               style={{ cursor: 'pointer' }}
             >
-              <i className="fas fa-fw fa-cube"></i>
+              <SvgIcon component={ComputerIcon} />
               <span>Matériels</span>
             </div>
             <div id="collapseMatériels" className="collapse" aria-labelledby="headingMatériels" data-parent="#accordionSidebar">
@@ -166,8 +167,8 @@ function Sidebar() {
           </li>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/tickets`}>
-              <UilUserCircle />
-              <span>Tickets de reparation</span>
+              <SvgIcon component={EventIcon} />
+              <span>Tickets de réparation</span>
             </NavLink>
           </li>
         </>
@@ -177,44 +178,42 @@ function Sidebar() {
         <>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/demandeurs`}>
-              <UilUserCircle />
+              <SvgIcon component={ComputerIcon} />
               <span>Demandeur</span>
             </NavLink>
           </li>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/users`}>
-              <UilUserCircle />
+              <SvgIcon component={ComputerIcon} />
               <span>Utilisateur</span>
             </NavLink>
           </li>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/postes`}>
-              <UilUserCircle />
+              <SvgIcon component={AssignmentIndIcon} />
               <span>Postes</span>
             </NavLink>
           </li>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/techniciens`}>
-              <UilUserCircle />
+              <SvgIcon component={ComputerIcon} />
               <span>Technicien</span>
             </NavLink>
           </li>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/demande_materiels`}>
-              <UilUserCircle />
+            <AssignmentIndIcon/>
               <span>Demande de réparation</span>
             </NavLink>
           </li>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/tickets`}>
-              <UilUserCircle />
-              <span>Tickets de reparation</span>
+              <SvgIcon component={EventIcon} />
+              <span>Tickets de réparation</span>
             </NavLink>
           </li>
         </>
       );
-    } else {
-      // Handle other cases as needed
     }
   } else if (isUserSimple) {
     if (demandeurVerifCount === 1) {
@@ -222,7 +221,7 @@ function Sidebar() {
         <>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/demande_materiels`}>
-              <UilUserCircle />
+            <AssignmentIndIcon/>
               <span>Demande de réparation</span>
             </NavLink>
           </li>
@@ -234,7 +233,7 @@ function Sidebar() {
               aria-controls="collapseMatériels"
               style={{ cursor: 'pointer' }}
             >
-              <i className="fas fa-fw fa-cube"></i>
+              <SvgIcon component={ComputerIcon} />
               <span>Matériels</span>
             </div>
             <div id="collapseMatériels" className="collapse" aria-labelledby="headingMatériels" data-parent="#accordionSidebar">
@@ -254,8 +253,8 @@ function Sidebar() {
           </li>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/tickets`}>
-              <UilUserCircle />
-              <span>Tickets de reparation</span>
+              <SvgIcon component={EventIcon} />
+              <span>Tickets de réparation</span>
             </NavLink>
           </li>
         </>
@@ -265,20 +264,18 @@ function Sidebar() {
         <>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/demande_materiels`}>
-              <UilUserCircle />
+            <AssignmentIndIcon/>
               <span>Demande de réparation</span>
             </NavLink>
           </li>
           <li className="nav-item">
             <NavLink className="nav-link" to={`${linkRoot}/tickets`}>
-              <UilUserCircle />
-              <span>Tickets de reparation</span>
+              <SvgIcon component={EventIcon} />
+              <span>Tickets de réparation</span>
             </NavLink>
           </li>
         </>
       );
-    } else {
-      // Handle other cases as needed
     }
   }
 
@@ -286,7 +283,7 @@ function Sidebar() {
     <ul className={style} id="accordionSidebar" style={gradientBackground}>
       <NavLink className="sidebar-brand d-flex align-items-center justify-content-center" to={location.pathname}>
         <div className="sidebar-brand-icon rotate-n-15">
-          <i className="fas fa-laugh-wink"></i>
+          <SvgIcon component={ComputerIcon} />
         </div>
         <div className="sidebar-brand-text mx-3">{user.nom_entreprise}</div>
         <div className="text-center d-none d-md-inline">
@@ -298,51 +295,24 @@ function Sidebar() {
 
       <li className="nav-item">
         {loading ? (
-          <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
-        ) : (
-          <NavLink className="nav-link text-white" to={linkRoot}>
-            <i className="fas fa-fw fa-tachometer-alt"></i>
-            <span>Tableau de bord</span>
-          </NavLink>
-        )}
-      </li>
-
-      <hr className="sidebar-divider" />
-
-      <div className="sidebar-heading">
-        {loading ? (
-          <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
-        ) : (
-          'Listes des données'
-        )}
-      </div>
-
-      {loading ? (
-        <>
-          {isAdmin && (
-            <>
-              <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
-              <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
-              <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
-              <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
-            </>
+          <Skeleton variant="text" width={150} height={40}/>
+          ) : (
+            <NavLink className="nav-link" to={linkRoot || '/'} onClick={changeStyle}>
+              <SvgIcon component={DashboardIcon} />
+              <span>Dashboard</span>
+            </NavLink>
           )}
-          {isUserSimple && (
-            <>
-              <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
-              <Skeleton variant="text" width={150} height={40} style={{ margin: '10px 15px' }} />
-              {/* Add more Skeletons if needed */}
-            </>
-          )}
-          {/* Add Skeletons for other roles if needed */}
-        </>
-      ) : (
-        <>
-          {menuItems}
-        </>
-      )}
-    </ul>
-  );
-}
-
-export default Sidebar;
+        </li>
+  
+        {/* Display Menu Items based on user role and verification count */}
+        {menuItems}
+  
+        <hr className="sidebar-divider d-none d-md-block" />
+  
+        
+      </ul>
+    );
+  }
+  
+  export default Sidebar;
+  

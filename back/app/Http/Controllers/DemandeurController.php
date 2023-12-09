@@ -25,6 +25,7 @@ class DemandeurController extends Controller
             'users.sexe',
             'users.photo_profil_user',
             'entreprises.nom_entreprise',
+            'entreprises.logo',
             DB::raw("CASE WHEN users.role_user = 1 THEN 'Admin' ELSE 'Utilisateur simple' END AS role_user"),
             'postes.nom_poste',
             'demandeurs.id_demandeur'
