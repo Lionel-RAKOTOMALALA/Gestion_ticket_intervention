@@ -13,6 +13,9 @@
     DialogActions,
     Card,
     CardContent,
+    Modal,
+    Fade,
+    Backdrop,
     DialogContentText,
     List,
     ListItem,
@@ -26,9 +29,14 @@
   import { UilEye, UilEditAlt, UilTrash } from "@iconscout/react-unicons";
   import { Link, useNavigate } from "react-router-dom";
   import moment from 'moment';
+  import EditDemandeMateriel from "./EditDemandeMateriel";
 
 
   const DemandeMaterielList = () => {
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editModalData, setEditModalData] = useState({});
+  const [selectedDemande, setSelectedDemande] = useState(null);
+
     const [demandeMateriels, setDemandeMateriels] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -42,6 +50,7 @@
     const [rejectButtonText, setRejectButtonText] = useState('Rejeter');
     const [isModalOpen, setModalOpen] = useState(false);
     const [modalData, setModalData] = useState({});
+    const [poste,setPoste] = useState(null);
 
 
     useEffect(() => {
@@ -80,6 +89,7 @@
         )
         .then((response) => {
           const demandeurVerifCount = response.data.demandeur_count;
+          setPoste(response.data.poste);
 
           if (
             localStorage.getItem("role") === "userSimple" &&
@@ -234,8 +244,11 @@
         });
     };
 
-    const handleEdit = (id) => {
-      navigate(`/edit-demande-materiel/${id}`);
+    const handleEdit = (id_demande) => {
+      const selectedDemand = demandeMateriels.find((demande) => demande.id_demande === id_demande);
+      setSelectedDemande(selectedDemand)
+      setEditModalData(selectedDemande);
+      setIsEditModalOpen(true);
     };
 
     const handleDelete = async (id) => {
@@ -285,14 +298,13 @@
         return null;
       }
     };
-
     const renderActions = (params) => {
       const userRole = localStorage.getItem("role");
       const isAdmin = userRole === "admin";
       const isUserSimple = userRole === "userSimple";
-
+    
       return (
-        <Grid container spacing={2}>
+        <Grid container spacing={2} justifyContent="flex-start">
           {isUserSimple && (
             <>
               <Grid item>
@@ -301,7 +313,9 @@
                   color="primary"
                   startIcon={<Edit />}
                   onClick={() => handleEdit(params.row.id_demande)}
-                ></Button>
+                >
+                  Edit
+                </Button>
               </Grid>
               <Grid item>
                 <Button
@@ -334,7 +348,7 @@
                       color="error"
                       onClick={(e) => handleReject(e, params.row.id_demande)}
                     >
-                      {rejectButtonText} {/* Utilisez la constante pour le texte du bouton */}
+                      {rejectButtonText}
                     </Button>
                   </Grid>
                 </>
@@ -356,7 +370,7 @@
                       color="error"
                       onClick={(e) => handleReject(e, params.row.id_demande)}
                     >
-                      {rejectButtonText} 
+                      {rejectButtonText}
                     </Button>
                   </Grid>
                 </>
@@ -375,6 +389,7 @@
         </Grid>
       );
     };
+    
 
 
 
@@ -392,12 +407,12 @@
 
 
     const columns = [
-      { field: "id_demande", headerName: "Numéro de la demande", width: 150 },
-      { field: "etat_materiel", headerName: "État du matériel", width: isAdmin ? 200 : 250},
-      { field: "type_materiel", headerName: "Type du matériel", width: isAdmin ? 150 : 200 },
+      { field: "id_demande", headerName: "Numéro de la demande", width: 90 },
+      { field: "etat_materiel", headerName: "État du matériel", width: isAdmin ? 150 : 170 },
+      { field: "type_materiel", headerName: "Type du matériel", width: isAdmin ? 70 : 100 },
       ...(isAdmin
         ? [
-            { field: "demandeur_username", headerName: "Nom du demandeur", width: 150 },
+            { field: "demandeur_username", headerName: "Nom du demandeur", width: 100 },
             { field: "demandeur_entreprise", headerName: "Entreprise", width: 150 },
           ]
         : []
@@ -411,7 +426,14 @@
             style={{
               display: "flex",
               alignItems: "center",
-              color: params.row.status === "Validé" ? "#4CAF50" : "#FF5252",
+              color:
+                params.row.status === "Validé"
+                  ? "#4CAF50" // Vert
+                  : params.row.status === "Rejeté"
+                  ? "#FF5252" // Rouge
+                  : params.row.status === "En attente de validation"
+                  ? "#FFC107" // Jaune un peu plus foncé
+                  : "", // Ajustez cette partie selon vos besoins
             }}
           >
             {statusIcon(params.row.status)} {params.row.status}
@@ -421,10 +443,12 @@
       {
         field: "actions",
         headerName: "Actions",
-        width: isAdmin ? 250 : 350,
+        width: isAdmin ? 550 : 350,
         renderCell: renderActions,
       },
     ];
+    
+    
     
     
     
@@ -440,6 +464,11 @@
 
     const handleCloseModal = () => {
       setModalOpen(false);
+      setIsEditModalOpen(false);
+    };
+    const handleCloseEditModal = () => {
+      setEditModalData({});
+      setIsEditModalOpen(false);
     };
 
       const calculateSkeletonSize = (content) => {
@@ -494,6 +523,27 @@
               }}
             />
           )}
+
+
+
+ <Modal
+        open={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+      >
+        <Fade in={isEditModalOpen}>
+          <div>
+            {selectedDemande && (
+              <EditDemandeMateriel open={isEditModalOpen} onClose={handleCloseEditModal} id={selectedDemande} />
+            )}
+          </div>
+        </Fade>
+      </Modal>
+
 
   <Dialog open={isModalOpen} onClose={handleCloseModal} fullWidth maxWidth="md">
         <DialogTitle style={{ backgroundColor: 'rgba(33, 150, 243, 0.9)', color: '#fff' }}>Détails de la demande</DialogTitle>

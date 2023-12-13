@@ -16,7 +16,7 @@ class DemandeurController extends Controller
     public function index()
     {
         // Utilisez le modèle Eloquent pour récupérer les demandeurs avec leurs utilisateurs associés
-        $demandeurs = DB::table('users')
+        $demandeurs = DB::table('demandeurs')
         ->select(
             'demandeurs.id_demandeur',
             'users.username',
@@ -30,7 +30,7 @@ class DemandeurController extends Controller
             'postes.nom_poste',
             'demandeurs.id_demandeur'
         )
-        ->join('demandeurs', 'users.id', '=', 'demandeurs.id_user')
+        ->join('users', 'users.id', '=', 'demandeurs.id_user')
         ->join('postes', 'demandeurs.id_poste', '=', 'postes.id_poste')
         ->join('entreprises','users.id_entreprise','=','entreprises.id_entreprise')
         ->get();

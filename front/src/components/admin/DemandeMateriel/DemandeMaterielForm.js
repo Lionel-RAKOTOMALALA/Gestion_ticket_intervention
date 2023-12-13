@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Card,
@@ -14,7 +14,8 @@ import {
   Box,
   Typography,
   Container,
-  Paper
+  Paper,
+  Modal,
 } from "@mui/material";
 import {
   CheckCircle,
@@ -27,7 +28,7 @@ import { InputLabel, FormHelperText } from "@mui/material";
 import axios from "axios";
 import swal from "sweetalert";
 
-const DemandeMaterielForm = () => {
+const DemandeMaterielForm = ({ open, onClose }) => {
   const userRole = localStorage.getItem("role");
   let linkBack = null;
   if (userRole === "admin") {
@@ -49,11 +50,15 @@ const DemandeMaterielForm = () => {
         },
       })
       .then((res) => {
-      if (res.data.status === 200) {
-        setMaterielList(res.data.materiels);
-      }
-    });
+        if (res.data.status === 200) {
+          setMaterielList(res.data.materiels);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching materiel list: ", error);
+      });
   }, []);
+  console.log(materielList);
 
   const [demandeMaterielInput, setDemandeMaterielInput] = useState({
     etat_materiel: "",
@@ -72,6 +77,10 @@ const DemandeMaterielForm = () => {
     });
     console.log("Numéro de série sélectionné :", e.target.value);
     setFormError("");
+  };
+  const handleClose = () => {
+    resetForm(); // Réinitialise le formulaire lorsque le modal est fermé
+    onClose(); // Ferme le modal
   };
   
 
@@ -155,7 +164,7 @@ const DemandeMaterielForm = () => {
         description_probleme: demandeMaterielInput.description_probleme,
         num_serie: demandeMaterielInput.num_serie,
       };
-
+      console.log(data);
       axios
         .post("http://127.0.0.1:8000/api/demande_materiel", data, {
           headers: {
@@ -167,176 +176,140 @@ const DemandeMaterielForm = () => {
             swal("Success", res.data.message, "success");
 
             resetForm();
+            onClose(); // Fermer la modal après la soumission réussie
           } else if (res.data.status === 400) {
-            setDemandeMaterielInput({
-              ...demandeMaterielInput,
-              error_list: res.data.errors,
-            }); 
+            const errorString = res.data.message;
+            setFormError(errorString);
+
+            swal("Erreurs", errorString, "error");
           }
+        })
+        .catch((error) => {
+          console.error("Error creating demande materiel: ", error);
+          const errorString = "Une erreur s'est produite lors de la création de la demande de matériel.";
+          setFormError(errorString);
+          swal("Erreur", errorString, "error");
         });
     }
   };
 
   return (
-    <Container maxWidth="sm">
-    <Box my={5}>
-      <Card>
-        <CardContent>
-        <Paper elevation={0} sx={{ backgroundColor: '#f8f8f8', marginBottom: 5, padding: 3 }}>
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Typography variant="h5" color="primary.main" >Demande de réparation</Typography>
-          <NavLink
-            to={linkBack}
-            className="btn btn-primary btn-sm float-end"
-            sx={{ textDecoration: 'none', color: '#1976D2', '&:hover': { color: '#125699' } }}
-          >
-            <ArrowCircleLeft /> Retour à l'affichage
-          </NavLink>
-        </Box>
-      </Paper>
-          <form onSubmit={submitDemandeMateriel} id="DEMANDE_MATERIEL_FORM">
-            {formError && (
-              <Box mt={3} mb={3} color="error.main">
-                {formError}
-              </Box>
-            )}
-            <FormControl component="fieldset" fullWidth>
-              <FormLabel component="legend">État du matériel</FormLabel>
-              <RadioGroup
-                name="etat_materiel"
-                value={demandeMaterielInput.etat_materiel}
-                onChange={handleInput}
-              >
-               <FormControlLabel
-                    value="En panne"
-                    control={<Radio />}
-                    label="En panne"
-                  />
-                  <FormControlLabel
-                    value="Endommagé"
-                    control={<Radio />}
-                    label="Endommagé"
-                  />
-                  <FormControlLabel
-                    value="Dysfonctionnement"
-                    control={<Radio />}
-                    label="Dysfonctionnement"
-                  />
-                  <FormControlLabel
-                    value="Obsolete"
-                    control={<Radio />}
-                    label="Obsolete"
-                  />
-                  <FormControlLabel
-                    value="Maintenance nécessaire"
-                    control={<Radio />}
-                    label="Maintenance nécessaire"
-                  />
-                  <FormControlLabel
-                    value="Autre"
-                    control={<Radio />}
-                    label="Autre"
-                  />
-                </RadioGroup>
-                {demandeMaterielInput.etat_materiel === "Autre" && (
-                  <Box mt={3}>
-                    <TextField
-                      type="text"
-                      name="description_etat_personnalise"
-                      fullWidth
-                      variant="outlined"
-                      label="Description de l'état personnalisé"
-                      onChange={handleInput}
-                      value={
-                        demandeMaterielInput.description_etat_personnalise
-                      }
-                    />
-                  </Box>
-                )}
-              </FormControl>
-              <Box mt={3}>
-                <TextField
-                  type="text"
-                  name="description_probleme"
-                  fullWidth
-                  variant="outlined"
-                  label="Description du problème"
-                  error={
-                    demandeMaterielInput.error_list.description_probleme
-                      ? true
-                      : false
-                  }
-                  helperText={
-                    demandeMaterielInput.error_list.description_probleme
-                  }
+    <Modal open={open} onClose={onClose}>
+      <Container maxWidth="sm">
+        <Paper elevation={3} sx={{ backgroundColor: '#f8f8f8', marginBottom: 5, padding: 3 }}>
+          <Box mb={3}>
+            <Typography variant="h4" align="center">
+              Nouvelle demande de matériel
+            </Typography>
+          </Box>
+          <form onSubmit={submitDemandeMateriel}>
+            <Box mb={3}>
+              <FormControl fullWidth variant="outlined">
+                <InputLabel id="etat_materiel_label">État du matériel</InputLabel>
+                <Select
+                  labelId="etat_materiel_label"
+                  id="etat_materiel"
+                  name="etat_materiel"
+                  label="État du matériel"
                   onChange={handleInput}
-                  value={demandeMaterielInput.description_probleme}
+                  value={demandeMaterielInput.etat_materiel}
+                  error={!!demandeMaterielInput.error_list.etat_materiel}
+                >
+                  <MenuItem value="">
+                    <em>Choisir l'état du matériel</em>
+                  </MenuItem>
+                  <MenuItem value="Bon état">Bon état</MenuItem>
+                  <MenuItem value="Mauvais état">Mauvais état</MenuItem>
+                  <MenuItem value="Autre">Autre</MenuItem>
+                </Select>
+                <FormHelperText error>
+                  {demandeMaterielInput.error_list.etat_materiel}
+                </FormHelperText>
+              </FormControl>
+            </Box>
+            {demandeMaterielInput.etat_materiel === "Autre" && (
+              <Box mb={3}>
+                <TextField
+                  fullWidth
+                  id="description_etat_personnalise"
+                  name="description_etat_personnalise"
+                  label="Description de l'état personnalisé"
+                  variant="outlined"
+                  multiline
+                  rows={4}
+                  onChange={handleInput}
+                  value={demandeMaterielInput.description_etat_personnalise}
+                  error={!!demandeMaterielInput.error_list.description_etat_personnalise}
+                  helperText={demandeMaterielInput.error_list.description_etat_personnalise}
                 />
               </Box>
-              <Box mt={3}>
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel htmlFor="num_serie">
-                    Numéro de série du matériel
-                  </InputLabel>
-                  <Select
-                    name="num_serie"
-                    onChange={handleInput}
-                    value={demandeMaterielInput.num_serie}
-                    label="Numéro de série du matériel"
-                    error={
-                      demandeMaterielInput.error_list.num_serie ? true : false
-                    }
-                  >
-                    <MenuItem value="">Sélectionner un matériel</MenuItem>
-                    {materielList.map((item) => (
-                      <MenuItem key={item.num_serie} value={item.num_serie}>
-                        {item.type_materiel}
-                      </MenuItem>
-                    ))}
+            )}
+            <Box mb={3}>
+              <TextField
+                fullWidth
+                id="description_probleme"
+                name="description_probleme"
+                label="Description du problème"
+                variant="outlined"
+                multiline
+                rows={4}
+                onChange={handleInput}
+                value={demandeMaterielInput.description_probleme}
+                error={!!demandeMaterielInput.error_list.description_probleme}
+                helperText={demandeMaterielInput.error_list.description_probleme}
+              />
+            </Box>
+            <Box mb={3}>
+            <FormControl fullWidth variant="outlined">
+  <InputLabel id="num_serie_label">Numéro de série</InputLabel>
+  <Select
+    labelId="num_serie_label"
+    id="num_serie"
+    name="num_serie"
+    label="Numéro de série"
+    onChange={handleInput}
+    value={demandeMaterielInput.num_serie}
+    error={!!demandeMaterielInput.error_list.num_serie}
+  >
+    <MenuItem value="">
+      <em>Choisir le matériel à réparer</em>
+    </MenuItem>
+    {materielList.map((materiel) => (
+      <MenuItem key={materiel.num_serie} value={materiel.num_serie}>
+        {materiel.type_materiel}
+      </MenuItem>
+    ))}
+  </Select>
+  <FormHelperText error>
+    {demandeMaterielInput.error_list.num_serie}
+  </FormHelperText>
+</FormControl>
 
-                  </Select>
-                  <FormHelperText error>
-                    {demandeMaterielInput.error_list.num_serie}
-                  </FormHelperText>
-                </FormControl>
-              </Box>
-              <Box mt={3} display="flex">
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  size="medium"
-                  endIcon={<CheckCircle />}
-                  fullWidth
-                >
-                  Confirmer
-                </Button>
-                <NavLink
-                  to={linkBack}
-                  style={{ textDecoration: "none" }}
-                >
-                  <Button
-                    type="button"
-                    variant="contained"
-                    color="secondary"
-                    size="medium"
-                    endIcon={<Clear />}
-                    fullWidth
-                    style={{ marginLeft: "10px" }}
-                  >
-                    Annuler
-                  </Button>
-                </NavLink>
-              </Box>
-            </form>
-          </CardContent>
-        </Card>
-      </Box>
-    </Container>
+            </Box>
+            <Box display="flex" justifyContent="space-between">
+            <Button
+  variant="contained"
+  color="secondary"
+  type="button"
+  startIcon={<ArrowCircleLeft />}
+  onClick={handleClose}  // Utilise la fonction handleClose
+>
+  Retour
+</Button>
+
+              <Button
+                variant="contained"
+                color="primary"
+                type="submit"
+                endIcon={<CheckCircle />}
+              >
+                Soumettre la demande
+              </Button>
+            </Box>
+          </form>
+        </Paper>
+      </Container>
+    </Modal>
   );
 };
 

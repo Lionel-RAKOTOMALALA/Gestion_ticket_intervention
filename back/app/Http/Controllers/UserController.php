@@ -195,11 +195,11 @@ class UserController extends Controller
     private function getTotalDemandesMois($user)
     {
         // Vérifier le rôle de l'utilisateur avant d'appliquer la contrainte sur l'id
-        $query = DB::table('ticketReparation as tr')
-            ->join('demande_materiel', 'tr.id_demande', '=', 'demande_materiel.id_demande')
-            ->join('demandeurs', 'demandeurs.id_demandeur', '=', 'demande_materiel.id_demandeur')
-            ->whereYear('tr.date_creation', now()->year)
-            ->whereMonth('tr.date_creation', now()->month);
+        $query = DB::table('demande_materiel')
+            ->join('demandeurs', 'demande_materiel.id_demandeur', '=', 'demandeurs.id_demandeur')
+            ->join('users', 'demandeurs.id_user', '=', 'users.id')
+            ->whereYear('demande_materiel.created_at', now()->year)
+            ->whereMonth('demande_materiel.created_at', now()->month);
     
         if ($user->role_user == 0) {
             $query->where('demandeurs.id_user', '=', $user->id);
@@ -762,7 +762,7 @@ $entreprise = DB::table('entreprises')
             ->where('users.id', $user->id)
             ->count();
 
-            return response()->json(['demandeur_count' => $demandeurCount]);
+            return response()->json(['demandeur_count' => $demandeurCount,'poste'=>$user->id_poste]);
         }
 
         return response()->json(['message' => 'Utilisateur non authentifié'], 401);

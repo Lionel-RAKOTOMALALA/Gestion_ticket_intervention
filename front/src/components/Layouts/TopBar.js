@@ -95,7 +95,10 @@ const TopBar = () => {
   const isAdmin = userRole === 'admin';
   const isUserSimple = userRole === 'userSimple';
 
-  const linkRoot = isAdmin ? '/admin' : isUserSimple ? '/Acceuil_client' : '';
+
+  const linkRoot =  isUserSimple ? '/Acceuil_client': isAdmin ? '/admin' : '';
+  console.log('linkRoot:', linkRoot);
+
   const handleNotificationClick = (notificationId) => {
     const clickedNotification = notifications.find(
       (notification) => notification.id_notif === notificationId
@@ -228,7 +231,7 @@ const TopBar = () => {
         bottom: 0,
         backgroundColor: '#fff',
         zIndex: 1201,
-        cursor: 'pointer', // Ajoutez cette ligne pour définir le curseur comme pointeur
+        cursor: 'pointer', 
       }}
     >
       <Typography variant="body2" color="textSecondary">

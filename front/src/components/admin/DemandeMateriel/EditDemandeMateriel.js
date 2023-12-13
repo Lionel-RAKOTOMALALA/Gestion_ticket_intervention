@@ -1,57 +1,63 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useParams, useNavigate } from 'react-router-dom';
+import { Button, TextField, FormControl, FormLabel, FormHelperText, Select, MenuItem } from '@mui/material';
 import { UilArrowCircleLeft, UilCheckCircle, UilTimes } from '@iconscout/react-unicons';
 import swal from 'sweetalert';
 import axios from 'axios';
 import Loader from '../../admin/materiels/loader';
 
-const EditDemandeMateriel = () => {
+const EditDemandeMateriel = ({ id, isOpen, onClose }) => {
   const navigate = useNavigate();
-  const { id } = useParams();
   const [demandeurList, setDemandeurList] = useState([]);
   const [materielList, setMaterielList] = useState([]);
   const [demandeMaterielInput, setDemandeMaterielInput] = useState({
     etat_materiel: '',
     description_probleme: '',
     num_serie: '',
-    id_demandeur: '',
     error_list: {},
   });
   const [formError, setFormError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-
+  const authToken = localStorage.getItem('auth_token');
+  
+  console.log(id.id_demande);
   useEffect(() => {
-    // Récupérer la liste des demandeurs
-    axios.get('http://127.0.0.1:8000/api/users').then((res) => {
-      if (res.data.status === 200) {
-        setDemandeurList(res.data.users);
-      }
-    });
+    // Récupérer le token d'autorisation depuis le localStorage
 
-    // Récupérer la liste des matériels
-    axios.get('http://127.0.0.1:8000/api/materiels/listeMateriel').then((res) => {
-      if (res.data.status === 200) {
-        setMaterielList(res.data.materiels);
-      }
-    });
+    // Vérifier si le token d'autorisation existe avant d'envoyer les requêtes
+    if (authToken) {
+      // Récupérer la liste des matériels avec le token d'autorisation
+      axios.get('http://127.0.0.1:8000/api/listeMateriel', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      }).then((res) => {
+        if (res.data.status === 200) {
+          setMaterielList(res.data.materiels);
+        }
+      });
 
-    // Récupérer les données de la demande de matériel
-    axios.get(`http://127.0.0.1:8000/api/demande_materiel/${id}`).then((res) => {
-      if (res.data.status === 200) {
-        setDemandeMaterielInput({
-          etat_materiel: res.data.demande.etat_materiel,
-          description_probleme: res.data.demande.description_probleme,
-          num_serie: res.data.demande.num_serie,
-          id_demandeur: res.data.demande.id_demandeur,
-          error_list: {},
-        });
-        setIsLoading(false);
-      } else if (res.data.status === 404) {
-        setIsLoading(false);
-        swal('Erreur', res.data.message, 'error');
-        navigate('/admin/demande_materiels');
-      }
-    });
+      axios.get(`http://127.0.0.1:8000/api/demande_materiel/${id.id_demande}`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      }).then((res) => {
+        if (res.data.status === 200) {
+          setDemandeMaterielInput((prevInput) => ({
+            ...prevInput,
+            etat_materiel: res.data.demande.etat_materiel,
+            description_probleme: res.data.demande.description_probleme,
+            num_serie: res.data.demande.num_serie,
+            error_list: {},
+          }));
+          setIsLoading(false);
+        } else if (res.data.status === 404) {
+          setIsLoading(false);
+          swal('Erreur', res.data.message, 'error');
+          navigate('/Acceuil_client/demande_materiels');
+        }
+      });
+    }
   }, [id, navigate]);
 
   const updateDemandeMateriel = (e) => {
@@ -123,13 +129,17 @@ const EditDemandeMateriel = () => {
         etat_materiel: demandeMaterielInput.etat_materiel,
         description_probleme: demandeMaterielInput.description_probleme,
         num_serie: demandeMaterielInput.num_serie,
-        id_demandeur: demandeMaterielInput.id_demandeur,
       };
-      axios.put(`http://127.0.0.1:8000/api/demande_materiel/${id}`, data)
+      axios.put(`http://127.0.0.1:8000/api/demande_materiel/${id.id_demande}`, data, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      })
         .then((res) => {
           if (res.data.status === 200) {
             swal('Success', res.data.message, 'success');
             navigate('/admin/demande_materiels');
+            onClose(); // Fermer la fenêtre modale après la mise à jour réussie
           } else if (res.data.status === 400) {
             setDemandeMaterielInput({
               ...demandeMaterielInput,
@@ -225,38 +235,18 @@ const EditDemandeMateriel = () => {
                           </div>
                         )}
                       </div>
-                      <div className="form-group mb-3">
-                        <label htmlFor="id_demandeur">Nom du demandeur</label>
-                        <select
-                          name="id_demandeur"
-                          onChange={handleInput}
-                          value={demandeMaterielInput.id_demandeur}
-                          className={`form-control ${demandeMaterielInput.error_list.id_demandeur ? 'is-invalid' : ''}`}
-                        >
-                          <option value="">Sélectionner un demandeur</option>
-                          {demandeurList.map((item) => (
-                            <option key={item.id_demandeur} value={item.id_demandeur}>
-                              {item.username}
-                            </option>
-                          ))}
-                        </select>
-                        {demandeMaterielInput.error_list.id_demandeur && (
-                          <div className="text-danger">
-                            {demandeMaterielInput.error_list.id_demandeur}
-                          </div>
-                        )}
-                      </div>
+
                       <div className="row">
                         <div className="col">
                           <button type="submit" className="btn btn-primary btn-block mb-2">
                             <UilCheckCircle size="20" /> Confirmer
                           </button>
                         </div>
-                        <NavLink to="/admin/demande_materiels" className="col">
-                          <button type="button" className="btn btn-secondary btn-block mb-2">
+                        <div className="col">
+                          <button type="button" className="btn btn-secondary btn-block mb-2" onClick={onClose}>
                             <UilTimes size="20" /> Annuler
                           </button>
-                        </NavLink>
+                        </div>
                       </div>
                     </form>
                   )}

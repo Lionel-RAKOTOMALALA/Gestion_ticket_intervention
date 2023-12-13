@@ -10,39 +10,15 @@ const TicketApp = () => {
   const [demandeurVerifCount, setDemandeurVerifCount] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const authToken = localStorage.getItem('auth_token');
-    if (authToken) {
-      axios
-        .get('http://127.0.0.1:8000/api/countDemandeurForAuthenticatedUser', {
-          headers: {
-            'Authorization': `Bearer ${authToken}`,
-          },
-        })
-        .then(response => {
-          setDemandeurVerifCount(response.data.demandeur_count);
-          localStorage.setItem('demandeurExist', response.data.demandeur_count);
-        })
-        .catch(error => {
-          console.error('Erreur lors de la récupération du nombre de demandeurs :', error);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
-  }, []);
+ 
 
   const userRole = localStorage.getItem('role');
   const isAdmin = userRole === 'admin';
   const isUserSimple = userRole === 'userSimple';
 
-  if (loading) {
-    return <p>Chargement en cours...</p>;
-  }
-
   return (
     <div className="container-fluid">
-      {isAdmin && demandeurVerifCount === 0 ? (
+      {isAdmin ? (
         <>
           <h1 className="h3 mb-2 text-gray-800">Tickets d'intervention</h1>
           <p className="mb-5">
@@ -53,7 +29,7 @@ const TicketApp = () => {
       ) : (
         <TicketListDemandeur />
       )}
-      {isAdmin && demandeurVerifCount === 0 && <TicketList />}
+      {isAdmin && <TicketList />}
     </div>
   );
 };

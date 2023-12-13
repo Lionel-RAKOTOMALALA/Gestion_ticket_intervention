@@ -26,21 +26,29 @@ const DemandeurList = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    refreshData();
-  }, []);
 
-  const refreshData = () => {
-    axios
-      .get('http://127.0.0.1:8000/api/demandeurs')
-      .then((response) => {
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/demandeurs');
         setDemandeurs(response.data.demandeurs);
         setIsLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error(error);
-      });
-  };
+      }
+    };
+
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 6000); // Refresh every 60 seconds (adjust this interval as needed)
+
+    // Fetch initial data
+    fetchData();
+
+    // Clear interval when the component is unmounted
+    return () => clearInterval(intervalId);
+  }, []); 
 
   useEffect(() => {
     const pathname = location.pathname;
@@ -58,7 +66,7 @@ const DemandeurList = () => {
   const handleCloseEditModal = () => {
     setSelectedDemandeur(null);
     setIsEditModalOpen(false);
-    refreshData();
+    
   };
   const handleDelete = async (id) => {
     try {
@@ -79,7 +87,7 @@ const DemandeurList = () => {
 
         if (res.data.status === 200) {
           Swal.fire("Success", res.data.message, "success");
-          refreshData();
+        
         } else if (res.data.status === 404) {
           Swal.fire("Erreur", res.data.message, "error");
           navigate("/admin/demandeurs");

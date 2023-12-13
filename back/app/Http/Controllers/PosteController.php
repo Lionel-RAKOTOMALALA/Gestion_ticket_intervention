@@ -42,20 +42,30 @@ class PosteController extends Controller
             'nom_poste' => 'required|string',
             // Ajoutez d'autres règles de validation si nécessaire
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'status' => 400,
                 'error_list' => $validator->messages(),
             ], 400);
         }
-
+    
+        // Vérifier si le nom_poste existe déjà
+        $existingPoste = Poste::where('nom_poste', $request->nom_poste)->first();
+    
+        if ($existingPoste) {
+            return response()->json([
+                'message' => 'Le nom du poste existe déjà',
+                'status' => 400,
+            ], 400);
+        }
+    
         try {
             Poste::create([
                 'nom_poste' => $request->nom_poste,
                 // Ajoutez d'autres champs si nécessaire
             ]);
-
+    
             return response()->json([
                 'message' => "Le poste a été créé avec succès",
                 'status' => 200
@@ -66,6 +76,7 @@ class PosteController extends Controller
             ], 500);
         }
     }
+    
 
     /**
      * Affiche les détails d'un poste spécifique.
@@ -94,33 +105,45 @@ class PosteController extends Controller
     {
         try {
             $poste = Poste::find($id);
-
+    
             if (!$poste) {
                 return response()->json([
                     'message' => "Le poste n'existe pas",
                     'status' => 404,
                 ]);
-            } else {
-                $validator = Validator::make($request->all(), [
-                    'nom_poste' => 'required|string',
-                    // Ajoutez d'autres règles de validation si nécessaire
-                ]);
-
-                if ($validator->fails()) {
-                    return response()->json([
-                        'status' => 400,
-                        'error_list' => $validator->messages(),
-                    ], 400);
-                } else {
-                    $poste->nom_poste = $request->nom_poste;
-                    $poste->save();
-
-                    return response()->json([
-                        'message' => "Les informations du poste ont été mises à jour avec succès",
-                        'status' => 200,
-                    ], 200);
-                }
             }
+    
+            $validator = Validator::make($request->all(), [
+                'nom_poste' => 'required|string',
+                // Ajoutez d'autres règles de validation si nécessaire
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 400,
+                    'error_list' => $validator->messages(),
+                ], 400);
+            }
+    
+            // Vérifier si le nom_poste existe déjà (autre que le poste que vous mettez à jour)
+            $existingPoste = Poste::where('nom_poste', $request->nom_poste)
+                ->where('id_poste', '!=', $id)
+                ->first();
+    
+            if ($existingPoste) {
+                return response()->json([
+                    'message' => 'Le nom du poste existe déjà',
+                    'status' => 400,
+                ], 400);
+            }
+    
+            $poste->nom_poste = $request->nom_poste;
+            $poste->save();
+    
+            return response()->json([
+                'message' => "Les informations du poste ont été mises à jour avec succès",
+                'status' => 200,
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => "Une erreur est survenue lors de la modification du poste",
@@ -128,6 +151,7 @@ class PosteController extends Controller
             ], 500);
         }
     }
+    
 
     /**
      * Supprime un poste.

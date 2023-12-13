@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@react-pdf/renderer": "^3.1.14",
-    "sweetalert2": "^11.7.32"
+    "sweetalert2": "^11.7.32",
+    "swr": "^2.2.4"
   }
 }

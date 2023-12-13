@@ -21,6 +21,7 @@ import axios from 'axios';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PDFFile from '../../Layouts/PDFFile';
+import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 
 const ExpandMore = styled((props) => <IconButton {...props} />)(({ theme }) => ({
   marginLeft: 'auto',
@@ -50,8 +51,7 @@ export default function TicketList() {
   const fetchData = async () => {
     try {
       const authToken = localStorage.getItem('auth_token');
-
-      const response = await axios.get("http://127.0.0.1:8000/api/tickets",{
+      const response = await axios.get("http://127.0.0.1:8000/api/tickets", {
         headers: {
           'Authorization': `Bearer ${authToken}`,
           'Content-Type': 'application/json',
@@ -134,6 +134,17 @@ export default function TicketList() {
     <Grid container spacing={2}>
       {loading && <Typography color="#2f545d">Loading...</Typography>}
       {error && <Typography color="#2f545d">Error: {error.message}</Typography>}
+
+      {/* Display message if no tickets available */}
+      {!loading && !error && tickets.length === 0 && (
+        <Grid item xs={12} sx={{ textAlign: 'center', marginTop: '2rem' }}>
+          <SentimentVeryDissatisfiedIcon sx={{ fontSize: 60, color: '#f44336' }} />
+          <Typography variant="h5" color="#f44336" sx={{ marginTop: '1rem' }}>
+            Aucun ticket disponible pour le moment.
+          </Typography>
+        </Grid>
+      )}
+
       {!loading && !error &&
         tickets.map((ticket) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={ticket.id_ticket}>

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';  // Importer Axios
 import './Dashboard.css';
 import MyBox from './Boxs';
-import Chart from './chart';
 import Recap from './Recap';
 import PostHeader from './PostHeader';
 

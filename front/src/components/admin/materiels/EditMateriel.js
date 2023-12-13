@@ -169,23 +169,7 @@ function EditMateriel({ id, isOpen, onClose }) {
                         )}
                       </FormControl>
 
-                      <FormControl fullWidth sx={{ marginBottom: 3 }}>
-                        <FormLabel htmlFor="image_materiel_url">URL de l'image du matériel</FormLabel>
-                        <Input
-                          type="text"
-                          name="image_materiel_url"
-                          onChange={handleInput}
-                          value={formData.image_materiel_url}
-                          sx={{ marginTop: 1 }}
-                          className={displayFieldError('image_materiel_url')}
-                        />
-                        {formData.error_list.image_materiel_url && (
-                          <FormHelperText error>
-                            {formData.error_list.image_materiel_url}
-                          </FormHelperText>
-                        )}
-                      </FormControl>
-
+                      
                       <Button type="submit" variant="contained" color="primary" sx={{ marginTop: 3 }}>
                         Enregistrer les modifications
                       </Button>

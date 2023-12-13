@@ -235,7 +235,7 @@ function MyBox() {
 
 
 
-      <Grid item xs={12} md={8}>
+      <Grid item xs={12} md={12}>
         <Paper elevation={3} sx={{ p: 2, height: '89%' }}>
           <TableContainer>
             <Table className="MuiTable">
@@ -258,44 +258,7 @@ function MyBox() {
         </Paper>
       </Grid>
 
-      <Grid item xs={12} md={4} mb={4}>
-        <Paper elevation={3} sx={{ p: 2, height: '240px' }}>
-          <Typography variant="h6" color="textPrimary" gutterBottom>
-            Bar Chart
-          </Typography>
-          <div className="chart" style={{ height: '180px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={data}
-                margin={{
-                  top: 5,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tickFormatter={monthTickFormatter} />
-                <XAxis
-                  dataKey="date"
-                  axisLine={false}
-                  tickLine={false}
-                  interval={0}
-                  tick={renderQuarterTick}
-                  height={1}
-                  scale="band"
-                  xAxisId="quarter"
-                />
-                <YAxis />
-                <RechartsTooltip />
-                <RechartsLegend />
-                <Line dataKey="pv" fill="#8884d8" />
-                <Line dataKey="uv" fill="#82ca9d" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Paper>
-      </Grid>
+
     </Grid>
   );
 }

@@ -94,8 +94,6 @@ class TicketController extends Controller
         }
     
         $ticket->update([
-            'intervention_faite' => $request->intervention_faite,
-            'suite_a_donnee' => $request->suite_a_donnee,
             'statut_actuel' => 'Fait',
             'date_resolution' => now(),
         ]);
@@ -111,14 +109,30 @@ class TicketController extends Controller
             return response()->json(['message' => 'Ticket non trouvée.'], 404);
         }
     
-        $ticket->update([
+        // Vérification des données du formulaire
+        if (!is_string($request->intervention_faite)) {
+            return response()->json(['message' => 'La valeur de intervention_faite doit être une chaîne de caractères.'], 422);
+        }
+    
+        if (!is_string($request->suite_a_donnee)) {
+            return response()->json(['message' => 'La valeur de suite_a_donnee doit être une chaîne de caractères.'], 422);
+        }
+    
+        $resultat = $ticket->update([
             'intervention_faite' => $request->intervention_faite,
             'suite_a_donnee' => $request->suite_a_donnee,
         ]);
     
-        return response()->json(['message' => 'Le ticket a été marqué comme fait.', 'status' => 200], 200);
-
+        if ($resultat) {
+            $ticket->save();
+            return response()->json(['message' => 'Des commentaires ont été ajouté', 'status' => 200], 200);
+        } else {
+            return response()->json(['message' => 'Erreur lors de la modification du ticket.'], 500);
+        }
     }
+    
+    
+    
     public function show($id)
     {
         $ticket = TicketReparation::join('demande_materiel', 'ticketReparation.id_demande', '=', 'demande_materiel.id_demande')

@@ -43,40 +43,42 @@ class MaterielController extends Controller
     }
     public function listeMateriel()
     {
-        $user = Auth::user();
+      $user = Auth::user();
     
-        if ($user) {
-            // Utiliser l'id de l'utilisateur dans la requête
-            $id_demandeur = DB::table('demandeurs')
-                ->join('users', 'demandeurs.id_user', '=', 'users.id')
-                ->where('demandeurs.id_user', $user->id)
-                ->value('demandeurs.id_demandeur');
+      if ($user) {
+        $id_demandeur = DB::table('demandeurs')
+          ->join('users', 'demandeurs.id_user', '=', 'users.id')
+          ->where('demandeurs.id_user', $user->id)
+          ->value('demandeurs.id_demandeur');
     
-            if ($id_demandeur) {
-                // L'utilisateur est authentifié, et $id_demandeur contient l'id_demandeur correspondant
-                $results = DB::table('materiels')
-                    ->leftJoin('demande_materiel', 'materiels.num_serie', '=', 'demande_materiel.num_serie')
-                    ->leftJoin('ticketReparation', 'demande_materiel.id_demande', '=', 'ticketReparation.id_demande')
-                    ->where('materiels.id_demandeur',  $id_demandeur)
-                    ->where(function ($query) {
-                        $query->whereNull('demande_materiel.num_serie') // Matériels non inscrits dans demande_materiel
-                            ->orWhere('ticketReparation.statut_actuel', 'Fait'); // Matériels réparés dans ticketReparation
-                    })
-                    ->get();
+        if ($id_demandeur) {
+          $materiels = DB::table('materiels')
+            ->leftJoin('demande_materiel', 'materiels.num_serie', '=', 'demande_materiel.num_serie')
+            ->leftJoin('ticketReparation', 'demande_materiel.id_demande', '=', 'ticketReparation.id_demande')
+            ->where('materiels.id_demandeur', $id_demandeur)
+            ->where(function ($query) {
+              $query->whereNull('demande_materiel.num_serie')
+                ->orWhere('ticketReparation.statut_actuel', 'Fait');
+            })
+            ->select('materiels.*', 'demande_materiel.id_demande', 'ticketReparation.statut_actuel')
+            ->get()
+            ->unique('num_serie');
     
-                return response()->json([
-                    'materiels' => $results,
-                    'status' => 200
-                ], 200);
-            }
+          return response()->json([
+            'materiels' => $materiels,
+            'status' => 200
+          ], 200);
         }
+      }
     
-        // L'utilisateur n'est pas authentifié ou $id_demandeur est null, gérer en conséquence
-        return response()->json([
-            'materiels' => [],
-            'status' => 404 // Vous pouvez ajuster le statut en fonction de votre logique
-        ], 404);
+      return response()->json([
+        'materiels' => [],
+        'status' => 404
+      ], 404);
     }
+    
+    
+    
     
     
     

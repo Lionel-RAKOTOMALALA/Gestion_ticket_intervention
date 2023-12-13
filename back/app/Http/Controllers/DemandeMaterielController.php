@@ -80,7 +80,7 @@ class DemandeMaterielController extends Controller
             ]);
     
             Notification::create([
-                'type_notif' => 'nouvelle_demande',
+                'type_notif' => 'Nouvelle demande',
                 'id_demande' => $id_demande,
                 'date_creation' => now(),
                 'phrase' => 'L\'utilisateur ' . Auth::user()->username .' vient de faire une demande de réparation',
@@ -207,7 +207,10 @@ public function update(Request $request, $id)
 {
     try {
         $demande = DemandeMateriel::find($id);
-
+        $demandeurId = DB::table('demandeurs')
+        ->join('users', 'demandeurs.id_user', '=', 'users.id')
+        ->where('demandeurs.id_user', Auth::id())
+        ->value('demandeurs.id_demandeur');
         if (!$demande) {
             return response()->json([
                 'message' => "La demande de matériel n'existe pas",
@@ -232,7 +235,7 @@ public function update(Request $request, $id)
                 $demande->etat_materiel = $request->etat_materiel;
                 $demande->description_probleme = $request->description_probleme;
                 $demande->num_serie = $request->num_serie;
-                $demande->id_demandeur = $request->id_demandeur;
+                $demande->id_demandeur = $demandeurId;
                 // Update other fields if necessary
                 $demande->save();
 
@@ -245,12 +248,7 @@ public function update(Request $request, $id)
 
                 // Log the notification
                 $notificationPhrase = $this->getNotificationPhrase('mise_a_jour_demande');
-                Notification::create([
-                    'type_notif' => 'mise_a_jour_demande',
-                    'id_demande' => $demande->id_demande,
-                    'date_creation' => now(),
-                    'phrase' => $notificationPhrase,
-                ]);
+                
 
                 return response()->json([
                     'message' => "Les informations de la demande de matériel ont été mises à jour avec succès",
@@ -332,7 +330,7 @@ public function rejectDemande(Request $request, $id)
     private function getNotificationPhrase($type_notif)
     {
         $phrases = [
-            'nouvelle_demande' => 'Nouvelle demande de matériel créée.',
+            'Nouvelle demande' => 'Nouvelle demande de matériel créée.',
             'mise_a_jour_demande' => 'Demande de matériel mise à jour.',
             'suppression_demande' => 'Demande de matériel supprimée.',
             // Ajoutez d'autres types de notification si nécessaire
