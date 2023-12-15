@@ -497,11 +497,11 @@ $entreprise = DB::table('entreprises')
     
         if ($user->role_user == 1) {
             // Admin user: Fetch notifications of type 'nouvelle_demande'
-            $query->whereIn('n.type_notif', ['nouvelle_demande']);
+            $query->whereIn('n.type_notif', ['nouvelle demande']);
         } else {
             // Non-admin user: Fetch notifications of type 'validation_demande' for the logged-in user
             $query->where('u.id', $user->id)
-                ->whereIn('n.type_notif', ['validation_demande']);
+                ->whereIn('n.type_notif', ['validation de la demande']);
         }
     
         $results = $query->get();
@@ -513,11 +513,11 @@ $entreprise = DB::table('entreprises')
     
         if ($user->role_user == 1) {
             // Admin user
-            $count->whereIn('notifications.type_notif', ['nouvelle_demande']);
+            $count->whereIn('notifications.type_notif', ['nouvelle demande']);
         } else {
             // Non-admin user
             $count->where('users.id', $user->id)
-                ->whereIn('notifications.type_notif', ['validation_demande']);
+                ->whereIn('notifications.type_notif', ['validation de la demande']);
         }
     
         $count = $count->where('notifications.status_notif', '=', 0)

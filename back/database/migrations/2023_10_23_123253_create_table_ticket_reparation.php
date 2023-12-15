@@ -21,6 +21,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_piece')->nullable();
             $table->text('intervention_faite')->nullable();
             $table->text('suite_a_donnee')->nullable();
+            $table->text('retour_utilisateur')->nullable();
             $table->timestamps(); // Ajoute les colonnes created_at et updated_at
     
             // Clés étrangères correctement spécifiées

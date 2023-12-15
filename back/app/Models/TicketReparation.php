@@ -23,6 +23,7 @@ class TicketReparation extends Model
         'id_piece', // Nom de la clé étrangère correspondant à 'id_piece'
         'intervention_faite', // Nouvelle colonne
         'suite_a_donnee', // Nouvelle colonne
+        'retour_utilisateur',
     ];
 
     // Définissez la clé primaire

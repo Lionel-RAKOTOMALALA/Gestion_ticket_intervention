@@ -130,6 +130,30 @@ class TicketController extends Controller
             return response()->json(['message' => 'Erreur lors de la modification du ticket.'], 500);
         }
     }
+    public function retour_user(Request $request, $id)
+    {
+        $ticket = TicketReparation::find($id);
+    
+        if (!$ticket) {
+            return response()->json(['message' => 'Ticket non trouvée.'], 404);
+        }
+    
+        // Vérification des données du formulaire
+        if (!is_string($request->retour_utilisateur)) {
+            return response()->json(['message' => 'La valeur de intervention_faite doit être une chaîne de caractères.'], 422);
+        }
+    
+        $resultat = $ticket->update([
+            'retour_utilisateur' => $request->retour_utilisateur,
+        ]);
+    
+        if ($resultat) {
+            $ticket->save();
+            return response()->json(['message' => 'Votre commentaire a été envoyé', 'status' => 200], 200);
+        } else {
+            return response()->json(['message' => 'Erreur lors de la modification du ticket.'], 500);
+        }
+    }
     
     
     

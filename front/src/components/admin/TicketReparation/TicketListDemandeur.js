@@ -12,6 +12,14 @@ import {
   IconButton,
   Typography,
   Paper,
+  Menu,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
 } from '@mui/material';
 import { red } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -47,6 +55,8 @@ export default function TicketList() {
   const [expanded, setExpanded] = useState({});
   const [imageLoading, setImageLoading] = useState({});
   const [favoriteColors, setFavoriteColors] = useState({});
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -74,6 +84,23 @@ export default function TicketList() {
       setLoading(false);
       console.error("Error fetching data:", error);
     }
+  };
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleOptionClick = () => {
+    setOpenModal(true);
+    handleMenuClose();
+  };
+
+  const handleModalClose = () => {
+    setOpenModal(false);
   };
 
   const loadImage = async (id, imageUrl) => {
@@ -151,10 +178,24 @@ export default function TicketList() {
             <StyledCard>
               <CardHeader
                 avatar={<Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">COP</Avatar>}
-                action={<IconButton aria-label="settings"><MoreVertIcon /></IconButton>}
+                action={
+                  <div>
+                    <IconButton aria-label="settings" onClick={handleMenuClick}>
+                      <MoreVertIcon />
+                    </IconButton>
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={Boolean(anchorEl)}
+                      onClose={handleMenuClose}
+                    >
+                      <MenuItem onClick={handleOptionClick}>Ajoutez un commentaire</MenuItem>
+                    </Menu>
+                  </div>
+                }
                 title={<Typography color="#2f545d">{`Ticket #${ticket.id_ticket}`}</Typography>}
                 subheader={<Typography color="#2f545d">{ticket.date_creation}</Typography>}
               />
+
               <CardMedia
                 component="img"
                 height="200"
@@ -213,6 +254,35 @@ export default function TicketList() {
             </StyledCard>
           </Grid>
         ))}
+
+<Dialog open={openModal} onClose={handleModalClose} fullWidth maxWidth="md">
+  <DialogTitle style={{ backgroundColor: 'rgba(33, 150, 243, 0.9)', color: '#fff' }}>Ajouter un commentaire</DialogTitle>
+  <DialogContent>
+    <Card style={{ backdropFilter: 'blur(10px)', backgroundColor: 'rgba(255, 255, 255, 0.8)', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', borderRadius: '12px', overflow: 'hidden', marginTop: '2%', border: 'none' }}>
+      <CardContent>
+        <TextField
+          autoFocus
+          margin="dense"
+          label="Commentaire"
+          type="text"
+          fullWidth
+          multiline
+          rows={4}
+          placeholder="Saisissez votre commentaire ici..."
+        />
+      </CardContent>
+    </Card>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={handleModalClose} style={{ color: '#2196f3' }}>
+      Annuler
+    </Button>
+    <Button onClick={handleModalClose} color="primary">
+      Ajouter
+    </Button>
+  </DialogActions>
+</Dialog>
+
     </Grid>
   );
 }
